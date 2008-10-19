@@ -33,7 +33,7 @@ Option Explicit
 'figures
 Private NoOfPlayer As Byte
 Private NoOfBricks As Byte 'per player
-Private Player() As clsPlayer
+Private Players() As clsPlayer
 Private Blocker() As Brick
 Private Dimensions As Byte
 
@@ -57,7 +57,7 @@ Sub checkFrontWall(pos As Position, direction As Byte)
 
 End Sub
 
-Sub checkPlaceWall(Walls() As Brick, Player() As Position, Dimension, newPos As Brick)
+Sub checkPlaceWall(newPos As Brick)
     'for-counter
     Dim i As Byte
     Dim i2 As Integer
@@ -92,12 +92,12 @@ Sub checkPlaceWall(Walls() As Brick, Player() As Position, Dimension, newPos As 
         For b = 0 To 1
             'running ccw
             'x
-            RunnedFields(i + switch(Not b, 0, b, 4), 0).Position(0) = switch( _
+            RunnedFields(i + Switch(Not b, 0, b, 4), 0).Position(0) = Switch( _
                                                                             i = 0 Or i = 1, newPos.Position(0), _
                                                                             i = 2 Or i = 3, newPos.Position(0) + 1 _
                                                                             )
             'y
-            RunnedFields(i + switch(Not b, 0, b, 4), 0).Position(1) = switch( _
+            RunnedFields(i + Switch(Not b, 0, b, 4), 0).Position(1) = Switch( _
                                                                             i = 0 Or i = 3, newPos.Position(0), _
                                                                             i = 1 Or i = 2, newPos.Position(0) + 1 _
                                                                             )
@@ -130,12 +130,16 @@ Sub create(NoOfPl As Byte, NoOfBr As Byte, Dimension As Byte)
     Dim pStarts(3) As Position
     Dim i As Byte
     
-    'check input value of NoOfPl if not between 2 and 4 set to 2
-    NoOfPlayer = switch(NoOfPl <= 4 And NoOfPl > 1, NoOfPl, True, 2)
+    'check input value of NoOfPl if not 4 set to 2
+    NoOfPlayer = Switch(NoOfPl = 4, 4, True, 2)
     NoOfBricks = NoOfBr
     Dimensions = Dimension
     
+    
     ReDim Player(NoOfPlayer - 1)
+    For i = 0 To NoOfPlayer - 1
+        Set Player(i) = New clsPlayer
+    Next i
     
     'calc player starts - players counted ccw
     pStarts(0).Position(0) = pStarts(1).Position(1) = Dimension / 2
@@ -150,13 +154,13 @@ Sub create(NoOfPl As Byte, NoOfBr As Byte, Dimension As Byte)
                       'if two players playing
         End If
         'running create routine
-        Call Player.create(pStarts(i).Position(0), pStarts(i).Position(1), NoOfBricks, _
-            switch( _
+        Call Player(i).create(pStarts(i).Position(0), pStarts(i).Position(1), NoOfBricks, _
+            Switch( _
                 i = 0, 2, _
                 i = 1, 3, _
                 i = 2, 0, _
                 i = 3, 1))
-        Next i
+    Next i
     
     'reserve space for blockers
     ReDim Blocker(NoOfPlayer * NoOfBricks - 1)
