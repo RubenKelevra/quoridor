@@ -183,17 +183,19 @@ Sub create(NoOfPl As Byte, NoOfBr As Byte, Dimension As Byte)
     Dim pStarts(3) As Position
     Dim i As Byte
     
-    'convert a 1 started number to a 0 started
-    Dimension = Dimension - 1
     
-    'check input value of NoOfPl if not 4 set to 2
+    'check input value of NoOfPl if not 4 set to 2 - started with 0
     NoOfPlayer = Switch(NoOfPl = 4, 4, True, 2)
     NoOfBricks = NoOfBr
-    Dimensions = Dimension
+    'if the dimension is smaller than the NoOfPlayer the field will be made bigger
+    Dimensions = Switch(Dimension < NoOfPlayer, NoOfPlayer, True, Dimension)
     
+    'convert a 1 started number to a 0 started
+    Dimension = Dimension - 1
+    NoOfPlayer = NoOfPlayer - 1
     
-    ReDim Player(NoOfPlayer - 1)
-    For i = 0 To NoOfPlayer - 1
+    ReDim Player(NoOfPlayer)
+    For i = 0 To NoOfPlayer
         Set Player(i) = New clsPlayer
     Next i
     
