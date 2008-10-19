@@ -38,7 +38,7 @@ Private GlobalPlaytime As Long 'per round playtime added at the end of a round
 Private RemainingStones As Byte
 Private TargetWall As Byte
 
-Function getLocation() As Position
+Public Function getLocation() As Position
     getLocation = Location
 End Function
 
