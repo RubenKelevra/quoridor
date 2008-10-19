@@ -36,6 +36,7 @@ Private NoOfBricks As Byte 'per player
 Private Players() As clsPlayer
 Private Blocker() As Brick
 Private Dimensions As Byte
+Private activePlayer As Byte
 
 'for constructs
 Dim i As Integer
@@ -129,6 +130,8 @@ End Function
 Sub create(NoOfPl As Byte, NoOfBr As Byte, Dimension As Byte)
     Dim pStarts(3) As Position
     Dim i As Byte
+    
+    'convert a 1 started number to a 0 started
     Dimension = Dimension - 1
     
     'check input value of NoOfPl if not 4 set to 2
