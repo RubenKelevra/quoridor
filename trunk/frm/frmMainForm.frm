@@ -267,7 +267,15 @@ End Sub
 
 Private Sub cmdMoveUp_Click()
 
-    If bSetBrick Then
+
+End Sub
+
+
+
+
+Private Sub cmdMove_Click(Index As Integer)
+
+    If bSetBrickMode Then
         
         If tTempBrick.Position(1) > 0 Then
         
@@ -280,10 +288,7 @@ Private Sub cmdMoveUp_Click()
     
     ' repaint form
     Call Form_Paint
-
 End Sub
-
-
 
 Private Sub cmdRotateBrick_Click()
 
@@ -367,7 +372,7 @@ Public Sub drawBoard()
                 Case 1:
                     Me.Line (iCurX, iCurY)- _
                                  (iCurX + iFieldsize - iBricksize, iCurY + iFieldsize - iBricksize), _
-                                  RGB(0, 0, 255), _
+                                  , _
                                   BF
                 Case 2:
                     Me.Line (iCurX, iCurY)- _
