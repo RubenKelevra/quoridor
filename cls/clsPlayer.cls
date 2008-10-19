@@ -54,7 +54,7 @@ Function Move(dir As Byte) As Boolean
                                         True, 0)
         Case 3:
             Location.Position(0) = Switch( _
-                                        Location.Position(0) - 1 >= 0, Location.Position(1) - 1, _
+                                        Location.Position(0) - 1 >= 0, Location.Position(0) - 1, _
                                         True, 0)
     End Select
     Move = Switch(0 <= dir And dir <= 3, True, True, False)
