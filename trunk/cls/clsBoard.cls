@@ -66,6 +66,14 @@ Function getDimension() As Byte
     getDimension = Dimensions
 End Function
 
+Function getPlayerlocation(b As Byte) As Position
+    If b > UBound(Players) Or b < LBound(Players) Then
+        getPlayers = Null
+    Else
+        getPlayers = Players(b).getLocation
+    End If
+End Function
+
 Function getActivePlayer() As Byte
     getActivePlayer = activePlayer
 End Function
