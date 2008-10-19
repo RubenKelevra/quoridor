@@ -37,7 +37,6 @@ Private Playtime As Long 'per round
 Private GlobalPlaytime As Long 'per round playtime added at the end of a round
 Private RemainingStones As Byte
 Private TargetWall As Byte
-Private PlayerColor As Long
 
 Function getLocation() As Position
     getLocation = Location
