@@ -207,10 +207,6 @@ Private bSetBrick As Boolean
 Private iFieldsize As Integer
 
 
-Private Sub cmdMove_Click(Index As Integer)
-    
-End Sub
-
 Private Sub cmdMoveDown_Click()
 
     If clsBoard.getTempBrickActivasion Then
