@@ -41,6 +41,27 @@ Private activePlayer As Byte
 'for constructs
 Dim i As Integer
 
+Function getPlayerColor(i As Byte) As Long
+    Select Case i
+        Case 0:
+            getPlayerColor = vbBlue
+        Case 1:
+            If noofplayers = 4 Then
+                getPlayerColor = vbGreen
+            Else
+                getPlayerColor = vbRed
+            End If
+        Case 2:
+            If noofplayers = 4 Then
+                getPlayerColor = vbRed
+            Else
+                getPlayerColor = vbGreen
+            End If
+        Case 3:
+            getPlayerColor = vbYellow
+    End Select
+End Function
+
 Function getDimension() As Byte
     getDimension = Dimensions
 End Function
