@@ -37,10 +37,9 @@ Private Playtime As Long 'per round
 Private GlobalPlaytime As Long 'per round playtime added at the end of a round
 Private RemainingStones As Byte
 Private TargetWall As Byte
-Private PlayedGamesPositions(3) As Byte
+Private PlayerColor As Long
 
 Sub GameEnded(Position As Byte)
-    playedgamesPosition(Position) = playedgamesPosition(Position) + 1 'very basic does not recognize how many players had played
     GlobalPlaytime = GlobalPlaytime + Playtime
 End Sub
 
