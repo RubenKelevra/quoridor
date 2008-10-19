@@ -1,12 +1,11 @@
 Type=Exe
-Form=frm\MainForm.frm
 Reference=*\G{00020430-0000-0000-C000-000000000046}#2.0#0#..\..\..\..\..\WINDOWS\system32\stdole2.tlb#OLE Automation
 Class=clsBoard; cls\clsBoard.cls
 Class=clsPlayer; cls\clsPlayer.cls
 Module=modCostomTypes; mod\modCostomTypes.bas
 Reference=*\G{7C0FFAB0-CD84-11D0-949A-00A0C91110ED}#1.0#0#..\..\..\..\..\WINDOWS\system32\msdatsrc.tlb#Microsoft Data Source Interfaces
-IconForm="MainForm"
-Startup="MainForm"
+Form=frm\MainForm.frm
+Startup="Sub Main"
 Command32=""
 Name="quoridor"
 HelpContextID="0"
