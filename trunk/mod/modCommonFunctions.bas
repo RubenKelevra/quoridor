@@ -19,7 +19,7 @@ Option Explicit
 ' with this program; if not, see <http://www.gnu.org/licenses/>.
 
 
-Function xy2pos(x As Byte, y As Byte) As Position
+Function xy2pos(ByVal x As Byte, ByVal y As Byte) As Position
     'convert two values to position-type, saves usualy one line
     Dim returnvalue As Position
     returnvalue.Position(0) = x

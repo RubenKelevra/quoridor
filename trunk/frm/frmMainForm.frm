@@ -263,6 +263,9 @@ End Sub
 
 Private Sub Form_Load()
     
+    Dim a As Position
+    Dim b As Position
+    
     Set Playground = New clsBoard
     Call Playground.create(4, 20, 9)        'player, bricks, fields dimension (x=y)
     bSetBrickMode = False                   'init brick option
@@ -294,7 +297,7 @@ Private Sub Form_Paint()
 End Sub
 
 Private Sub drawBoard()
-' draws the fields where on whose a player can move
+' draws the fields on which a player can move
 
     Dim BDirection As Byte
     Dim x As Byte
@@ -303,6 +306,8 @@ Private Sub drawBoard()
     Dim iCurX As Integer
     Dim iCurY As Integer
     Dim lCurColor As Long
+    Dim tDrawPos As Position
+    Dim tPlayerPos As Position
     
     BDirection = Playground.getActivePlayer
     lCurColor = lBoardcolor
@@ -316,10 +321,14 @@ Private Sub drawBoard()
             iCurY = iDrawStartY + y * iFieldsize
             
             ' draw lines
-            ' Select Case   FIXME Dennis sein bier
             For i = 0 To Playground.getNoOfPlayer
-                If comparePos(xy2pos(x, y), Playground.getPlayerlocation(i)) Then
-                    lCurColor = Playground.getPlayerColor(i)
+                tDrawPos = xy2pos(x, y)
+                tPlayerPos = Playground.getPlayerlocation(i)
+                
+                If Not IsNull(tPlayerPos) Then
+                    If comparePos(tDrawPos, tPlayerPos) Then
+                        lCurColor = Playground.getPlayerColor(i)
+                    End If
                 End If
             Next i
 
