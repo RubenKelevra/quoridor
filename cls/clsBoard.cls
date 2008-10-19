@@ -183,16 +183,11 @@ Sub create(NoOfPl As Byte, NoOfBr As Byte, Dimension As Byte)
     Dim pStarts(3) As Position
     Dim i As Byte
     
-    
     'check input value of NoOfPl if not 4 set to 2 - started with 0
-    NoOfPlayer = Switch(NoOfPl = 4, 4, True, 2)
+    NoOfPlayer = Switch(NoOfPl = 3, 3, True, 1)
     NoOfBricks = NoOfBr
     'if the dimension is smaller than the NoOfPlayer the field will be made bigger
     Dimensions = Switch(Dimension < NoOfPlayer, NoOfPlayer, True, Dimension)
-    
-    'convert a 1 started number to a 0 started
-    Dimension = Dimension - 1
-    NoOfPlayer = NoOfPlayer - 1
     
     ReDim Players(NoOfPlayer)
     For i = 0 To NoOfPlayer
@@ -226,7 +221,7 @@ Sub create(NoOfPl As Byte, NoOfBr As Byte, Dimension As Byte)
     Next i
     
     'reserve space for blockers
-    ReDim Blocker(NoOfPlayer * NoOfBricks - 1)
+    ReDim Blocker(NoOfPlayer * NoOfBricks)
     
     'set blockers start values
     For i = 0 To UBound(Blocker)
