@@ -199,9 +199,13 @@ Option Explicit
 ' You should have received a copy of the GNU General Public License along
 ' with this program; if not, see <http://www.gnu.org/licenses/>.
 
+'gamedata
+Private Playground As clsBoard
+
+'formdata
 Private bSetBrick As Boolean
 Private iFieldsize As Integer
-Private Playground As clsBoard
+
 
 Private Sub cmdMove_Click(Index As Integer)
     
