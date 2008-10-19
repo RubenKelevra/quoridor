@@ -345,47 +345,6 @@ Private Sub drawBoard()
 
 End Sub
 
-Public Sub drawBoard_old()
-' draws the fields where a player can move
-
-    Dim x As Integer
-    Dim y As Integer
-    Dim iCurX As Integer
-    Dim iCurY As Integer
-    
-    For x = 0 To 8
-        For y = 0 To 8
-        
-            ' calc current coords
-            iCurX = iDrawStartX + x * iFieldsize
-            iCurY = iDrawStartY + y * iFieldsize
-            
-            ' draw lines
-            Select Case 1: 'iBoard(x, y) FIXME Dennis sein bier
-            
-                Case 1:
-                    Me.Line (iCurX, iCurY)- _
-                                 (iCurX + iFieldsize - iBricksize, iCurY + iFieldsize - iBricksize), _
-                                  RGB(0, 0, 255), _
-                                  BF
-                Case 2:
-                    Me.Line (iCurX, iCurY)- _
-                                 (iCurX + iFieldsize - iBricksize, iCurY + iFieldsize - iBricksize), _
-                                  RGB(255, 0, 0), _
-                                  BF
-                                  
-                Case Else:
-                    Me.Line (iCurX, iCurY)- _
-                                 (iCurX + iFieldsize - iBricksize, iCurY + iFieldsize - iBricksize), _
-                                  RGB(0, 0, 0), _
-                                  BF
-            End Select
-            
-        Next y
-    Next x
-
-End Sub
-
 Public Sub drawBricks()
 ' draws the bricks between the board
 
