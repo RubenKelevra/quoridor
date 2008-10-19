@@ -307,11 +307,12 @@ Private Sub drawBoard()
     Dim tPlayerPos As Position
     
     BDimension = Playground.getDimension
-    lCurColor = lBoardcolor
     
     For x = 0 To BDimension
         For y = 0 To BDimension
         
+            ' init color
+            lCurColor = lBoardcolor
         
             ' calc current coords
             iCurX = iDrawStartX + x * iFieldsize
@@ -322,7 +323,7 @@ Private Sub drawBoard()
                 tDrawPos = xy2pos(x, y)
                 tPlayerPos = Playground.getPlayerlocation(i)
                 
-                If Not IsNull(tPlayerPos) Then
+                If Not comparePos(xy2pos(255, 255), tPlayerPos) Then
                     If comparePos(tDrawPos, tPlayerPos) Then
                         lCurColor = Playground.getPlayerColor(i)
                     End If
