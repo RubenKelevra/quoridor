@@ -210,69 +210,6 @@ Private iDrawStartX As Integer
 Private iDrawStartY As Integer
 Private tTempBrick As Brick
 
-
-Private Sub cmdMoveDown_Click()
-
-    If bSetBrick Then
-        
-        If tTempBrick.Position(1) < 7 Then
-        
-            ' move right
-            tTempBrick.Position(1) = tTempBrick.Position(1) + 1
-        
-        End If
-    
-    End If
-    
-    ' repaint form
-    Call Form_Paint
-
-End Sub
-
-Private Sub cmdMoveLeft_Click()
-
-    If bSetBrick Then
-        
-        If tTempBrick.Position(0) > 0 Then
-        
-            ' move left
-            tTempBrick.Position(0) = tTempBrick.Position(0) - 1
-        
-        End If
-    
-    End If
-    
-    ' repaint form
-    Call Form_Paint
-
-End Sub
-
-Private Sub cmdMoveRight_Click()
-
-    If bSetBrick Then
-        
-        If tTempBrick.Position(0) < 7 Then
-        
-            ' move right
-            tTempBrick.Position(0) = tTempBrick.Position(0) + 1
-        
-        End If
-    
-    End If
-    
-    ' repaint form
-    Call Form_Paint
-
-End Sub
-
-Private Sub cmdMoveUp_Click()
-
-
-End Sub
-
-
-
-
 Private Sub cmdMove_Click(Index As Integer)
 
     If bSetBrickMode Then
@@ -372,7 +309,7 @@ Public Sub drawBoard()
                 Case 1:
                     Me.Line (iCurX, iCurY)- _
                                  (iCurX + iFieldsize - iBricksize, iCurY + iFieldsize - iBricksize), _
-                                  , _
+                                  RGB(0, 0, 255), _
                                   BF
                 Case 2:
                     Me.Line (iCurX, iCurY)- _
