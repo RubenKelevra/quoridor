@@ -41,6 +41,14 @@ Private activePlayer As Byte
 'for constructs
 Dim i As Integer
 
+Function getActivePlayer() As Byte
+    getActivePlayer = activePlayer
+End Function
+
+Sub NextTurn()
+    activePlayer = Switch(activePlayer < 3, activePlayer, True, 0)
+End Sub
+
 Function checkFrontWall(pos As Position, direction As Byte) As Boolean
         'if true there are a wall in front of the position and with this direction
     Dim Stone As Brick
