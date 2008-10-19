@@ -205,16 +205,20 @@ Private Playground As clsBoard
 'formdata
 Private bSetBrick As Boolean
 Private iFieldsize As Integer
+Private iBricksize As Integer
+Private iDrawStartX As Integer
+Private iDrawStartY As Integer
+Private tTempBrick As Brick
 
 
 Private Sub cmdMoveDown_Click()
 
-    If clsBoard.getTempBrickActivasion Then
+    If bSetBrick Then
         
-        If clsBoard.getTempBrickY < 7 Then
+        If tTempBrick.Position(1) < 7 Then
         
             ' move right
-            clsBoard_dennis.setTempBrickY (clsBoard_dennis.getTempBrickY + 1)
+            tTempBrick.Position(1) = tTempBrick.Position(1) + 1
         
         End If
     
@@ -227,12 +231,12 @@ End Sub
 
 Private Sub cmdMoveLeft_Click()
 
-    If clsBoard_dennis.getTempBrickActivasion Then
+    If bSetBrick Then
         
-        If clsBoard_dennis.getTempBrickX > 0 Then
+        If tTempBrick.Position(0) > 0 Then
         
             ' move left
-            clsBoard_dennis.setTempBrickX (clsBoard_dennis.getTempBrickX - 1)
+            tTempBrick.Position(0) = tTempBrick.Position(0) - 1
         
         End If
     
@@ -245,12 +249,12 @@ End Sub
 
 Private Sub cmdMoveRight_Click()
 
-    If clsBoard_dennis.getTempBrickActivasion Then
+    If bSetBrick Then
         
-        If clsBoard_dennis.getTempBrickX < 7 Then
+        If tTempBrick.Position(0) < 7 Then
         
             ' move right
-            clsBoard_dennis.setTempBrickX (clsBoard_dennis.getTempBrickX + 1)
+            tTempBrick.Position(0) = tTempBrick.Position(0) + 1
         
         End If
     
@@ -263,12 +267,12 @@ End Sub
 
 Private Sub cmdMoveUp_Click()
 
-    If clsBoard_dennis.getTempBrickActivasion Then
+    If bSetBrick Then
         
-        If clsBoard.getTempBrickY > 0 Then
+        If tTempBrick.Position(1) > 0 Then
         
             ' move right
-            clsBoard.setTempBrickY (clsBoard.getTempBrickY - 1)
+            tTempBrick.Position(1) = tTempBrick.Position(1) - 1
         
         End If
     
@@ -284,7 +288,7 @@ End Sub
 Private Sub cmdRotateBrick_Click()
 
     ' switches rotation variable
-    clsBoard.setTempBrickValign (switch(clsBoard.getTempBrickValign))
+    tTempBrick.Landscape = Not tTempBrick.Landscape
     
     ' repaint form
     Call Form_Paint
@@ -293,20 +297,19 @@ End Sub
 
 Private Sub cmdSetBrick_Click()
 
-    ' switches temp brick
-    clsBoard.setTempBrickActivasion (switch(clsBoard.getTempBrickActivasion))
-    
-    If clsBoard.getTempBrickActivasion Then
+    If bSetBrickMode Then
         
-        Me.cmdSetBrick.Caption = "OK?"
+        'FIXME: save the brick
+        
+        Me.cmdSetBrick.Caption = "set |"
         
         ' reset temp brick
-        clsBoard.setTempBrickValign (False)
-        clsBoard.setTempBrickX (0)
-        clsBoard.setTempBrickY (0)
-        
+        tTempBrick.Landscape = False
+        tTempBrick.Position = xy2pos(0, 0)
+        bSetBrickMode = False
     Else
-        Me.cmdSetBrick.Caption = "set |"
+        Me.cmdSetBrick.Caption = "OK?"
+        bSetBrickMode = True
     End If
     
     ' repaint form
@@ -319,12 +322,19 @@ Private Sub Form_Load()
     Call Playground.create(4, 20, 9)        'player, bricks, fields dimension (x=y)
     bSetBrick = False                       'init brick option
     Me.shpCurrentPlayer.FillColor = vbBlue  'init current player marker
+
+    ' init fieldsize
+    iFieldsize = 380
     
-    ' init gameboard
-    Set clsBoard = New clsBoard_dennis
-    clsBoard.setDrawStartX (Me.fraBoard.Left)
-    clsBoard.setDrawStartY (Me.fraBoard.Top)
-    Call clsBoard.calcSize(Me.fraBoard.Height, Me.fraBoard.Width)
+    ' init linesize
+    iBricksize = 50
+    
+    ' init drawing coords
+    iDrawStartX = Me.fraBoard.Left
+    iDrawStartY = Me.fraBoard.Top
+    
+    iFieldsize = (Me.fraBoard.Height + Me.fraBoard.Width) / (9 + 9)
+    iBricksize = iFieldsize / 9
 
 End Sub
 
@@ -334,4 +344,112 @@ Private Sub Form_Paint()
     clsBoard.drawBricks
     
 End Sub
+
+Public Sub drawBoard()
+' draws the fields where a player can move
+
+    Dim x As Integer
+    Dim y As Integer
+    Dim iCurX As Integer
+    Dim iCurY As Integer
+    
+    For x = 0 To 8
+        For y = 0 To 8
+        
+            ' calc current coords
+            iCurX = iDrawStartX + x * iFieldsize
+            iCurY = iDrawStartY + y * iFieldsize
+            
+            ' draw lines
+            Select Case iBoard(x, y)
+            
+                Case 1:
+                    Me.Line (iCurX, iCurY)- _
+                                 (iCurX + iFieldsize - iBricksize, iCurY + iFieldsize - iBricksize), _
+                                  RGB(0, 0, 255), _
+                                  BF
+                Case 2:
+                    Me.Line (iCurX, iCurY)- _
+                                 (iCurX + iFieldsize - iBricksize, iCurY + iFieldsize - iBricksize), _
+                                  RGB(255, 0, 0), _
+                                  BF
+                                  
+                Case Else:
+                    Me.Line (iCurX, iCurY)- _
+                                 (iCurX + iFieldsize - iBricksize, iCurY + iFieldsize - iBricksize), _
+                                  RGB(0, 0, 0), _
+                                  BF
+            End Select
+            
+        Next y
+    Next x
+
+End Sub
+
+Public Sub drawBricks()
+' draws the bricks between the board
+
+    Dim x As Integer
+    Dim y As Integer
+    Dim iCurX As Integer
+    Dim iCurY As Integer
+    
+    ' horizontal
+    For x = 0 To 8
+        For y = 0 To 7
+        
+            ' calc current coords
+            iCurX = iDrawStartX + x * iFieldsize
+            iCurY = iDrawStartY + (y + 1) * iFieldsize - iBricksize
+            
+            If tTempBrick.Placed And Not tTempBrick.Landscape And _
+               ((x = tTempBrick.Position(0) And y = tTempBrick.Position(1)) Or _
+               (x = tTempBrick.Position(0) + 1 And y = tTempBrick.Position(1))) _
+            Then
+                ' draw temp brick
+                frmMainForm.Line (iCurX, iCurY)- _
+                             (iCurX + iFieldsize - iBricksize, iCurY + iBricksize), _
+                              RGB(0, 192, 0), _
+                              BF
+            Else
+                ' draw neutral brick
+                frmMainForm.Line (iCurX, iCurY)- _
+                             (iCurX + iFieldsize - iBricksize, iCurY + iBricksize), _
+                              &H8000000F, _
+                              BF
+            End If
+        
+        Next y
+    Next x
+    
+    ' vertical
+    For x = 0 To 7
+        For y = 0 To 8
+        
+            ' calc current coords
+            iCurX = iDrawStartX + (x + 1) * iFieldsize - iBricksize
+            iCurY = iDrawStartY + y * iFieldsize
+            
+            If tTempBrick.Placed And tTempBrick.Landscape And _
+               ((x = tTempBrick.Position(0) And y = tTempBrick.Position(1)) Or _
+               (x = tTempBrick.Position(0) And y = tTempBrick.Position(1) + 1)) _
+            Then
+                ' draw line to set
+                frmMainForm.Line (iCurX, iCurY)- _
+                             (iCurX + iBricksize, iCurY + iFieldsize - iBricksize), _
+                              RGB(0, 192, 0), _
+                              BF
+            Else
+                ' draw neutral lines
+                frmMainForm.Line (iCurX, iCurY)- _
+                             (iCurX + iBricksize, iCurY + iFieldsize - iBricksize), _
+                              &H8000000F, _
+                              BF
+            End If
+        
+        Next y
+    Next x
+
+End Sub
+
 
