@@ -70,7 +70,7 @@ Function getPlayerlocation(i As Byte) As Position
     On Error GoTo OutOfIndex
     getPlayerlocation = Players(i).getLocation
 OutOfIndex:
-    getPlayerlocation = Null
+    getPlayerlocation = xy2pos(255, 255)
 End Function
 
 Function getActivePlayer() As Byte
