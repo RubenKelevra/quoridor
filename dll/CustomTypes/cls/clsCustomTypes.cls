@@ -6,14 +6,14 @@ BEGIN
   DataSourceBehavior  = 0  'vbNone
   MTSTransactionMode  = 0  'NotAnMTSObject
 END
-Attribute VB_Name = "clsCostomTypes"
+Attribute VB_Name = "clsCustomTypes"
 Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = True
 Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = True
 Option Explicit
 
-' dll/cls/clsCostomTypes.cls - Part of Quoridor http://code.google.com/p/quoridor/
+' dll/cls/clsCustomTypes.cls - Part of Quoridor http://code.google.com/p/quoridor/
 '
 ' Copyright (C) 2008 Quoridor VB-Project Team
 '
