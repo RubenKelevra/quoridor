@@ -263,9 +263,6 @@ End Sub
 
 Private Sub Form_Load()
     
-    Dim a As Position
-    Dim b As Position
-    
     Set Playground = New clsBoard
     Call Playground.create(4, 5, 9)      'player, bricks, fields dimension (x=y)
     bSetBrickMode = False                   'init brick option
@@ -299,7 +296,7 @@ End Sub
 Private Sub drawBoard()
 ' draws the fields on which a player can move
 
-    Dim BDirection As Byte
+    Dim BDimension As Byte
     Dim x As Byte
     Dim y As Byte
     Dim i As Byte
@@ -309,11 +306,11 @@ Private Sub drawBoard()
     Dim tDrawPos As Position
     Dim tPlayerPos As Position
     
-    BDirection = Playground.getActivePlayer
+    BDimension = Playground.getDimension
     lCurColor = lBoardcolor
     
-    For x = 0 To BDirection
-        For y = 0 To BDirection
+    For x = 0 To BDimension
+        For y = 0 To BDimension
         
         
             ' calc current coords
