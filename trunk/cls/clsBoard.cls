@@ -40,78 +40,77 @@ Private Dimensions As Byte
 'for constructs
 Dim i As Integer
 
-'Function checkFrontWall(pos As Position, direction As Byte) As Boolean
-'    'if true there are a wall in front of the position and with this direction
-'    Dim Stone As Brick
-'
-'    For Each Stone In Blocker()
-'        If (Stone.Position(0) = 255 Or Stone.Position(0) = 255) Then
-'            Exit For
-'        End If
+Sub checkFrontWall(pos As Position, direction As Byte)
+        'if true there are a wall in front of the position and with this direction
+    Dim Stone As Brick
+
+    For Each Stone In Blocker()
+        If (Stone.Position(0) = 255 Or Stone.Position(0) = 255) Then
+            Exit For
+        End If
         'delete this
         'If (st.Position = pos.Position And ((st.Landscape And direction = 2) Or (Not st.Landscape And direction = 1))) Then
-'        if
-'
-'
-'    Next Stone
-'
-'
-'End Function
+        'if
 
-'Function checkPlaceWall(Walls() As Brick, Player() As Position, Dimension, newPos As Brick) As Boolean
-'    'for-counter
-'    Dim i As Byte
-'    Dim i2 As Integer
-'    Dim b As Boolean
-'
-'    'state variables
-'    Dim ended As Boolean
-'
-'    'use with care! theoretical max 8192 Byte memspace if field dimension is set to 256 don't know if VB can handle this big
-'    Dim RunnedFields(7, Dimension * 2 - 1) As Position
-'    '0 = aborted - touched neighbor field
-'    '1 = field touched were we had started - ccw around
-'    '2 = field touched were we had started - cw around
-'    '3 = target wall reached
-'    Dim RunningResults(7) As Byte
-'    'saves the right and left turns while running, so we can determine if we run ccw or cw
-'    Dim rightLeftCount As Byte
-'    'saves the actual running direction
-'    Dim direction As Byte
-'
-'    For i = 0 To 7
-'        For i2 = 0 To Dimension * 2 - 1
-'            For b = 0 To 1
-'                RunnedFields(i, i2).Position(b) = 255
-'            Next b
-'        Next i2
-'    Next i
-'
-'
-'    For i = 0 To 3 'position around the new wall
-'        'setting startfield
-'        For b = 0 To 1
-'            'running ccw
-'            'x
-'            RunnedFields(i + switch(Not b, 0, b, 4), 0).Position(0) = switch( _
-'                                                                            i = 0 Or i = 1, newPos.Position(0), _
-'                                                                            i = 2 Or i = 3, newPos.Position(0) + 1 _
-'                                                                            )
-'            'y
-'            RunnedFields(i + switch(Not b, 0, b, 4), 0).Position(1) = switch( _
-'                                                                            i = 0 Or i = 3, newPos.Position(0), _
-'                                                                            i = 1 Or i = 2, newPos.Position(0) + 1 _
-'                                                                            )
-'        Next b
-'        For b = 0 To 1 'directions per position
-'            ended = False
-'
-'            Do
-'
-'            While ended
-'        Next b
-'    Next i
-'End Function
+
+    Next Stone
+
+End Sub
+
+Sub checkPlaceWall(Walls() As Brick, Player() As Position, Dimension, newPos As Brick)
+    'for-counter
+    Dim i As Byte
+    Dim i2 As Integer
+    Dim b As Boolean
+
+    'state variables
+    Dim ended As Boolean
+
+    'use with care! theoretical max 8192 Byte memspace if field dimension is set to 256 don't know if VB can handle this big
+    Dim RunnedFields(7, Dimension * 2 - 1) As Position
+    '0 = aborted - touched neighbor field
+    '1 = field touched were we had started - ccw around
+    '2 = field touched were we had started - cw around
+    '3 = target wall reached
+    Dim RunningResults(7) As Byte
+    'saves the right and left turns while running, so we can determine if we run ccw or cw
+    Dim rightLeftCount As Byte
+    'saves the actual running direction
+    Dim direction As Byte
+
+    For i = 0 To 7
+        For i2 = 0 To Dimension * 2 - 1
+            For b = 0 To 1
+                RunnedFields(i, i2).Position(b) = 255
+            Next b
+        Next i2
+    Next i
+
+
+    For i = 0 To 3 'position around the new wall
+        'setting startfield
+        For b = 0 To 1
+            'running ccw
+            'x
+            RunnedFields(i + switch(Not b, 0, b, 4), 0).Position(0) = switch( _
+                                                                            i = 0 Or i = 1, newPos.Position(0), _
+                                                                            i = 2 Or i = 3, newPos.Position(0) + 1 _
+                                                                            )
+            'y
+            RunnedFields(i + switch(Not b, 0, b, 4), 0).Position(1) = switch( _
+                                                                            i = 0 Or i = 3, newPos.Position(0), _
+                                                                            i = 1 Or i = 2, newPos.Position(0) + 1 _
+                                                                            )
+        Next b
+        For b = 0 To 1 'directions per position
+            ended = False
+
+            Do
+
+            While ended
+        Next b
+    Next i
+End Sub
 
 Function getNameOfPlayer(i As Byte) As String
     On Error GoTo OutOfIndex
