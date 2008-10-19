@@ -167,7 +167,7 @@ End Function
 
 Function getNameOfPlayer(i As Byte) As String
     On Error GoTo OutOfIndex
-    getNameOfPlayer = Player(i).getPlayerName
+    getNameOfPlayer = Players(i).getPlayerName
 OutOfIndex:
     getNameOfPlayer = ""
 End Function
@@ -194,9 +194,9 @@ Sub create(NoOfPl As Byte, NoOfBr As Byte, Dimension As Byte)
     Dimension = Dimension - 1
     NoOfPlayer = NoOfPlayer - 1
     
-    ReDim Player(NoOfPlayer)
+    ReDim Players(NoOfPlayer)
     For i = 0 To NoOfPlayer
-        Set Player(i) = New clsPlayer
+        Set Players(i) = New clsPlayer
     Next i
     
     'calc player starts - players counted ccw
@@ -211,13 +211,13 @@ Sub create(NoOfPl As Byte, NoOfBr As Byte, Dimension As Byte)
     pStarts(3).Position(1) = Dimension - (Dimension / 2)
     
     'set player starts
-    For i = LBound(Player) To UBound(Player)
+    For i = LBound(Players) To UBound(Players)
         If NoOfPlayer = 2 And i = 1 Then
             i = i + 1 'change 2th player's startposition to 3rd players's
                       'if two players playing
         End If
         'running create routine
-        Call Player(i).create(pStarts(i).Position(0), pStarts(i).Position(1), NoOfBricks, _
+        Call Players(i).create(pStarts(i).Position(0), pStarts(i).Position(1), NoOfBricks, _
             Switch( _
                 i = 0, 2, _
                 i = 1, 3, _
