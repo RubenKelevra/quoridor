@@ -203,7 +203,7 @@ Option Explicit
 Private Playground As clsBoard
 
 'formdata
-Private bSetBrick As Boolean
+Private bSetBrickMode As Boolean
 Private iFieldsize As Integer
 Private iBricksize As Integer
 Private iDrawStartX As Integer
@@ -263,7 +263,7 @@ Private Sub Form_Load()
     
     Set Playground = New clsBoard
     Call Playground.create(4, 20, 9)        'player, bricks, fields dimension (x=y)
-    bSetBrick = False                       'init brick option
+    bSetBrickMode = False                   'init brick option
     Me.shpCurrentPlayer.FillColor = vbBlue  'init current player marker
 
     ' init fieldsize
