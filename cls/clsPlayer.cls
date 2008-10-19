@@ -39,6 +39,10 @@ Private RemainingStones As Byte
 Private TargetWall As Byte
 Private PlayerColor As Long
 
+Function getLocation() As Position
+    getLocation = Location
+End Function
+
 Sub GameEnded(Position As Byte)
     GlobalPlaytime = GlobalPlaytime + Playtime
 End Sub

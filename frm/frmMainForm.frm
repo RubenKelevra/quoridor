@@ -208,6 +208,7 @@ Private iFieldsize As Integer
 Private iBricksize As Integer
 Private iDrawStartX As Integer
 Private iDrawStartY As Integer
+Private lBoardcolor As Long
 Private tTempBrick As Brick
 
 Private Sub cmdMove_Click(Index As Integer)
@@ -278,7 +279,10 @@ Private Sub Form_Load()
     
     iFieldsize = (Me.fraBoard.Height + Me.fraBoard.Width) / (9 + 9)
     iBricksize = iFieldsize / 9
-
+    
+    ' init color
+    lBoardcolor = RGB(0, 0, 0)
+    
 End Sub
 
 Private Sub Form_Paint()
@@ -288,7 +292,47 @@ Private Sub Form_Paint()
     
 End Sub
 
-Public Sub drawBoard()
+Private Sub drawBoard()
+' draws the fields where on whose a player can move
+
+    Dim BDirection As Byte
+    Dim x As Integer
+    Dim y As Integer
+    Dim i As Integer
+    Dim iCurX As Integer
+    Dim iCurY As Integer
+    Dim lCurColor As Long
+    
+    BDirection = Playground.getActivePlayer
+    lCurColor = lBoardcolor
+    
+    For x = 0 To BDirection
+        For y = 0 To BDirection
+        
+        
+            ' calc current coords
+            iCurX = iDrawStartX + x * iFieldsize
+            iCurY = iDrawStartY + y * iFieldsize
+            
+            ' draw lines
+            ' Select Case   FIXME Dennis sein bier
+            For i = 0 To Playground.getNoOfPlayer
+                If xy2pos(x, y) = Playground.getPlayerlocation(i) Then
+                    lCurColor = Playground.getPlayerColor(i)
+                End If
+            Next i
+
+            Me.Line (iCurX, iCurY)- _
+                         (iCurX + iFieldsize - iBricksize, iCurY + iFieldsize - iBricksize), _
+                          lCurColor, _
+                          BF
+            
+        Next y
+    Next x
+
+End Sub
+
+Public Sub drawBoard_old()
 ' draws the fields where a player can move
 
     Dim x As Integer
