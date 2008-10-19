@@ -181,7 +181,7 @@ Option Explicit
 
 Private bSetBrick As Boolean
 Private iFieldsize As Integer
-Private clsBoard As clsBoard
+Private clsBoard As clsBoard_dennis
 
 Private Sub cmdMoveDown_Click()
 
@@ -190,7 +190,7 @@ Private Sub cmdMoveDown_Click()
         If clsBoard.getTempBrickY < 7 Then
         
             ' move right
-            clsBoard.setTempBrickY (clsBoard.getTempBrickY + 1)
+            clsBoard_dennis.setTempBrickY (clsBoard_dennis.getTempBrickY + 1)
         
         End If
     
@@ -203,12 +203,12 @@ End Sub
 
 Private Sub cmdMoveLeft_Click()
 
-    If clsBoard.getTempBrickActivasion Then
+    If clsBoard_dennis.getTempBrickActivasion Then
         
-        If clsBoard.getTempBrickX > 0 Then
+        If clsBoard_dennis.getTempBrickX > 0 Then
         
             ' move left
-            clsBoard.setTempBrickX (clsBoard.getTempBrickX - 1)
+            clsBoard_dennis.setTempBrickX (clsBoard_dennis.getTempBrickX - 1)
         
         End If
     
@@ -221,12 +221,12 @@ End Sub
 
 Private Sub cmdMoveRight_Click()
 
-    If clsBoard.getTempBrickActivasion Then
+    If clsBoard_dennis.getTempBrickActivasion Then
         
-        If clsBoard.getTempBrickX < 7 Then
+        If clsBoard_dennis.getTempBrickX < 7 Then
         
             ' move right
-            clsBoard.setTempBrickX (clsBoard.getTempBrickX + 1)
+            clsBoard_dennis.setTempBrickX (clsBoard_dennis.getTempBrickX + 1)
         
         End If
     
@@ -239,7 +239,7 @@ End Sub
 
 Private Sub cmdMoveUp_Click()
 
-    If clsBoard.getTempBrickActivasion Then
+    If clsBoard_dennis.getTempBrickActivasion Then
         
         If clsBoard.getTempBrickY > 0 Then
         
@@ -258,7 +258,7 @@ End Sub
 Private Sub cmdRotateBrick_Click()
 
     ' switches rotation variable
-    clsBoard.setTempBrickValign (Switch(clsBoard.getTempBrickValign))
+    clsBoard.setTempBrickValign (switch(clsBoard.getTempBrickValign))
     
     ' repaint form
     Call Form_Paint
@@ -268,7 +268,7 @@ End Sub
 Private Sub cmdSetBrick_Click()
 
     ' switches temp brick
-    clsBoard.setTempBrickActivasion (Switch(clsBoard.getTempBrickActivasion))
+    clsBoard.setTempBrickActivasion (switch(clsBoard.getTempBrickActivasion))
     
     If clsBoard.getTempBrickActivasion Then
         
@@ -291,8 +291,8 @@ End Sub
 Private Sub Form_Load()
     
     'FIXME imported from other projectfile
-    Dim Board As clsBoard
-    Call Board.create(4, 5, 9) '4 player; 5 blocker; 9 fields dimension
+'    Dim Board As clsBoard
+'    Call Board.create(4, 5, 9) '4 player; 5 blocker; 9 fields dimension
     
     
     
@@ -303,7 +303,7 @@ Private Sub Form_Load()
     Me.shpCurrentPlayer.FillColor = vbBlue
     
     ' init gameboard
-    Set clsBoard = New clsBoard
+    Set clsBoard = New clsBoard_dennis
     clsBoard.setDrawStartX (Me.fraBoard.Left)
     clsBoard.setDrawStartY (Me.fraBoard.Top)
     Call clsBoard.calcSize(Me.fraBoard.Height, Me.fraBoard.Width)
