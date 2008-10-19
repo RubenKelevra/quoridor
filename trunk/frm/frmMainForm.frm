@@ -317,7 +317,7 @@ Private Sub drawBoard()
             ' draw lines
             ' Select Case   FIXME Dennis sein bier
             For i = 0 To Playground.getNoOfPlayer
-                If xy2pos(x, y) = Playground.getPlayerlocation(i) Then
+                If comparePos(xy2pos(x, y), Playground.getPlayerlocation(i)) Then
                     lCurColor = Playground.getPlayerColor(i)
                 End If
             Next i
