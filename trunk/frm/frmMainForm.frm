@@ -319,6 +319,7 @@ End Sub
 
 Private Sub Form_Load()
     
+    Set Playground = New clsBoard
     Call Playground.create(4, 20, 9)        'player, bricks, fields dimension (x=y)
     bSetBrick = False                       'init brick option
     Me.shpCurrentPlayer.FillColor = vbBlue  'init current player marker
@@ -340,8 +341,8 @@ End Sub
 
 Private Sub Form_Paint()
 
-    clsBoard.drawBoard
-    clsBoard.drawBricks
+    drawBoard
+    drawBricks
     
 End Sub
 
@@ -361,7 +362,7 @@ Public Sub drawBoard()
             iCurY = iDrawStartY + y * iFieldsize
             
             ' draw lines
-            Select Case iBoard(x, y)
+            Select Case 1: 'iBoard(x, y) FIXME Dennis sein bier
             
                 Case 1:
                     Me.Line (iCurX, iCurY)- _
