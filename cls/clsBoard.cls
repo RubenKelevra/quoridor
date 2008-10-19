@@ -41,6 +41,10 @@ Private activePlayer As Byte
 'for constructs
 Dim i As Integer
 
+Function getDimension() As Byte
+    getDimension = Dimensions
+End Function
+
 Function getActivePlayer() As Byte
     getActivePlayer = activePlayer
 End Function
