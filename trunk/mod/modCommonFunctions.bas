@@ -21,8 +21,17 @@ Option Explicit
 
 Function xy2pos(x As Byte, y As Byte) As Position
     'convert two values to position-type, saves usualy one line
+    Dim returnvalue As Position
+    returnvalue.Position(0) = x
+    returnvalue.Position(1) = y
+    xy2pos = returnvalue
+End Function
 
-    xy2pos.Position(0) = x
-    xy2pos.Position(1) = y
+Function comparePos(pos1 As Position, pos2 As Position) As Boolean
+    If (pos1.Position(0) = pos2.Position(0) And pos1.Position(1) = pos2.Position(1)) Then
+        comparePos = True
+    Else
+        comparePos = False
+    End If
 End Function
 
