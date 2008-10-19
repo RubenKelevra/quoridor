@@ -38,7 +38,29 @@ Private GlobalPlaytime As Long 'per round playtime added at the end of a round
 Private RemainingStones As Byte
 Private TargetWall As Byte
 
-Public Function getLocation() As Position
+Function Move(dir As Byte) As Boolean
+    Select Case dir
+        Case 0: 'to bottom
+            Location.Position(1) = Switch( _
+                                        Location.Position(1) + 1 <= 255, Location.Position(1) + 1, _
+                                        True, 255)
+        Case 1: 'to right
+            Location.Position(0) = Switch( _
+                                        Location.Position(0) + 1 <= 255, Location.Position(0) + 1, _
+                                        True, 255)
+        Case 2:
+            Location.Position(1) = Switch( _
+                                        Location.Position(1) - 1 >= 0, Location.Position(1) - 1, _
+                                        True, 0)
+        Case 3:
+            Location.Position(0) = Switch( _
+                                        Location.Position(0) - 1 >= 0, Location.Position(1) - 1, _
+                                        True, 0)
+    End Select
+    Move = Switch(0 <= dir And dir <= 3, True, True, False)
+End Function
+
+Function getLocation() As Position
     getLocation = Location
 End Function
 
