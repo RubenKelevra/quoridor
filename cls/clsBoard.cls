@@ -84,8 +84,6 @@ End Function
 Function getPlayerlocation(i As Byte) As Position
     On Error GoTo OutOfIndex
     getPlayerlocation = Players(i).getLocation
-    Exit Function
-    
 OutOfIndex:
     getPlayerlocation = xy2pos(255, 255)
 End Function
