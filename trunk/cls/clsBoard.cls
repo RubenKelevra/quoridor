@@ -209,7 +209,7 @@ Sub create(NoOfPl As Byte, NoOfBr As Byte, Dimension As Byte)
     pStarts(3).Position(1) = Dimension - (Dimension / 2)
     
     'set player starts
-    For i = 0 To i < NoOfPlayer
+    For i = LBound(Player) To UBound(Player)
         If NoOfPlayer = 2 And i = 1 Then
             i = i + 1 'change 2th player's startposition to 3rd players's
                       'if two players playing
