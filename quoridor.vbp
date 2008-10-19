@@ -5,7 +5,6 @@ Reference=*\G{435C7ADE-6DD0-42E0-B815-807C0299E2EA}#1.0#0#dll\CostomTypes\Costom
 Class=clsBoard; cls\clsBoard.cls
 Class=clsPlayer; cls\clsPlayer.cls
 Form=frm\frmMainForm.frm
-Class=clsBoard_dennis; cls\clsBoard_dennis.cls
 Module=modCommonFunctions; mod\modCommonFunctions.bas
 Startup="frmMainForm"
 HelpFile=""
