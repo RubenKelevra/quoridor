@@ -41,8 +41,65 @@ Private activePlayer As Byte
 'for constructs
 'Dim i As Integer 'FIXME: really used?
 
+Function checkMove(pos As Position, dir As Byte) As Boolean
+    Dim newPos As Position
+    Dim i As Byte
+    If Not checkFrontWall(pos, dir) Then
+    
+        'is there a border
+        Select Case dir
+            Case 0: 'bottom
+                If pos.Position(1) = Dimensions Then
+                    GoTo fEnd
+                End If
+                newPos.Position(0) = pos.Position(0)
+                newPos.Position(1) = pos.Position(1) + 1
+            Case 1: 'right
+                If pos.Position(0) = Dimensions Then
+                    GoTo fEnd
+                End If
+                newPos.Position(0) = pos.Position(0) + 1
+                newPos.Position(1) = pos.Position(1)
+            Case 2: 'top
+                If pos.Position(1) = 0 Then
+                    GoTo fEnd
+                End If
+                newPos.Position(0) = pos.Position(0)
+                newPos.Position(1) = pos.Position(1) - 1
+            Case 3: 'left
+                If pos.Position(0) = 0 Then
+                    GoTo fEnd
+                End If
+                newPos.Position(0) = pos.Position(0) - 1
+                newPos.Position(1) = pos.Position(1)
+        End Select
+    
+        'is there a player
+        For i = LBound(Players) To UBound(Players)
+            If Not i = Me.getActivePlayer Then
+                If comparePos(Players(i).getLocation, newPos) Then
+                    GoTo fEnd
+                End If
+            End If
+        Next i
+        
+        'field seems to be free and with no wall between us and it
+        checkMove = True
+        Exit Function
+        
+    Else
+        checkMove = False
+    End If
+fEnd:
+    checkMove = False
+    Exit Function
+End Function
 Function movePlayer(i As Byte, dir As Byte) As Boolean
-    movePlayer = Players(i).Move(dir)
+    If checkMove(Players(i).getLocation, dir) Then
+        movePlayer = Players(i).Move(dir)
+    Else
+        movePlayer = False
+    End If
 End Function
 Function saveBlocker(Br As Brick, Player As Byte) As Integer
     'returnvalues
@@ -97,20 +154,20 @@ Sub NextTurn()
     activePlayer = Switch(activePlayer < 3, activePlayer, True, 0)
 End Sub
 
-Function checkFrontWall(Pos As Position, direction As Byte) As Boolean
+Function checkFrontWall(pos As Position, direction As Byte) As Boolean
         'if true there are a wall in front of the position and with this direction
     Dim Stone As Brick
     
-    For Each Stone In Blocker()
-        If (Stone.Position(0) = 255 Or Stone.Position(0) = 255) Then
-            Exit For
-        End If
+    'For Each Stone In Blocker()
+    '    If (Stone.Position(0) = 255 Or Stone.Position(0) = 255) Then
+    '        Exit For
+    '    End If
         'delete this
         'If (st.Position = pos.Position And ((st.Landscape And direction = 2) Or (Not st.Landscape And direction = 1))) Then
         'if
 
 
-    Next Stone
+    'Next Stone
 
 End Function
 
