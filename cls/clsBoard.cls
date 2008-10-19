@@ -114,13 +114,14 @@ Function checkPlaceWall(newPos As Brick) As Boolean
     'for-counter
     Dim i As Byte
     Dim i2 As Integer
-    Dim b As Boolean
-
+    Dim i3 As Byte
+    
     'state variables
     Dim ended As Boolean
 
     'use with care! theoretical max 8192 Byte memspace if field dimension is set to 256 don't know if VB can handle this big
-    Dim RunnedFields(7, Dimension * 2 - 1) As Position
+    Dim RunnedFields() As Position
+    ReDim RunnedFields(7, (Dimensions + 1) * (Dimensions + 1) - 1)
     '0 = aborted - touched neighbor field
     '1 = field touched were we had started - ccw around
     '2 = field touched were we had started - cw around
@@ -131,37 +132,37 @@ Function checkPlaceWall(newPos As Brick) As Boolean
     'saves the actual running direction
     Dim direction As Byte
 
-    For i = 0 To 7
-        For i2 = 0 To Dimension * 2 - 1
-            For b = 0 To 1
-                RunnedFields(i, i2).Position(b) = 255
-            Next b
+    For i = 0 To 7 'fields around the
+        For i2 = 0 To (Dimensions + 1) * (Dimensions + 1) - 1 '-1 because we start at 0
+            For i3 = 0 To 1 'directions, first to the smaller index, then to the higher
+                RunnedFields(i, i2).Position(i3) = 255
+            Next i3
         Next i2
     Next i
 
 
     For i = 0 To 3 'position around the new wall
         'setting startfield
-        For b = 0 To 1
+        For i2 = 0 To 1
             'running ccw
             'x
-            RunnedFields(i + Switch(Not b, 0, b, 4), 0).Position(0) = Switch( _
+            RunnedFields(i + Switch(Not i2, 0, i2, 4), 0).Position(0) = Switch( _
                                                                             i = 0 Or i = 1, newPos.Position(0), _
                                                                             i = 2 Or i = 3, newPos.Position(0) + 1 _
                                                                             )
             'y
-            RunnedFields(i + Switch(Not b, 0, b, 4), 0).Position(1) = Switch( _
+            RunnedFields(i + Switch(Not i2, 0, i2, 4), 0).Position(1) = Switch( _
                                                                             i = 0 Or i = 3, newPos.Position(0), _
                                                                             i = 1 Or i = 2, newPos.Position(0) + 1 _
                                                                             )
-        Next b
-        For b = 0 To 1 'directions per position
+        Next i2
+        For i2 = 0 To 1 'directions per position
             ended = False
 
-            Do
+            'Do
 
-            While ended
-        Next b
+            'While ended
+        Next i2
     Next i
 End Function
 
