@@ -248,7 +248,8 @@ Private Sub cmdSetBrick_Click()
         
         ' reset temp brick
         tTempBrick.Landscape = False
-        tTempBrick.Position = xy2pos(0, 0)
+        tTempBrick.Position(0) = 0
+        tTempBrick.Position(1) = 0
         bSetBrickMode = False
     Else
         Me.cmdSetBrick.Caption = "OK?"
