@@ -40,10 +40,10 @@ Private Dimensions As Byte
 'for constructs
 Dim i As Integer
 
-Sub checkFrontWall(pos As Position, direction As Byte)
+Function checkFrontWall(pos As Position, direction As Byte) As Boolean
         'if true there are a wall in front of the position and with this direction
     Dim Stone As Brick
-
+    
     For Each Stone In Blocker()
         If (Stone.Position(0) = 255 Or Stone.Position(0) = 255) Then
             Exit For
@@ -55,7 +55,7 @@ Sub checkFrontWall(pos As Position, direction As Byte)
 
     Next Stone
 
-End Sub
+End Function
 
 Sub checkPlaceWall(newPos As Brick)
     'for-counter
@@ -129,6 +129,7 @@ End Function
 Sub create(NoOfPl As Byte, NoOfBr As Byte, Dimension As Byte)
     Dim pStarts(3) As Position
     Dim i As Byte
+    Dimension = Dimension - 1
     
     'check input value of NoOfPl if not 4 set to 2
     NoOfPlayer = Switch(NoOfPl = 4, 4, True, 2)
