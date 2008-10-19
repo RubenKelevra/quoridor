@@ -212,9 +212,12 @@ Private lBoardcolor As Long
 Private tTempBrick As Brick
 
 Private Sub cmdMove_Click(Index As Integer)
-
-    If bSetBrickMode Then
-        
+    Dim changed As Boolean
+    changed = False
+    
+    If Not bSetBrickMode Then 'move figure
+        changed = Playground.movePlayer(Playground.getActivePlayer, CByte(Index))
+    Else
         If tTempBrick.Position(1) > 0 Then
         
             ' move right
@@ -224,8 +227,10 @@ Private Sub cmdMove_Click(Index As Integer)
     
     End If
     
-    ' repaint form
-    Call Form_Paint
+    If changed Then
+        ' repaint form
+        Call Form_Paint
+    End If
 End Sub
 
 Private Sub cmdRotateBrick_Click()

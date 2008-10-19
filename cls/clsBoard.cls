@@ -39,8 +39,11 @@ Private Dimensions As Byte
 Private activePlayer As Byte
 
 'for constructs
-Dim i As Integer
+'Dim i As Integer 'FIXME: really used?
 
+Function movePlayer(i As Byte, dir As Byte) As Boolean
+    movePlayer = Players(i).Move(dir)
+End Function
 Function saveBlocker(Br As Brick, Player As Byte) As Integer
     'returnvalues
     '0 = ok
