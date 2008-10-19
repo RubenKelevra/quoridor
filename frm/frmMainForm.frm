@@ -267,7 +267,7 @@ Private Sub Form_Load()
     Dim b As Position
     
     Set Playground = New clsBoard
-    Call Playground.create(4, 20, 9)        'player, bricks, fields dimension (x=y)
+    Call Playground.create(4, 5, 9)      'player, bricks, fields dimension (x=y)
     bSetBrickMode = False                   'init brick option
     Me.shpCurrentPlayer.FillColor = Playground.getPlayerColor(0)  'init current player marker
 
