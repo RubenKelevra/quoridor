@@ -239,7 +239,7 @@ Private Sub cmdRotateBrick_Click()
 End Sub
 
 Private Sub cmdSetBrick_Click()
-    If bSetBrickMode And checkPlaceWall(tTempBrick.Position) Then
+    If bSetBrickMode And Playground.checkPlaceWall(tTempBrick) Then
         
         
         'FIXME: save the brick
