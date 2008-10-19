@@ -239,10 +239,11 @@ Private Sub cmdRotateBrick_Click()
 End Sub
 
 Private Sub cmdSetBrick_Click()
-
-    If bSetBrickMode Then
+    If bSetBrickMode And checkPlaceWall(tTempBrick.Position) Then
+        
         
         'FIXME: save the brick
+        
         
         Me.cmdSetBrick.Caption = "set |"
         
@@ -251,14 +252,13 @@ Private Sub cmdSetBrick_Click()
         tTempBrick.Position(0) = 0
         tTempBrick.Position(1) = 0
         bSetBrickMode = False
+        
+        ' repaint form
+        Call Form_Paint
     Else
         Me.cmdSetBrick.Caption = "OK?"
         bSetBrickMode = True
     End If
-    
-    ' repaint form
-    Call Form_Paint
-
 End Sub
 
 Private Sub Form_Load()

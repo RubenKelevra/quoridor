@@ -41,6 +41,18 @@ Private activePlayer As Byte
 'for constructs
 Dim i As Integer
 
+Function saveBlocker(Br As Brick, Player As Byte) As Integer
+    'returnvalues
+    '0 = ok
+    '1 = player have no blocker left
+    '2 = position is used by another blocker
+    '3 = cannot be used cause you would envelop a figure
+    Dim i As Byte
+    
+    For i = LBound(Blocker) To UBound(Blocker)
+        
+    Next i
+End Function
 Function getPlayerColor(i As Byte) As Long
     Select Case i
         Case 0:
@@ -81,7 +93,7 @@ Sub NextTurn()
     activePlayer = Switch(activePlayer < 3, activePlayer, True, 0)
 End Sub
 
-Function checkFrontWall(pos As Position, direction As Byte) As Boolean
+Function checkFrontWall(Pos As Position, direction As Byte) As Boolean
         'if true there are a wall in front of the position and with this direction
     Dim Stone As Brick
     
@@ -98,7 +110,7 @@ Function checkFrontWall(pos As Position, direction As Byte) As Boolean
 
 End Function
 
-Sub checkPlaceWall(newPos As Brick)
+Function checkPlaceWall(newPos As Brick) As Boolean
     'for-counter
     Dim i As Byte
     Dim i2 As Integer
@@ -151,7 +163,7 @@ Sub checkPlaceWall(newPos As Brick)
             While ended
         Next b
     Next i
-End Sub
+End Function
 
 Function getNameOfPlayer(i As Byte) As String
     On Error GoTo OutOfIndex
