@@ -7,17 +7,86 @@ Begin VB.Form frmMainForm
    ClientTop       =   435
    ClientWidth     =   8175
    ClipControls    =   0   'False
-   LinkTopic       =   "Form1"
+   LinkTopic       =   "frmMainForm"
    MaxButton       =   0   'False
    ScaleHeight     =   4095
    ScaleWidth      =   8175
    StartUpPosition =   3  'Windows-Standard
+   Begin VB.Frame fraMovement 
+      Caption         =   "Movement"
+      BeginProperty Font 
+         Name            =   "MS Sans Serif"
+         Size            =   18
+         Charset         =   0
+         Weight          =   700
+         Underline       =   0   'False
+         Italic          =   0   'False
+         Strikethrough   =   0   'False
+      EndProperty
+      Height          =   1815
+      Left            =   4200
+      TabIndex        =   5
+      Top             =   2040
+      Width           =   3855
+      Begin VB.CommandButton cmdMove 
+         Caption         =   "< -"
+         Height          =   495
+         Index           =   3
+         Left            =   1800
+         TabIndex        =   11
+         Top             =   1080
+         Width           =   495
+      End
+      Begin VB.CommandButton cmdMove 
+         Caption         =   "\l/"
+         Height          =   495
+         Index           =   0
+         Left            =   2400
+         TabIndex        =   10
+         Top             =   1080
+         Width           =   495
+      End
+      Begin VB.CommandButton cmdSetBrick 
+         Caption         =   "set Brick"
+         Height          =   495
+         Left            =   120
+         TabIndex        =   9
+         Top             =   480
+         Width           =   1455
+      End
+      Begin VB.CommandButton cmdRotateBrick 
+         Caption         =   "rotate Brick"
+         Height          =   495
+         Left            =   120
+         TabIndex        =   8
+         Top             =   1080
+         Width           =   1455
+      End
+      Begin VB.CommandButton cmdMove 
+         Caption         =   "- >"
+         Height          =   495
+         Index           =   1
+         Left            =   3000
+         TabIndex        =   7
+         Top             =   1080
+         Width           =   495
+      End
+      Begin VB.CommandButton cmdMove 
+         Caption         =   "/l\"
+         Height          =   495
+         Index           =   2
+         Left            =   2400
+         TabIndex        =   6
+         Top             =   480
+         Width           =   495
+      End
+   End
    Begin VB.Frame fraBoard 
       BorderStyle     =   0  'Kein
       Caption         =   "Gameboard"
       Height          =   3735
       Left            =   180
-      TabIndex        =   11
+      TabIndex        =   4
       Top             =   180
       Visible         =   0   'False
       Width           =   3735
@@ -35,12 +104,11 @@ Begin VB.Form frmMainForm
       EndProperty
       Height          =   1815
       Left            =   4200
-      TabIndex        =   7
+      TabIndex        =   0
       Top             =   120
       Width           =   3855
       Begin VB.Label lblBricksLeftNumber 
          Alignment       =   2  'Zentriert
-         Caption         =   "88"
          BeginProperty Font 
             Name            =   "MS Sans Serif"
             Size            =   13.5
@@ -52,7 +120,7 @@ Begin VB.Form frmMainForm
          EndProperty
          Height          =   375
          Left            =   2280
-         TabIndex        =   10
+         TabIndex        =   3
          Top             =   960
          Width           =   375
       End
@@ -69,7 +137,7 @@ Begin VB.Form frmMainForm
          EndProperty
          Height          =   375
          Left            =   120
-         TabIndex        =   9
+         TabIndex        =   2
          Top             =   960
          Width           =   1935
       End
@@ -86,7 +154,7 @@ Begin VB.Form frmMainForm
          EndProperty
          Height          =   375
          Left            =   120
-         TabIndex        =   8
+         TabIndex        =   1
          Top             =   480
          Width           =   1935
       End
@@ -98,71 +166,6 @@ Begin VB.Form frmMainForm
          Shape           =   3  'Kreis
          Top             =   480
          Width           =   375
-      End
-   End
-   Begin VB.Frame fraMovement 
-      Caption         =   "Movement"
-      BeginProperty Font 
-         Name            =   "MS Sans Serif"
-         Size            =   18
-         Charset         =   0
-         Weight          =   700
-         Underline       =   0   'False
-         Italic          =   0   'False
-         Strikethrough   =   0   'False
-      EndProperty
-      Height          =   1815
-      Left            =   4200
-      TabIndex        =   0
-      Top             =   2040
-      Width           =   3855
-      Begin VB.CommandButton cmdRotateBrick 
-         Caption         =   "rotate Brick"
-         Height          =   495
-         Left            =   120
-         TabIndex        =   6
-         Top             =   1080
-         Width           =   1455
-      End
-      Begin VB.CommandButton cmdSetBrick 
-         Caption         =   "set Brick"
-         Height          =   495
-         Left            =   120
-         TabIndex        =   5
-         Top             =   480
-         Width           =   1455
-      End
-      Begin VB.CommandButton cmdMoveUp 
-         Caption         =   "/|\"
-         Height          =   495
-         Left            =   2400
-         TabIndex        =   4
-         Top             =   480
-         Width           =   495
-      End
-      Begin VB.CommandButton cmdMoveDown 
-         Caption         =   "\|/"
-         Height          =   495
-         Left            =   2400
-         TabIndex        =   3
-         Top             =   1080
-         Width           =   495
-      End
-      Begin VB.CommandButton cmdMoveLeft 
-         Caption         =   "<-"
-         Height          =   495
-         Left            =   1800
-         TabIndex        =   2
-         Top             =   1080
-         Width           =   495
-      End
-      Begin VB.CommandButton cmdMoveRight 
-         Caption         =   "->"
-         Height          =   495
-         Left            =   3000
-         TabIndex        =   1
-         Top             =   1080
-         Width           =   495
       End
    End
    Begin VB.Line lneCutter 
@@ -198,7 +201,11 @@ Option Explicit
 
 Private bSetBrick As Boolean
 Private iFieldsize As Integer
-Private clsBoard As clsBoard_dennis
+Private Playground As clsBoard
+
+Private Sub cmdMove_Click(Index As Integer)
+    
+End Sub
 
 Private Sub cmdMoveDown_Click()
 
@@ -272,6 +279,8 @@ Private Sub cmdMoveUp_Click()
 
 End Sub
 
+
+
 Private Sub cmdRotateBrick_Click()
 
     ' switches rotation variable
@@ -307,17 +316,9 @@ End Sub
 
 Private Sub Form_Load()
     
-    'FIXME imported from other projectfile
-'    Dim Board As clsBoard
-'    Call Board.create(4, 5, 9) '4 player; 5 blocker; 9 fields dimension
-    
-    
-    
-    ' init brick option
-    bSetBrick = False
-    
-    ' init current player marker
-    Me.shpCurrentPlayer.FillColor = vbBlue
+    Call Playground.create(4, 20, 9)        'player, bricks, fields dimension (x=y)
+    bSetBrick = False                       'init brick option
+    Me.shpCurrentPlayer.FillColor = vbBlue  'init current player marker
     
     ' init gameboard
     Set clsBoard = New clsBoard_dennis
