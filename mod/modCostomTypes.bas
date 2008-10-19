@@ -1,7 +1,7 @@
 Attribute VB_Name = "modCostomTypes"
 Option Explicit
 
-Type Stone
+Type Brick
     Position(1) As Byte
     Landscape As Boolean
 End Type

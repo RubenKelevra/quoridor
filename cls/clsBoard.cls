@@ -15,9 +15,9 @@ Option Explicit
 
 'figures
 Private NoOfPlayer As Byte
-Private NoOfStones As Byte 'per player
+Private NoOfBricks As Byte 'per player
 Private Player() As clsPlayer
-Private Blocker() As Stone
+Private Blocker() As Brick
 Private Dimensions As Byte
 
 'for constructs
@@ -25,10 +25,10 @@ Dim i As Integer
 
 Function checkFrontWall(pos As Position, direction As Byte) As Boolean
     'if true there are a wall in front of the position and with this direction
-    Dim st As Stone
+    Dim Stone As Brick
     
-    For Each st In Blocker()
-        If (st.Position(0) = 255 Or st.Position(0) = 255) Then
+    For Each Stone In Blocker()
+        If (Stone.Position(0) = 255 Or Stone.Position(0) = 255) Then
             Exit For
         End If
         'delete this
@@ -36,12 +36,12 @@ Function checkFrontWall(pos As Position, direction As Byte) As Boolean
         if
         
         
-    Next st
+    Next Stone
     
     
 End Function
 
-Function checkPlaceWall(Walls() As Stone, Player() As Position, Dimension, newPos As Stone) As Boolean
+Function checkPlaceWall(Walls() As Brick, Player() As Position, Dimension, newPos As Brick) As Boolean
     'for-counter
     Dim i As Byte
     Dim i2 As Integer
@@ -106,26 +106,26 @@ Function getNoOfPlayer() As Byte
     getNoOfPlayer = NoOfPlayer
 End Function
 
-Function getNoOfStones() As Byte
-    getNoOfStones = NoOfStones
+Function getNoOfBricks() As Byte
+    getNoOfBricks = NoOfBricks
 End Function
 
-Sub create(NoOfPl As Byte, NoOfSt As Byte, Dimension As Byte)
-    Dim playerstarts(3) As Position
+Sub create(NoOfPl As Byte, NoOfBr As Byte, Dimension As Byte)
+    Dim pStarts(3) As Position
     Dim i As Byte
     
     'check input value of NoOfPl if not between 2 and 4 set to 2
     NoOfPlayer = Switch(NoOfPl <= 4 And NoOfPl > 1, NoOfPl, True, 2)
-    NoOfStones = NoOfSt
+    NoOfBricks = NoOfBr
     Dimensions = Dimension
     
     ReDim Player(NoOfPlayer - 1)
     
     'calc player starts - players counted ccw
-    playerstarts(0).Position(0) = playerstarts(1).Position(1) = Dimension / 2
-    playerstarts(0).Position(1) = playerstarts(3).Position(0) = 0
-    playerstarts(1).Position(0) = playerstarts(2).Position(1) = Dimension
-    playerstarts(2).Position(0) = playerstarts(3).Position(1) = Dimension - (Dimension / 2) 'subtract to get the other line near the center for the mirrored player
+    pStarts(0).Position(0) = pStarts(1).Position(1) = Dimension / 2
+    pStarts(0).Position(1) = pStarts(3).Position(0) = 0
+    pStarts(1).Position(0) = pStarts(2).Position(1) = Dimension
+    pStarts(2).Position(0) = pStarts(3).Position(1) = Dimension - (Dimension / 2) 'subtract to get the other line near the center for the mirrored player
     
     'set player starts
     For i = 0 To i < NoOfPlayer
@@ -134,7 +134,7 @@ Sub create(NoOfPl As Byte, NoOfSt As Byte, Dimension As Byte)
                       'if two players playing
         End If
         'running create routine
-        Call Player.create(playerstarts(i).Position(0), playerstarts(i).Position(1), NoOfStones, _
+        Call Player.create(pStarts(i).Position(0), pStarts(i).Position(1), NoOfBricks, _
             Switch( _
                 i = 0, 2, _
                 i = 1, 3, _
@@ -143,7 +143,7 @@ Sub create(NoOfPl As Byte, NoOfSt As Byte, Dimension As Byte)
         Next i
     
     'reserve space for blockers
-    ReDim Blocker(NoOfPlayer * NoOfStones - 1)
+    ReDim Blocker(NoOfPlayer * NoOfBricks - 1)
     
     'set blockers start values
     For i = 0 To UBound(Blocker)
