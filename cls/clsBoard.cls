@@ -46,13 +46,13 @@ Function getPlayerColor(i As Byte) As Long
         Case 0:
             getPlayerColor = vbBlue
         Case 1:
-            If noofplayers = 4 Then
+            If NoOfPlayer = 4 Then
                 getPlayerColor = vbGreen
             Else
                 getPlayerColor = vbRed
             End If
         Case 2:
-            If noofplayers = 4 Then
+            If NoOfPlayer = 4 Then
                 getPlayerColor = vbRed
             Else
                 getPlayerColor = vbGreen
@@ -66,12 +66,11 @@ Function getDimension() As Byte
     getDimension = Dimensions
 End Function
 
-Function getPlayerlocation(b As Byte) As Position
-    If b > UBound(Players) Or b < LBound(Players) Then
-        getPlayers = Null
-    Else
-        getPlayers = Players(b).getLocation
-    End If
+Function getPlayerlocation(i As Byte) As Position
+    On Error GoTo OutOfIndex
+    getPlayerlocation = Players(i).getLocation
+OutOfIndex:
+    getPlayerlocation = Null
 End Function
 
 Function getActivePlayer() As Byte

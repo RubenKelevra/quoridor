@@ -296,9 +296,9 @@ Private Sub drawBoard()
 ' draws the fields where on whose a player can move
 
     Dim BDirection As Byte
-    Dim x As Integer
-    Dim y As Integer
-    Dim i As Integer
+    Dim x As Byte
+    Dim y As Byte
+    Dim i As Byte
     Dim iCurX As Integer
     Dim iCurY As Integer
     Dim lCurColor As Long
