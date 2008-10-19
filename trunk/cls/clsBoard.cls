@@ -198,10 +198,15 @@ Sub create(NoOfPl As Byte, NoOfBr As Byte, Dimension As Byte)
     Next i
     
     'calc player starts - players counted ccw
-    pStarts(0).Position(0) = pStarts(1).Position(1) = Dimension / 2
-    pStarts(0).Position(1) = pStarts(3).Position(0) = 0
-    pStarts(1).Position(0) = pStarts(2).Position(1) = Dimension
-    pStarts(2).Position(0) = pStarts(3).Position(1) = Dimension - (Dimension / 2) 'subtract to get the other line near the center for the mirrored player
+    pStarts(0).Position(0) = Dimension / 2
+    pStarts(1).Position(1) = Dimension / 2
+    pStarts(0).Position(1) = 0
+    pStarts(3).Position(0) = 0
+    pStarts(1).Position(0) = Dimension
+    pStarts(2).Position(1) = Dimension
+    'subtract to get the other line near the center for the mirrored player
+    pStarts(2).Position(0) = Dimension - (Dimension / 2)
+    pStarts(3).Position(1) = Dimension - (Dimension / 2)
     
     'set player starts
     For i = 0 To i < NoOfPlayer
