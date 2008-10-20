@@ -37,6 +37,17 @@ Private Playtime As Long 'per round
 Private GlobalPlaytime As Long 'per round playtime added at the end of a round
 Private RemainingStones As Byte
 Private TargetWall As Byte
+'defines see setPlayerType()
+Private TypeOfPlayer As Byte
+
+Function setPlayerType(i As Byte) As Byte
+    'FIXME
+End Function
+
+Function getPlayerType() As Byte
+    getPlayerType = TypeOfPlayer
+End Function
+
 
 Function Move(dir As Byte) As Boolean
     Select Case dir
@@ -64,11 +75,9 @@ Function getLocation() As Position
     getLocation = Location
 End Function
 
-Sub GameEnded(Position As Byte)
-    GlobalPlaytime = GlobalPlaytime + Playtime
-End Sub
-
 Sub newRound(x As Byte, y As Byte, Stones As Byte, Target As Byte)
+    GlobalPlaytime = GlobalPlaytime + Playtime
+    
     Location.Position(0) = x
     Location.Position(1) = y
     
@@ -100,6 +109,7 @@ Sub create(x As Byte, y As Byte, Stones As Byte, Target As Byte)
     Location.Position(0) = x
     Location.Position(1) = y
 
+    TypeOfPlayer = 0
     RemainingStones = Stones
     Playtime = 0
     TargetWall = Target
