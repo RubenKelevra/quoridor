@@ -208,10 +208,10 @@ Function checkFrontWall(pos As Position, direction As Byte) As Boolean
         End Select
     Next i
     'no stone have been found which blocks our way
-    checkFrontWall = True
+    checkFrontWall = False
     Exit Function
 returnFalse:
-    checkFrontWall = False
+    checkFrontWall = True
     Exit Function
 End Function
 
