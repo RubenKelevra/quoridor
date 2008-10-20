@@ -313,6 +313,8 @@ Private Sub drawBoard()
     
     BDimension = Playground.getDimension
     
+    Me.shpCurrentPlayer.FillColor = Playground.getPlayerColor(Playground.getActivePlayer) 'set current player marker
+    
     For x = 0 To BDimension
         For y = 0 To BDimension
         
