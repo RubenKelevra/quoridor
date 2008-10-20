@@ -2,15 +2,15 @@ VERSION 5.00
 Begin VB.Form frmMainForm 
    BorderStyle     =   1  'Fest Einfach
    Caption         =   "Quoridor"
-   ClientHeight    =   4095
+   ClientHeight    =   4080
    ClientLeft      =   45
    ClientTop       =   435
-   ClientWidth     =   8175
+   ClientWidth     =   8235
    ClipControls    =   0   'False
    LinkTopic       =   "frmMainForm"
    MaxButton       =   0   'False
-   ScaleHeight     =   4095
-   ScaleWidth      =   8175
+   ScaleHeight     =   4080
+   ScaleWidth      =   8235
    StartUpPosition =   3  'Windows-Standard
    Begin VB.Frame fraMovement 
       Caption         =   "Movement"
@@ -23,10 +23,10 @@ Begin VB.Form frmMainForm
          Italic          =   0   'False
          Strikethrough   =   0   'False
       EndProperty
-      Height          =   1815
+      Height          =   2055
       Left            =   4200
       TabIndex        =   5
-      Top             =   2040
+      Top             =   1850
       Width           =   3855
       Begin VB.CommandButton cmdMove 
          Caption         =   "< -"
@@ -34,7 +34,7 @@ Begin VB.Form frmMainForm
          Index           =   3
          Left            =   1800
          TabIndex        =   11
-         Top             =   1080
+         Top             =   780
          Width           =   495
       End
       Begin VB.CommandButton cmdMove 
@@ -48,6 +48,7 @@ Begin VB.Form frmMainForm
       End
       Begin VB.CommandButton cmdSetBrick 
          Caption         =   "set Brick"
+         Enabled         =   0   'False
          Height          =   495
          Left            =   120
          TabIndex        =   9
@@ -56,6 +57,7 @@ Begin VB.Form frmMainForm
       End
       Begin VB.CommandButton cmdRotateBrick 
          Caption         =   "rotate Brick"
+         Enabled         =   0   'False
          Height          =   495
          Left            =   120
          TabIndex        =   8
@@ -68,7 +70,7 @@ Begin VB.Form frmMainForm
          Index           =   1
          Left            =   3000
          TabIndex        =   7
-         Top             =   1080
+         Top             =   780
          Width           =   495
       End
       Begin VB.CommandButton cmdMove 
@@ -102,7 +104,7 @@ Begin VB.Form frmMainForm
          Italic          =   0   'False
          Strikethrough   =   0   'False
       EndProperty
-      Height          =   1815
+      Height          =   1575
       Left            =   4200
       TabIndex        =   0
       Top             =   120
@@ -167,12 +169,6 @@ Begin VB.Form frmMainForm
          Top             =   480
          Width           =   375
       End
-   End
-   Begin VB.Line lneCutter 
-      X1              =   4080
-      X2              =   4080
-      Y1              =   0
-      Y2              =   5040
    End
 End
 Attribute VB_Name = "frmMainForm"
@@ -244,22 +240,28 @@ Private Sub cmdRotateBrick_Click()
 End Sub
 
 Private Sub cmdSetBrick_Click()
-    If bSetBrickMode And Playground.checkPlaceWall(tTempBrick) Then
+    If bSetBrickMode Then
+        If Playground.checkPlaceWall(tTempBrick) Then
         
         
-        'FIXME: save the brick
-        
-        
-        Me.cmdSetBrick.Caption = "set |"
-        
-        ' reset temp brick
-        tTempBrick.Landscape = False
-        tTempBrick.Position(0) = 0
-        tTempBrick.Position(1) = 0
-        bSetBrickMode = False
-        
-        ' repaint form
-        Call Form_Paint
+            'FIXME: save the brick
+            
+            
+            Me.cmdSetBrick.Caption = "set |"
+            
+            ' reset temp brick
+            tTempBrick.Landscape = False
+            tTempBrick.Position(0) = 0
+            tTempBrick.Position(1) = 0
+            bSetBrickMode = False
+            
+            ' repaint form
+            Call Form_Paint
+        Else
+            'placing on this position is not possible
+            Me.cmdSetBrick.Caption = "set Brick"
+            bSetBrickMode = False
+        End If
     Else
         Me.cmdSetBrick.Caption = "OK?"
         bSetBrickMode = True
@@ -320,6 +322,12 @@ Private Sub drawBoard()
     'show player bricks
     Me.lblBricksLeftNumber.Caption = CStr(Playground.getRemainingPlayerBricks(biActPlayer))
     
+    'deactivate buttons which indicates a direction which is not possible
+    For i = 0 To 3
+        cmdMove(i).Enabled = Playground.checkMove(Playground.getPlayerLocation(biActPlayer), i)
+        cmdMove(i).FontBold = Playground.getPlayerTarget(biActPlayer) = i
+    Next i
+    
     For x = 0 To BDimension
         For y = 0 To BDimension
         
@@ -333,7 +341,7 @@ Private Sub drawBoard()
             ' draw lines
             For i = 0 To Playground.getNoOfPlayer
                 tDrawPos = xy2pos(x, y)
-                tPlayerPos = Playground.getPlayerlocation(i)
+                tPlayerPos = Playground.getPlayerLocation(i)
                 
                 If Not comparePos(xy2pos(255, 255), tPlayerPos) Then
                     If comparePos(tDrawPos, tPlayerPos) Then

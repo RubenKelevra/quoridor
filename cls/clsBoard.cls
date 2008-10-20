@@ -149,12 +149,12 @@ Function getDimension() As Byte
     getDimension = Dimensions
 End Function
 
-Function getPlayerlocation(i As Byte) As Position
+Function getPlayerLocation(i As Byte) As Position
     On Error GoTo OutOfIndex
-    getPlayerlocation = Players(i).getLocation
+    getPlayerLocation = Players(i).getLocation
     Exit Function
 OutOfIndex:
-    getPlayerlocation = xy2pos(255, 255)
+    getPlayerLocation = xy2pos(255, 255)
 End Function
 
 Function getActivePlayer() As Byte
@@ -281,6 +281,10 @@ Function getNoOfPlayer() As Byte
     getNoOfPlayer = NoOfPlayer
 End Function
 
+Function getPlayerTarget(i As Byte) As Byte
+    getPlayerTarget = Players(i).getTarget
+End Function
+
 Function getRemainingPlayerBricks(i As Byte) As Byte
     getRemainingPlayerBricks = Players(i).getBricks + 1 'we want a number not an index
 End Function
@@ -320,9 +324,9 @@ Sub create(NoOfPl As Byte, NoOfBr As Byte, Dimension As Byte)
         'running create routine
         Players(i).create pStarts(i).Position(0), pStarts(i).Position(1), NoOfBricks, _
             Switch( _
-                i = 0, 2, _
+                i = 0, 0, _
                 i = 1, 3, _
-                i = 2, 0, _
+                i = 2, 2, _
                 i = 3, 1)
     Next i
     

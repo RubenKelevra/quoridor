@@ -36,6 +36,7 @@ Private Name As String
 Private Playtime As Long 'per round
 Private GlobalPlaytime As Long 'per round playtime added at the end of a round
 Private RemainingStones As Byte
+'as direction number
 Private TargetWall As Byte
 'defines see setType()
 Private TypeOfPlayer As Byte
@@ -50,6 +51,10 @@ Sub setType(i As Byte)
     '2... reserved for networkgames
     TypeOfPlayer = Switch(i <= 1, i, True, 0)
 End Sub
+
+Function getTarget() As Byte
+    getTarget = TargetWall
+End Function
 
 Function getType() As Byte
     getType = TypeOfPlayer
