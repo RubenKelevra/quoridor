@@ -48,7 +48,7 @@ End Function
 
 Function setPlayerType(i As Byte, newType As Byte) As Byte
     'only necessary if not a local user controled player, see clsPlayer.setPlayerType()
-    setPlayerType = Players(i).setPlayerType
+    setPlayerType = Players(i).setPlayerType(newType)
 End Function
 
 Function checkMove(pos As Position, dir As Byte) As Boolean
@@ -227,7 +227,7 @@ Function checkPlaceWall(newPos As Brick) As Boolean
     'use with care! theoretical max 8192 Byte memspace if field dimension is set to 256 don't know if VB can handle this big
     Dim RunnedFields() As Position
     ReDim RunnedFields(7, (Dimensions + 1) * (Dimensions + 1) - 1)
-    '0 = aborted - touched neighbor field
+    '0 = aborted - touched neighbor field on first move
     '1 = field touched were we had started - ccw around
     '2 = field touched were we had started - cw around
     '3 = target wall reached
@@ -237,7 +237,7 @@ Function checkPlaceWall(newPos As Brick) As Boolean
     'saves the actual running direction
     Dim direction As Byte
 
-    For i = 0 To 7 'fields around the
+    For i = 0 To 7 'fields around the new wall
         For i2 = 0 To (Dimensions + 1) * (Dimensions + 1) - 1 '-1 because we start at 0
             For i3 = 0 To 1 'directions, first to the smaller index, then to the higher
                 RunnedFields(i, i2).Position(i3) = 255
@@ -326,7 +326,7 @@ Sub create(NoOfPl As Byte, NoOfBr As Byte, Dimension As Byte)
     Next i
     
     'reserve space for blockers
-    ReDim Blocker(NoOfPlayer * NoOfBricks)
+    ReDim Blocker((NoOfPlayer + 1) * (NoOfBricks + 1) - 1) '+1-1 cause we need to move one right and left because of 0 starting values
     
     'set blockers start values
     For i = 0 To UBound(Blocker)
