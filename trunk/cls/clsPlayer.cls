@@ -37,15 +37,22 @@ Private Playtime As Long 'per round
 Private GlobalPlaytime As Long 'per round playtime added at the end of a round
 Private RemainingStones As Byte
 Private TargetWall As Byte
-'defines see setPlayerType()
+'defines see setType()
 Private TypeOfPlayer As Byte
 
-Function setPlayerType(i As Byte) As Byte
-    'FIXME
+Function getBricks() As Byte
+    getBricks = RemainingStones
 End Function
 
-Function getPlayerType() As Byte
-    getPlayerType = TypeOfPlayer
+Sub setType(i As Byte)
+    '0 = user controlled local player
+    '1 = AI controlled local player
+    '2... reserved for networkgames
+    TypeOfPlayer = Switch(i <= 1, i, True, 0)
+End Sub
+
+Function getType() As Byte
+    getType = TypeOfPlayer
 End Function
 
 
