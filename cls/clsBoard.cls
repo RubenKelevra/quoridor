@@ -302,14 +302,14 @@ Sub create(NoOfPl As Byte, NoOfBr As Byte, Dimension As Byte)
     
     'calc player starts - players counted ccw
     pStarts(0).Position(0) = Dimensions / 2
-    pStarts(1).Position(1) = Dimensions / 2
+        pStarts(1).Position(1) = pStarts(0).Position(0)
     pStarts(0).Position(1) = 0
-    pStarts(3).Position(0) = 0
+        pStarts(3).Position(0) = pStarts(0).Position(1)
     pStarts(1).Position(0) = Dimensions
-    pStarts(2).Position(1) = Dimensions
+        pStarts(2).Position(1) = pStarts(1).Position(0)
     'subtract to get the other line near the center for the mirrored player
     pStarts(2).Position(0) = Dimensions - CByte(Dimensions / 2)
-    pStarts(3).Position(1) = Dimensions - CByte(Dimensions / 2)
+        pStarts(3).Position(1) = pStarts(2).Position(0)
     
     'set player starts
     For i = LBound(Players) To UBound(Players)
@@ -318,12 +318,12 @@ Sub create(NoOfPl As Byte, NoOfBr As Byte, Dimension As Byte)
                       'if two players playing
         End If
         'running create routine
-        Call Players(i).create(pStarts(i).Position(0), pStarts(i).Position(1), NoOfBricks, _
+        Players(i).create pStarts(i).Position(0), pStarts(i).Position(1), NoOfBricks, _
             Switch( _
                 i = 0, 2, _
                 i = 1, 3, _
                 i = 2, 0, _
-                i = 3, 1))
+                i = 3, 1)
     Next i
     
     'reserve space for blockers
