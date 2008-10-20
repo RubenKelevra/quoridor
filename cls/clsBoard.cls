@@ -41,12 +41,22 @@ Private activePlayer As Byte
 'for constructs
 'Dim i As Integer 'FIXME: really used?
 
+Function getPlayerType(i As Byte) As Byte
+    'get the type of player, see clsPlayer.setPlayerType()
+    getPlayerType = Players(i).getPlayerType
+End Function
+
+Function setPlayerType(i As Byte, newType As Byte) As Byte
+    'only necessary if not a local user controled player, see clsPlayer.setPlayerType()
+    setPlayerType = Players(i).setPlayerType
+End Function
+
 Function checkMove(pos As Position, dir As Byte) As Boolean
     Dim newPos As Position
     Dim i As Byte
     If Not checkFrontWall(pos, dir) Then
     
-        'is there a border
+        'there is a border
         Select Case dir
             Case 0: 'bottom
                 If pos.Position(1) = Dimensions Then
@@ -157,18 +167,52 @@ End Sub
 Function checkFrontWall(pos As Position, direction As Byte) As Boolean
         'if true there are a wall in front of the position and with this direction
     Dim Stone As Brick
+    Dim i As Byte
     
-    'For Each Stone In Blocker()
-    '    If (Stone.Position(0) = 255 Or Stone.Position(0) = 255) Then
-    '        Exit For
-    '    End If
-        'delete this
-        'If (st.Position = pos.Position And ((st.Landscape And direction = 2) Or (Not st.Landscape And direction = 1))) Then
-        'if
-
-
-    'Next Stone
-
+    For i = LBound(Blocker) To UBound(Blocker)
+        Stone = Blocker(i)
+        'if we found the first stone which is not placed or which have a default value as position we exiting
+        If Stone.Placed = False Or Stone.Position(0) = 255 _
+                                    Or Stone.Position(0) = 255 Then
+            Exit For
+        End If
+        Select Case direction
+            Case 0: 'bottom
+                If Stone.Landscape = True And pos.Position(1) + 1 = Stone.Position(1) Then
+                    'stone is bottom on right
+                    If pos.Position(0) = Stone.Position(0) Then GoTo returnFalse
+                    'stone is bottom on left
+                    If pos.Position(0) = Stone.Position(0) + 1 Then GoTo returnFalse
+                End If
+            Case 1: 'right
+                If Stone.Landscape = False And pos.Position(0) = Stone.Position(0) Then
+                    'stone is upper on right
+                    If pos.Position(1) = Stone.Position(1) Then GoTo returnFalse
+                    'stone is lower on right
+                    If pos.Position(1) + 1 = Stone.Position(1) Then GoTo returnFalse
+                End If
+            Case 2: 'top
+                If Stone.Landscape = True And pos.Position(1) = Stone.Position(1) Then
+                    'stone is top on right
+                    If pos.Position(0) = Stone.Position(0) Then GoTo returnFalse
+                    'stone is top on left
+                    If pos.Position(0) = Stone.Position(0) + 1 Then GoTo returnFalse
+                End If
+            Case 3: 'left
+                If Stone.Landscape = False And pos.Position(0) = Stone.Position(0) + 1 Then
+                    'stone is upper on left
+                    If pos.Position(1) = Stone.Position(1) Then GoTo returnFalse
+                    'stone is lower on left
+                    If pos.Position(1) + 1 = Stone.Position(1) Then GoTo returnFalse
+                End If
+        End Select
+    Next i
+    'no stone have been found which blocks our way
+    checkFrontWall = True
+    Exit Function
+returnFalse:
+    checkFrontWall = False
+    Exit Function
 End Function
 
 Function checkPlaceWall(newPos As Brick) As Boolean
@@ -200,7 +244,6 @@ Function checkPlaceWall(newPos As Brick) As Boolean
             Next i3
         Next i2
     Next i
-
 
     For i = 0 To 3 'position around the new wall
         'setting startfield
@@ -257,15 +300,15 @@ Sub create(NoOfPl As Byte, NoOfBr As Byte, Dimension As Byte)
     Next i
     
     'calc player starts - players counted ccw
-    pStarts(0).Position(0) = Dimension / 2
-    pStarts(1).Position(1) = Dimension / 2
+    pStarts(0).Position(0) = Dimensions / 2
+    pStarts(1).Position(1) = Dimensions / 2
     pStarts(0).Position(1) = 0
     pStarts(3).Position(0) = 0
-    pStarts(1).Position(0) = Dimension
-    pStarts(2).Position(1) = Dimension
+    pStarts(1).Position(0) = Dimensions
+    pStarts(2).Position(1) = Dimensions
     'subtract to get the other line near the center for the mirrored player
-    pStarts(2).Position(0) = Dimension - (Dimension / 2)
-    pStarts(3).Position(1) = Dimension - (Dimension / 2)
+    pStarts(2).Position(0) = Dimensions - CByte(Dimensions / 2)
+    pStarts(3).Position(1) = Dimensions - CByte(Dimensions / 2)
     
     'set player starts
     For i = LBound(Players) To UBound(Players)
