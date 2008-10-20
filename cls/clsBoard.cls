@@ -42,13 +42,13 @@ Private activePlayer As Byte
 'Dim i As Integer 'FIXME: really used?
 
 Function getPlayerType(i As Byte) As Byte
-    'get the type of player, see clsPlayer.setPlayerType()
-    getPlayerType = Players(i).getPlayerType
+    'get the type of player, see clsPlayer.setType()
+    getPlayerType = Players(i).getType
 End Function
 
 Function setPlayerType(i As Byte, newType As Byte) As Byte
-    'only necessary if not a local user controled player, see clsPlayer.setPlayerType()
-    setPlayerType = Players(i).setPlayerType(newType)
+    'only necessary if not a local user controled player, see clsPlayer.setType()
+    setPlayerType = Players(i).setType(newType)
 End Function
 
 Function checkMove(pos As Position, dir As Byte) As Boolean
@@ -281,8 +281,8 @@ Function getNoOfPlayer() As Byte
     getNoOfPlayer = NoOfPlayer
 End Function
 
-Function getNoOfBricks() As Byte
-    getNoOfBricks = NoOfBricks
+Function getRemainingPlayerBricks(i As Byte) As Byte
+    getRemainingPlayerBricks = Players(i).getBricks + 1 'we want a number not an index
 End Function
 
 Sub create(NoOfPl As Byte, NoOfBr As Byte, Dimension As Byte)

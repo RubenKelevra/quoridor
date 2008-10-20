@@ -310,10 +310,15 @@ Private Sub drawBoard()
     Dim lCurColor As Long
     Dim tDrawPos As Position
     Dim tPlayerPos As Position
+    Dim biActPlayer As Byte
+    biActPlayer = Playground.getActivePlayer
     
     BDimension = Playground.getDimension
     
-    Me.shpCurrentPlayer.FillColor = Playground.getPlayerColor(Playground.getActivePlayer) 'set current player marker
+    'set current player marker
+    Me.shpCurrentPlayer.FillColor = Playground.getPlayerColor(biActPlayer)
+    'show player bricks
+    Me.lblBricksLeftNumber.Caption = CStr(Playground.getRemainingPlayerBricks(biActPlayer))
     
     For x = 0 To BDimension
         For y = 0 To BDimension
