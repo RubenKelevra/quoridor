@@ -107,6 +107,7 @@ End Function
 Function movePlayer(i As Byte, dir As Byte) As Boolean
     If checkMove(Players(i).getLocation, dir) Then
         movePlayer = Players(i).Move(dir)
+        NextTurn
     Else
         movePlayer = False
     End If
@@ -161,7 +162,7 @@ Function getActivePlayer() As Byte
 End Function
 
 Sub NextTurn()
-    activePlayer = Switch(activePlayer < 3, activePlayer, True, 0)
+    activePlayer = Switch(activePlayer < 3, activePlayer + 1, True, 0)
 End Sub
 
 Function checkFrontWall(pos As Position, direction As Byte) As Boolean
