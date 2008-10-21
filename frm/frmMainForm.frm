@@ -12,6 +12,16 @@ Begin VB.Form frmMainForm
    ScaleHeight     =   4080
    ScaleWidth      =   8235
    StartUpPosition =   3  'Windows-Standard
+   Begin VB.Frame fraBoard 
+      BorderStyle     =   0  'Kein
+      Caption         =   "Gameboard"
+      Height          =   3735
+      Left            =   180
+      TabIndex        =   12
+      Top             =   180
+      Visible         =   0   'False
+      Width           =   3735
+   End
    Begin VB.Frame fraMovement 
       Caption         =   "Movement"
       BeginProperty Font 
@@ -34,6 +44,7 @@ Begin VB.Form frmMainForm
          Index           =   3
          Left            =   1800
          TabIndex        =   11
+         TabStop         =   0   'False
          Top             =   780
          Width           =   495
       End
@@ -43,6 +54,7 @@ Begin VB.Form frmMainForm
          Index           =   0
          Left            =   2400
          TabIndex        =   10
+         TabStop         =   0   'False
          Top             =   1080
          Width           =   495
       End
@@ -51,6 +63,7 @@ Begin VB.Form frmMainForm
          Height          =   495
          Left            =   120
          TabIndex        =   9
+         TabStop         =   0   'False
          Top             =   480
          Width           =   1455
       End
@@ -60,6 +73,7 @@ Begin VB.Form frmMainForm
          Height          =   495
          Left            =   120
          TabIndex        =   8
+         TabStop         =   0   'False
          Top             =   1080
          Width           =   1455
       End
@@ -69,6 +83,7 @@ Begin VB.Form frmMainForm
          Index           =   1
          Left            =   3000
          TabIndex        =   7
+         TabStop         =   0   'False
          Top             =   780
          Width           =   495
       End
@@ -78,19 +93,10 @@ Begin VB.Form frmMainForm
          Index           =   2
          Left            =   2400
          TabIndex        =   6
+         TabStop         =   0   'False
          Top             =   480
          Width           =   495
       End
-   End
-   Begin VB.Frame fraBoard 
-      BorderStyle     =   0  'Kein
-      Caption         =   "Gameboard"
-      Height          =   3735
-      Left            =   180
-      TabIndex        =   4
-      Top             =   180
-      Visible         =   0   'False
-      Width           =   3735
    End
    Begin VB.Frame fraInfo 
       Caption         =   "Information"
@@ -105,9 +111,21 @@ Begin VB.Form frmMainForm
       EndProperty
       Height          =   1575
       Left            =   4200
-      TabIndex        =   0
+      TabIndex        =   1
       Top             =   120
       Width           =   3855
+      Begin VB.PictureBox picFocus 
+         BackColor       =   &H00000000&
+         BorderStyle     =   0  'Kein
+         Height          =   375
+         Left            =   3360
+         ScaleHeight     =   375
+         ScaleWidth      =   375
+         TabIndex        =   0
+         TabStop         =   0   'False
+         Top             =   360
+         Width           =   375
+      End
       Begin VB.Label lblBricksLeftNumber 
          Alignment       =   2  'Zentriert
          Caption         =   "88"
@@ -122,7 +140,7 @@ Begin VB.Form frmMainForm
          EndProperty
          Height          =   375
          Left            =   2280
-         TabIndex        =   3
+         TabIndex        =   4
          Top             =   960
          Width           =   375
       End
@@ -139,7 +157,7 @@ Begin VB.Form frmMainForm
          EndProperty
          Height          =   375
          Left            =   120
-         TabIndex        =   2
+         TabIndex        =   3
          Top             =   960
          Width           =   1935
       End
@@ -156,7 +174,7 @@ Begin VB.Form frmMainForm
          EndProperty
          Height          =   375
          Left            =   120
-         TabIndex        =   1
+         TabIndex        =   2
          Top             =   480
          Width           =   1935
       End
@@ -199,6 +217,7 @@ Option Explicit
 Private Playground As clsBoard
 
 'formdata
+Private bKeyUp As Boolean
 Private iFieldsize As Integer
 Private iBricksize As Integer
 Private iDrawStartX As Integer
@@ -252,19 +271,25 @@ Private Sub cmdMove_Click(Index As Integer)
         
     End If
     
+    ' set focus to picFocus for arrow-movement
+    Me.picFocus.SetFocus
+    
     If changed Then
     
         ' repaint form
         Call Form_Paint
     
     End If
-
+    
 End Sub
 
 Private Sub cmdRotateBrick_Click()
 
     ' switches rotation variable
     tTempBrick.Landscape = Not tTempBrick.Landscape
+    
+    ' set focus to picFocus for arrow-movement
+    Me.picFocus.SetFocus
     
     ' repaint form
     Call Form_Paint
@@ -289,7 +314,7 @@ Private Sub cmdSetBrick_Click()
         Else
             
             'placing on this position is not possible
-            ' TODO: what will happen, if a brick cannot be set
+            ' TODO: what will happen, if a brick cannot be set?
             Me.cmdSetBrick.Caption = "set brick"
             tTempBrick.Placed = False ' FIXME: set value to TRUE if clsBoard.checkPlaceWall is working properly
         
@@ -305,6 +330,9 @@ Private Sub cmdSetBrick_Click()
         tTempBrick.Placed = True
     
     End If
+    
+    ' set focus to picFocus for arrow-movement
+    Me.picFocus.SetFocus
             
     ' repaint form
     Call Form_Paint
@@ -313,6 +341,7 @@ End Sub
 
 Private Sub Form_Load()
     
+    ' init board
     Set Playground = New clsBoard
     Call Playground.create(3, 4, 8) 'player, bricks, fields dimension (x=y)
     Me.shpCurrentPlayer.FillColor = Playground.getPlayerColor(0) 'init current player marker
@@ -324,21 +353,63 @@ Private Sub Form_Load()
     iFieldsize = (Me.fraBoard.Height + Me.fraBoard.Width) / (9 + 9)
     iBricksize = iFieldsize / 9
     
-    ' init color
+    ' init colors
+    Me.picFocus.BackColor = Me.BackColor
     lBoardcolor = RGB(0, 0, 0)
+    
+    ' init other vars
+    bKeyUp = True
     
 End Sub
 
 Private Sub Form_Paint()
 
-    drawBoard
-    drawBricks
+    ' sets current color of the active figure
+    Call setCurFigureColor
+    Call setBricksLeft
+    Call deactMoveButtons
+    
+    Call drawBoard
+    Call drawBricks
     
 End Sub
+
+Private Sub setCurFigureColor()
+
+    ' set current player marker
+    Me.shpCurrentPlayer.FillColor = Playground.getPlayerColor(Playground.getActivePlayer)
+
+End Sub
+
+Private Sub setBricksLeft()
+
+    ' show player bricks
+    Me.lblBricksLeftNumber.Caption = CStr(Playground.getRemainingPlayerBricks(Playground.getActivePlayer))
+
+End Sub
+
+Private Sub deactMoveButtons()
+
+    ' dec
+    Dim BActPlayer As Byte
+    Dim i As Integer
+    
+    ' init
+    BActPlayer = Playground.getActivePlayer
+
+    ' deactivate buttons which indicates a direction which is not possible
+    For i = 0 To 3
+        cmdMove(i).Enabled = Playground.checkMove(Playground.getPlayerLocation(BActPlayer), i)
+        cmdMove(i).FontBold = Playground.getPlayerTarget(BActPlayer) = i
+    Next i
+
+End Sub
+
 
 Private Sub drawBoard()
 ' draws the fields on which a player can move
 
+    ' dec
     Dim BDimension As Byte
     Dim i As Byte
     Dim x As Byte
@@ -348,21 +419,9 @@ Private Sub drawBoard()
     Dim lCurColor As Long
     Dim tDrawPos As Position
     Dim tPlayerPos As Position
-    Dim biActPlayer As Byte
-    biActPlayer = Playground.getActivePlayer
     
+    ' save dimension
     BDimension = Playground.getDimension
-    
-    'set current player marker
-    Me.shpCurrentPlayer.FillColor = Playground.getPlayerColor(biActPlayer)
-    'show player bricks
-    Me.lblBricksLeftNumber.Caption = CStr(Playground.getRemainingPlayerBricks(biActPlayer))
-    
-    'deactivate buttons which indicates a direction which is not possible
-    For i = 0 To 3
-        cmdMove(i).Enabled = Playground.checkMove(Playground.getPlayerLocation(biActPlayer), i)
-        cmdMove(i).FontBold = Playground.getPlayerTarget(biActPlayer) = i
-    Next i
     
     For x = 0 To BDimension
         For y = 0 To BDimension
@@ -430,7 +489,7 @@ Public Sub drawBricks()
             End If
             
             ' draw bricks
-            frmMainForm.Line (iCurX, iCurY)- _
+            Me.Line (iCurX, iCurY)- _
                          (iCurX + iFieldsize - iBricksize, iCurY + iBricksize), _
                           lCurColor, _
                           BF
@@ -459,7 +518,7 @@ Public Sub drawBricks()
             End If
             
             ' draw bricks
-            frmMainForm.Line (iCurX, iCurY)- _
+            Me.Line (iCurX, iCurY)- _
                          (iCurX + iBricksize, iCurY + iFieldsize - iBricksize), _
                           lCurColor, _
                           BF
@@ -469,4 +528,36 @@ Public Sub drawBricks()
 
 End Sub
 
+Private Sub picFocus_KeyDown(KeyCode As Integer, Shift As Integer)
+' select movement keys
 
+    If bKeyUp Then
+    
+        Select Case KeyCode
+        
+            Case vbKeyDown:
+                Call cmdMove_Click(0)
+                
+            Case vbKeyRight:
+                Call cmdMove_Click(1)
+                
+            Case vbKeyUp:
+                Call cmdMove_Click(2)
+                
+            Case vbKeyLeft:
+                Call cmdMove_Click(3)
+        
+        End Select
+        
+        bKeyUp = False
+        
+    End If
+    
+End Sub
+
+Private Sub picFocus_KeyUp(KeyCode As Integer, Shift As Integer)
+' on keyUp, set var to true
+
+    bKeyUp = True
+
+End Sub

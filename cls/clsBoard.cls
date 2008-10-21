@@ -51,7 +51,7 @@ Function setPlayerType(i As Byte, newType As Byte) As Byte
     setPlayerType = Players(i).setType(newType)
 End Function
 
-Function checkMove(pos As Position, dir As Byte) As Boolean
+Function checkMove(ByRef pos As Position, ByVal dir As Byte) As Boolean
     Dim newPos As Position
     Dim i As Byte
     If Not checkFrontWall(pos, dir) Then
