@@ -47,8 +47,16 @@ Function getPlayerType(i As Byte) As Byte
 End Function
 
 Function setPlayerType(i As Byte, newType As Byte) As Byte
-    'only necessary if not a local user controled player, see clsPlayer.setType()
-    setPlayerType = Players(i).setType(newType)
+    'only necessary if not a local user controled player, definition of Type see clsPlayer.setType()
+    'returnvalue
+    '0 = ok
+    '1 = out of valid type range
+    '2 = out of player index range
+    If i <= NoOfPlayer Then
+        setPlayerType = Players(i).setType(newType)
+    Else
+        setPlayerType = 2
+    End If
 End Function
 
 Function checkMove(ByRef pos As Position, ByVal dir As Byte) As Boolean
@@ -216,6 +224,17 @@ returnFalse:
     Exit Function
 End Function
 
+Private Function NoToDir(i As Byte) As Byte
+    'part of checkPlaceWall
+    NoToDir = Switch(0 < i - 3, i - 3, True, i)
+End Function
+
+Private Function NoToField(i As Byte) As Byte
+    'part of checkPlaceWall
+    NoToField = Switch(0 < i - 3, 0, True, 1)
+End Function
+
+
 Function checkPlaceWall(newPos As Brick) As Boolean
     'for-counter
     Dim i As Byte
@@ -225,50 +244,96 @@ Function checkPlaceWall(newPos As Brick) As Boolean
     'state variables
     Dim ended As Boolean
 
-    'use with care! theoretical max 8192 Byte memspace if field dimension is set to 256 don't know if VB can handle this big
-    Dim RunnedFields() As Position
-    ReDim RunnedFields(7, (Dimensions + 1) * (Dimensions + 1) - 1)
     '0 = aborted - touched neighbor field on first move
     '1 = field touched were we had started - ccw around
     '2 = field touched were we had started - cw around
     '3 = target wall reached
+    '255 = no run have been done jet
     Dim RunningResults(7) As Byte
+    'currently startpoint
+    Dim startPoint As Position
     'saves the right and left turns while running, so we can determine if we run ccw or cw
-    Dim rightLeftCount As Byte
-    'saves the actual running direction
+    Dim rightLeftCount(7) As Byte
+    'holds the actual running direction
     Dim direction As Byte
-
-    For i = 0 To 7 'fields around the new wall
-        For i2 = 0 To (Dimensions + 1) * (Dimensions + 1) - 1 '-1 because we start at 0
-            For i3 = 0 To 1 'directions, first to the smaller index, then to the higher
-                RunnedFields(i, i2).Position(i3) = 255
-            Next i3
+    
+    'saves points were we turned around
+    Dim turned() As Position
+    ReDim turned(7, 20) '20 to get a default space, will be redim if we need more
+    
+    For i = 0 To 7
+        RunningResults(i) = 255
+        rightLeftCount(i) = 127 'to be able to calc minus and plus for left and right
+    Next i
+    
+    
+    direction = 255
+    startPoint.Position(0) = 255
+    startPoint.Position(1) = 255
+    
+    For i = 0 To 7
+        For i2 = 0 To 20
+            turned(i, i2).Position(0) = 255
+            turned(i, i2).Position(1) = 255
         Next i2
     Next i
-
-    For i = 0 To 3 'position around the new wall
-        'setting startfield
-        For i2 = 0 To 1
-            'running ccw
-            'x
-            RunnedFields(i + Switch(Not i2, 0, i2, 4), 0).Position(0) = Switch( _
-                                                                            i = 0 Or i = 1, newPos.Position(0), _
-                                                                            i = 2 Or i = 3, newPos.Position(0) + 1 _
-                                                                            )
-            'y
-            RunnedFields(i + Switch(Not i2, 0, i2, 4), 0).Position(1) = Switch( _
-                                                                            i = 0 Or i = 3, newPos.Position(0), _
-                                                                            i = 1 Or i = 2, newPos.Position(0) + 1 _
-                                                                            )
-        Next i2
-        For i2 = 0 To 1 'directions per position
-            ended = False
-
-            'Do
-
-            'While ended
-        Next i2
+    
+    'starting algorithmus
+    
+    For i = 0 To 7 'startfields/directions
+        Select Case NoToField(i)
+            Case 0:
+                startPoint.Position(0) = newPos.Position(0)
+                startPoint.Position(1) = newPos.Position(1)
+            Case 1:
+                startPoint.Position(0) = newPos.Position(0)
+                startPoint.Position(1) = newPos.Position(1) + 1
+            Case 2:
+                startPoint.Position(0) = newPos.Position(0) + 1
+                startPoint.Position(1) = newPos.Position(1) + 1
+            Case 3:
+                startPoint.Position(0) = newPos.Position(0) + 1
+                startPoint.Position(1) = newPos.Position(1)
+        End Select
     Next i
+    
+    
+    'first try to be deleted
+    'use with care! theoretical max 8192 Byte memspace if field dimension is set to 256 don't know if VB can handle this big
+    'Dim RunnedFields() As Position
+    'ReDim RunnedFields(7, (Dimensions + 1) * (Dimensions + 1) - 1)
+    
+    'For i = 0 To 7 'fields around the new wall
+    '    For i2 = 0 To (Dimensions + 1) * (Dimensions + 1) - 1 '-1 because we start at 0
+    '        For i3 = 0 To 1 'directions, first to the smaller index, then to the higher
+    '            RunnedFields(i, i2).Position(i3) = 255
+    '        Next i3
+    '    Next i2
+    'Next i
+
+    'For i = 0 To 3 'position around the new wall
+    '    'setting startfield
+    '    For i2 = 0 To 1
+    '        'running ccw
+    '        'x
+    '        RunnedFields(i + Switch(Not i2, 0, i2, 4), 0).Position(0) = Switch( _
+    '                                                                        i = 0 Or i = 1, newPos.Position(0), _
+    '                                                                        i = 2 Or i = 3, newPos.Position(0) + 1 _
+    '                                                                        )
+    '        'y
+    '        RunnedFields(i + Switch(Not i2, 0, i2, 4), 0).Position(1) = Switch( _
+    '                                                                        i = 0 Or i = 3, newPos.Position(0), _
+    '                                                                        i = 1 Or i = 2, newPos.Position(0) + 1 _
+    '                                                                        )
+    '    Next i2
+    '    For i2 = 0 To 1 'directions per position
+    '        ended = False
+    '
+    '        'Do
+    '
+    '        'While ended
+    '    Next i2
+    'Next i
 End Function
 
 Function getNameOfPlayer(i As Byte) As String
@@ -297,7 +362,9 @@ Sub create(NoOfPl As Byte, NoOfBr As Byte, Dimension As Byte)
     NoOfPlayer = Switch(NoOfPl = 3, 3, True, 1)
     NoOfBricks = NoOfBr
     'if the dimension is smaller than the NoOfPlayer the field will be made bigger
-    Dimensions = Switch(Dimension < NoOfPlayer, NoOfPlayer, True, Dimension)
+    'if dimension = 255 it'll set to 254 otherwise we may get unexpected results of some functions
+    ' because we use 255 as defaultvalue in some functions
+    Dimensions = Switch(Dimension < NoOfPlayer, NoOfPlayer, Dimension < 255, Dimension, Dimension = 255, 254)
     
     ReDim Players(NoOfPlayer)
     For i = 0 To NoOfPlayer
@@ -314,6 +381,15 @@ Sub create(NoOfPl As Byte, NoOfBr As Byte, Dimension As Byte)
     'subtract to get the other line near the center for the mirrored player
     pStarts(2).Position(0) = Dimensions - CByte(Dimensions / 2)
         pStarts(3).Position(1) = pStarts(2).Position(0)
+    
+    'pStarts(0).Position(0) = 0
+    'pStarts(0).Position(1) = 0
+    'pStarts(1).Position(0) = 0
+    'pStarts(1).Position(1) = 1
+    'pStarts(2).Position(0) = 1
+    'pStarts(2).Position(1) = 0
+    'pStarts(3).Position(0) = 1
+    'pStarts(3).Position(1) = 1
     
     'set player starts
     For i = LBound(Players) To UBound(Players)
