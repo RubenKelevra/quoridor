@@ -45,12 +45,21 @@ Function getBricks() As Byte
     getBricks = RemainingStones
 End Function
 
-Sub setType(i As Byte)
+Function setType(i As Byte) As Byte
+    'i:
     '0 = user controlled local player
     '1 = AI controlled local player
     '2... reserved for networkgames
-    TypeOfPlayer = Switch(i <= 1, i, True, 0)
-End Sub
+    'returnvalue
+    '0 = ok
+    '1 = out of range
+    If i <= 1 Then
+        TypeOfPlayer = i
+        setType = 0
+    Else
+        setType = 1
+    End If
+End Function
 
 Function getTarget() As Byte
     getTarget = TargetWall
@@ -87,7 +96,7 @@ Function getLocation() As Position
     getLocation = Location
 End Function
 
-Sub newRound(x As Byte, y As Byte, Stones As Byte, Target As Byte)
+Sub newRound(x As Byte, y As Byte, Stones As Byte, target As Byte)
     GlobalPlaytime = GlobalPlaytime + Playtime
     
     Location.Position(0) = x
@@ -95,7 +104,7 @@ Sub newRound(x As Byte, y As Byte, Stones As Byte, Target As Byte)
     
     RemainingStones = Stones
     Playtime = 0
-    TargetWall = Target
+    TargetWall = target
 End Sub
 
 Function getPlayerName() As String
@@ -115,7 +124,7 @@ Function subtractStone() As Boolean
     End If
 End Function
 
-Sub create(x As Byte, y As Byte, Stones As Byte, Target As Byte)
+Sub create(x As Byte, y As Byte, Stones As Byte, target As Byte)
 
     'set the first position of the player
     Location.Position(0) = x
@@ -124,5 +133,5 @@ Sub create(x As Byte, y As Byte, Stones As Byte, Target As Byte)
     TypeOfPlayer = 0
     RemainingStones = Stones
     Playtime = 0
-    TargetWall = Target
+    TargetWall = target
 End Sub
