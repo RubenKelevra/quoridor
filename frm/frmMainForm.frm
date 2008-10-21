@@ -47,8 +47,7 @@ Begin VB.Form frmMainForm
          Width           =   495
       End
       Begin VB.CommandButton cmdSetBrick 
-         Caption         =   "set Brick"
-         Enabled         =   0   'False
+         Caption         =   "set brick"
          Height          =   495
          Left            =   120
          TabIndex        =   9
@@ -56,7 +55,7 @@ Begin VB.Form frmMainForm
          Width           =   1455
       End
       Begin VB.CommandButton cmdRotateBrick 
-         Caption         =   "rotate Brick"
+         Caption         =   "rotate brick"
          Enabled         =   0   'False
          Height          =   495
          Left            =   120
@@ -111,6 +110,7 @@ Begin VB.Form frmMainForm
       Width           =   3855
       Begin VB.Label lblBricksLeftNumber 
          Alignment       =   2  'Zentriert
+         Caption         =   "88"
          BeginProperty Font 
             Name            =   "MS Sans Serif"
             Size            =   13.5
@@ -199,7 +199,6 @@ Option Explicit
 Private Playground As clsBoard
 
 'formdata
-Private bSetBrickMode As Boolean
 Private iFieldsize As Integer
 Private iBricksize As Integer
 Private iDrawStartX As Integer
@@ -208,25 +207,58 @@ Private lBoardcolor As Long
 Private tTempBrick As Brick
 
 Private Sub cmdMove_Click(Index As Integer)
+    
+    ' dec
     Dim changed As Boolean
     changed = False
     
-    If Not bSetBrickMode Then 'move figure
+    If Not tTempBrick.Placed Then 'move figure
+        
         changed = Playground.movePlayer(Playground.getActivePlayer, CByte(Index))
-    Else
-        If tTempBrick.Position(1) > 0 Then
-        
-            ' move right
-            tTempBrick.Position(1) = tTempBrick.Position(1) - 1
-        
-        End If
     
+    Else
+    
+        Select Case Index
+            
+            ' move down
+            Case 0:
+                If tTempBrick.Position(1) < Playground.getDimension Then
+                    tTempBrick.Position(1) = tTempBrick.Position(1) + 1
+                    changed = True
+                End If
+            
+            ' move right
+            Case 1:
+                If tTempBrick.Position(0) < Playground.getDimension Then
+                    tTempBrick.Position(0) = tTempBrick.Position(0) + 1
+                    changed = True
+                End If
+            
+            ' move up
+            Case 2:
+                If tTempBrick.Position(1) > 0 Then
+                    tTempBrick.Position(1) = tTempBrick.Position(1) - 1
+                    changed = True
+                End If
+            
+            ' move left
+            Case 3:
+                If tTempBrick.Position(0) > 0 Then
+                    tTempBrick.Position(0) = tTempBrick.Position(0) - 1
+                    changed = True
+                End If
+        
+        End Select
+        
     End If
     
     If changed Then
+    
         ' repaint form
         Call Form_Paint
+    
     End If
+
 End Sub
 
 Private Sub cmdRotateBrick_Click()
@@ -240,46 +272,50 @@ Private Sub cmdRotateBrick_Click()
 End Sub
 
 Private Sub cmdSetBrick_Click()
-    If bSetBrickMode Then
+
+    If tTempBrick.Placed Then
         If Playground.checkPlaceWall(tTempBrick) Then
         
-        
-            'FIXME: save the brick
-            
-            
-            Me.cmdSetBrick.Caption = "set |"
-            
-            ' reset temp brick
+            ' reset caption
+            Me.cmdSetBrick.Caption = "set brick"
+
+            ' reset brick options
             tTempBrick.Landscape = False
             tTempBrick.Position(0) = 0
             tTempBrick.Position(1) = 0
-            bSetBrickMode = False
+            tTempBrick.Placed = False
+            Me.cmdRotateBrick.Enabled = True
             
-            ' repaint form
-            Call Form_Paint
         Else
+            
             'placing on this position is not possible
-            Me.cmdSetBrick.Caption = "set Brick"
-            bSetBrickMode = False
+            ' TODO: what will happen, if a brick cannot be set
+            Me.cmdSetBrick.Caption = "set brick"
+            tTempBrick.Placed = False ' FIXME: set value to TRUE if clsBoard.checkPlaceWall is working properly
+        
         End If
+        
     Else
+        
+        ' set new caption
         Me.cmdSetBrick.Caption = "OK?"
-        bSetBrickMode = True
+            
+        ' enable brick options
+        Me.cmdRotateBrick.Enabled = True
+        tTempBrick.Placed = True
+    
     End If
+            
+    ' repaint form
+    Call Form_Paint
+    
 End Sub
 
 Private Sub Form_Load()
     
     Set Playground = New clsBoard
     Call Playground.create(3, 4, 8) 'player, bricks, fields dimension (x=y)
-    bSetBrickMode = False 'init brick option
     Me.shpCurrentPlayer.FillColor = Playground.getPlayerColor(0) 'init current player marker
-
-    ' init fieldsize
-    iFieldsize = 380
-    
-    ' init linesize
-    iBricksize = 50
     
     ' init drawing coords
     iDrawStartX = Me.fraBoard.Left
@@ -304,9 +340,9 @@ Private Sub drawBoard()
 ' draws the fields on which a player can move
 
     Dim BDimension As Byte
+    Dim i As Byte
     Dim x As Byte
     Dim y As Byte
-    Dim i As Byte
     Dim iCurX As Integer
     Dim iCurY As Integer
     Dim lCurColor As Long
@@ -338,18 +374,22 @@ Private Sub drawBoard()
             iCurX = iDrawStartX + x * iFieldsize
             iCurY = iDrawStartY + y * iFieldsize
             
-            ' draw lines
+            ' check current position with the position of all players
             For i = 0 To Playground.getNoOfPlayer
+                
                 tDrawPos = xy2pos(x, y)
                 tPlayerPos = Playground.getPlayerLocation(i)
                 
-                If Not comparePos(xy2pos(255, 255), tPlayerPos) Then
-                    If comparePos(tDrawPos, tPlayerPos) Then
-                        lCurColor = Playground.getPlayerColor(i)
-                    End If
+                If Not comparePos(xy2pos(255, 255), tPlayerPos) And comparePos(tDrawPos, tPlayerPos) Then
+                        
+                    ' set playercolor
+                    lCurColor = Playground.getPlayerColor(i)
+                
                 End If
+            
             Next i
 
+            ' draw lines
             Me.Line (iCurX, iCurY)- _
                          (iCurX + iFieldsize - iBricksize, iCurY + iFieldsize - iBricksize), _
                           lCurColor, _
@@ -367,10 +407,14 @@ Public Sub drawBricks()
     Dim y As Integer
     Dim iCurX As Integer
     Dim iCurY As Integer
+    Dim lCurColor As Long
     
     ' horizontal
     For x = 0 To 8
         For y = 0 To 7
+        
+            ' init color
+            lCurColor = Me.BackColor
         
             ' calc current coords
             iCurX = iDrawStartX + x * iFieldsize
@@ -380,18 +424,16 @@ Public Sub drawBricks()
                ((x = tTempBrick.Position(0) And y = tTempBrick.Position(1)) Or _
                (x = tTempBrick.Position(0) + 1 And y = tTempBrick.Position(1))) _
             Then
-                ' draw temp brick
-                frmMainForm.Line (iCurX, iCurY)- _
-                             (iCurX + iFieldsize - iBricksize, iCurY + iBricksize), _
-                              RGB(0, 192, 0), _
-                              BF
-            Else
-                ' draw neutral brick
-                frmMainForm.Line (iCurX, iCurY)- _
-                             (iCurX + iFieldsize - iBricksize, iCurY + iBricksize), _
-                              &H8000000F, _
-                              BF
+            
+                lCurColor = RGB(0, 192, 0)
+                
             End If
+            
+            ' draw bricks
+            frmMainForm.Line (iCurX, iCurY)- _
+                         (iCurX + iFieldsize - iBricksize, iCurY + iBricksize), _
+                          lCurColor, _
+                          BF
         
         Next y
     Next x
@@ -399,6 +441,9 @@ Public Sub drawBricks()
     ' vertical
     For x = 0 To 7
         For y = 0 To 8
+        
+            ' init color
+            lCurColor = Me.BackColor
         
             ' calc current coords
             iCurX = iDrawStartX + (x + 1) * iFieldsize - iBricksize
@@ -408,18 +453,16 @@ Public Sub drawBricks()
                ((x = tTempBrick.Position(0) And y = tTempBrick.Position(1)) Or _
                (x = tTempBrick.Position(0) And y = tTempBrick.Position(1) + 1)) _
             Then
-                ' draw line to set
-                frmMainForm.Line (iCurX, iCurY)- _
-                             (iCurX + iBricksize, iCurY + iFieldsize - iBricksize), _
-                              RGB(0, 192, 0), _
-                              BF
-            Else
-                ' draw neutral lines
-                frmMainForm.Line (iCurX, iCurY)- _
-                             (iCurX + iBricksize, iCurY + iFieldsize - iBricksize), _
-                              &H8000000F, _
-                              BF
+            
+                lCurColor = RGB(0, 192, 0)
+                
             End If
+            
+            ' draw bricks
+            frmMainForm.Line (iCurX, iCurY)- _
+                         (iCurX + iBricksize, iCurY + iFieldsize - iBricksize), _
+                          lCurColor, _
+                          BF
         
         Next y
     Next x
