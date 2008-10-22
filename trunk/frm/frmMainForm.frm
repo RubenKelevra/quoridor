@@ -3,8 +3,8 @@ Begin VB.Form frmMainForm
    BorderStyle     =   1  'Fest Einfach
    Caption         =   "Quoridor"
    ClientHeight    =   4080
-   ClientLeft      =   45
-   ClientTop       =   435
+   ClientLeft      =   150
+   ClientTop       =   840
    ClientWidth     =   8235
    ClipControls    =   0   'False
    LinkTopic       =   "frmMainForm"
@@ -40,6 +40,7 @@ Begin VB.Form frmMainForm
       Width           =   3855
       Begin VB.CommandButton cmdMove 
          Caption         =   "< -"
+         Enabled         =   0   'False
          Height          =   495
          Index           =   3
          Left            =   1800
@@ -50,6 +51,7 @@ Begin VB.Form frmMainForm
       End
       Begin VB.CommandButton cmdMove 
          Caption         =   "\l/"
+         Enabled         =   0   'False
          Height          =   495
          Index           =   0
          Left            =   2400
@@ -60,6 +62,7 @@ Begin VB.Form frmMainForm
       End
       Begin VB.CommandButton cmdSetBrick 
          Caption         =   "set brick"
+         Enabled         =   0   'False
          Height          =   495
          Left            =   120
          TabIndex        =   9
@@ -79,6 +82,7 @@ Begin VB.Form frmMainForm
       End
       Begin VB.CommandButton cmdMove 
          Caption         =   "- >"
+         Enabled         =   0   'False
          Height          =   495
          Index           =   1
          Left            =   3000
@@ -89,6 +93,7 @@ Begin VB.Form frmMainForm
       End
       Begin VB.CommandButton cmdMove 
          Caption         =   "/l\"
+         Enabled         =   0   'False
          Height          =   495
          Index           =   2
          Left            =   2400
@@ -142,6 +147,7 @@ Begin VB.Form frmMainForm
          Left            =   2280
          TabIndex        =   4
          Top             =   960
+         Visible         =   0   'False
          Width           =   375
       End
       Begin VB.Label lblBricksLeftTxt 
@@ -185,7 +191,29 @@ Begin VB.Form frmMainForm
          Left            =   2280
          Shape           =   3  'Kreis
          Top             =   480
+         Visible         =   0   'False
          Width           =   375
+      End
+   End
+   Begin VB.Menu ddmMenuGame 
+      Caption         =   "Spiel"
+      Begin VB.Menu ddmNewGame 
+         Caption         =   "&Neues Spiel"
+         Shortcut        =   {F2}
+      End
+      Begin VB.Menu ddmSaveGame 
+         Caption         =   "Spiel &speichern"
+         Shortcut        =   ^S
+      End
+      Begin VB.Menu ddmLoadGame 
+         Caption         =   "Spiel &laden"
+         Shortcut        =   ^O
+      End
+      Begin VB.Menu ddmLine1 
+         Caption         =   "-"
+      End
+      Begin VB.Menu ddmExit 
+         Caption         =   "&Beenden"
       End
    End
 End
@@ -218,6 +246,7 @@ Private Playground As clsBoard
 
 'formdata
 Private bKeyUp As Boolean
+Private bGameEnabled As Boolean
 Private iFieldsize As Integer
 Private iBricksize As Integer
 Private iDrawStartX As Integer
@@ -271,9 +300,6 @@ Private Sub cmdMove_Click(Index As Integer)
         
     End If
     
-    ' set focus to picFocus for arrow-movement
-    Me.picFocus.SetFocus
-    
     If changed Then
     
         ' repaint form
@@ -281,6 +307,13 @@ Private Sub cmdMove_Click(Index As Integer)
     
     End If
     
+End Sub
+
+Private Sub cmdMove_MouseUp(Index As Integer, Button As Integer, Shift As Integer, x As Single, y As Single)
+
+    ' set focus to picFocus for arrow-movement
+    Me.picFocus.SetFocus
+
 End Sub
 
 Private Sub cmdRotateBrick_Click()
@@ -296,11 +329,21 @@ Private Sub cmdRotateBrick_Click()
 
 End Sub
 
+Private Sub cmdRotateBrick_MouseUp(Button As Integer, Shift As Integer, x As Single, y As Single)
+    
+    ' set focus to picFocus for arrow-movement
+    Me.picFocus.SetFocus
+
+End Sub
+
 Private Sub cmdSetBrick_Click()
 
     If tTempBrick.Placed Then
         If Playground.checkPlaceWall(tTempBrick) Then
         
+            ' save brick
+            ' Call saveBlocker(tTempBrick, Playground.getActivePlayer)
+            
             ' reset caption
             Me.cmdSetBrick.Caption = "set brick"
 
@@ -309,14 +352,18 @@ Private Sub cmdSetBrick_Click()
             tTempBrick.Position(0) = 0
             tTempBrick.Position(1) = 0
             tTempBrick.Placed = False
-            Me.cmdRotateBrick.Enabled = True
+            Me.cmdRotateBrick.Enabled = False
             
         Else
             
-            'placing on this position is not possible
-            ' TODO: what will happen, if a brick cannot be set?
+            ' placing on this position is not possible
+            ' do nothing
             Me.cmdSetBrick.Caption = "set brick"
-            tTempBrick.Placed = False ' FIXME: set value to TRUE if clsBoard.checkPlaceWall is working properly
+            tTempBrick.Landscape = False
+            tTempBrick.Position(0) = 0
+            tTempBrick.Position(1) = 0
+            tTempBrick.Placed = False
+            Me.cmdRotateBrick.Enabled = False
         
         End If
         
@@ -339,8 +386,22 @@ Private Sub cmdSetBrick_Click()
     
 End Sub
 
-Private Sub Form_Load()
-    
+Private Sub cmdSetBrick_MouseUp(Button As Integer, Shift As Integer, x As Single, y As Single)
+
+    ' set focus to picFocus for arrow-movement
+    Me.picFocus.SetFocus
+
+End Sub
+
+Private Sub ddmExit_Click()
+
+    ' exit programm
+    End
+
+End Sub
+
+Private Sub ddmNewGame_Click()
+
     ' init board
     Set Playground = New clsBoard
     Call Playground.create(3, 4, 8) 'player, bricks, fields dimension (x=y)
@@ -354,23 +415,46 @@ Private Sub Form_Load()
     iBricksize = iFieldsize / 9
     
     ' init colors
-    Me.picFocus.BackColor = Me.BackColor
     lBoardcolor = RGB(0, 0, 0)
     
     ' init other vars
     bKeyUp = True
     
+    ' enable GUI
+    If Not bGameEnabled Then
+        Me.lblBricksLeftNumber.Visible = True
+        Me.shpCurrentPlayer.Visible = True
+        Me.cmdMove(0).Enabled = True
+        Me.cmdMove(1).Enabled = True
+        Me.cmdMove(2).Enabled = True
+        Me.cmdMove(3).Enabled = True
+        Me.cmdSetBrick.Enabled = True
+    End If
+    
+    ' draw
+    bGameEnabled = True
+    Call Form_Paint
+
+End Sub
+
+Private Sub Form_Load()
+
+    ' hide picture box
+    Me.picFocus.BackColor = Me.BackColor
+
 End Sub
 
 Private Sub Form_Paint()
 
     ' sets current color of the active figure
-    Call setCurFigureColor
-    Call setBricksLeft
-    Call deactMoveButtons
-    
-    Call drawBoard
-    Call drawBricks
+    If bGameEnabled Then
+        Call setCurFigureColor
+        Call setBricksLeft
+        Call deactMoveButtons
+        
+        Call drawBoard
+        Call drawBricks
+    End If
     
 End Sub
 
@@ -383,8 +467,18 @@ End Sub
 
 Private Sub setBricksLeft()
 
-    ' show player bricks
-    Me.lblBricksLeftNumber.Caption = CStr(Playground.getRemainingPlayerBricks(Playground.getActivePlayer))
+    Dim B As Byte
+    
+    ' set current ammount of brick
+    B = Playground.getRemainingPlayerBricks(Playground.getActivePlayer)
+    
+    ' update player bricks
+    Me.lblBricksLeftNumber.Caption = CStr(B)
+    
+    If B = 0 Then
+        ' deactivate brick button
+        Me.cmdSetBrick.Enabled = False
+    End If
 
 End Sub
 
@@ -394,14 +488,24 @@ Private Sub deactMoveButtons()
     Dim BActPlayer As Byte
     Dim i As Integer
     
-    ' init
-    BActPlayer = Playground.getActivePlayer
-
-    ' deactivate buttons which indicates a direction which is not possible
-    For i = 0 To 3
-        cmdMove(i).Enabled = Playground.checkMove(Playground.getPlayerLocation(BActPlayer), i, False)
-        cmdMove(i).FontBold = Playground.getPlayerTarget(BActPlayer) = i
-    Next i
+    If tTempBrick.Placed Then
+    
+        ' deactivates buttons which indicates not possible directions
+        
+        
+    
+    Else
+    
+        ' init
+        BActPlayer = Playground.getActivePlayer
+    
+        ' deactivate buttons which indicates not posssible directions
+        For i = 0 To 3
+            cmdMove(i).Enabled = Playground.checkMove(Playground.getPlayerLocation(BActPlayer), i, False)
+            cmdMove(i).FontBold = Playground.getPlayerTarget(BActPlayer) = i
+        Next i
+    
+    End If
 
 End Sub
 
