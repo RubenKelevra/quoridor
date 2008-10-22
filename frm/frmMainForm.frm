@@ -270,14 +270,14 @@ Private Sub cmdMove_Click(Index As Integer)
             
             ' move down
             Case 0:
-                If tTempBrick.Position(1) < Playground.getDimension Then
+                If tTempBrick.Position(1) < Playground.getDimension - 1 Then
                     tTempBrick.Position(1) = tTempBrick.Position(1) + 1
                     changed = True
                 End If
             
             ' move right
             Case 1:
-                If tTempBrick.Position(0) < Playground.getDimension Then
+                If tTempBrick.Position(0) < Playground.getDimension - 1 Then
                     tTempBrick.Position(0) = tTempBrick.Position(0) + 1
                     changed = True
                 End If
@@ -339,7 +339,7 @@ End Sub
 Private Sub cmdSetBrick_Click()
 
     If tTempBrick.Placed Then
-        If Playground.checkPlaceWall(tTempBrick) Then
+        If Playground.checkPlaceWall(tTempBrick.Position(0), tTempBrick.Position(1), tTempBrick.Landscape) Then
         
             ' save brick
             ' Call saveWall(tTempBrick, Playground.getActivePlayer)
@@ -487,12 +487,46 @@ Private Sub deactMoveButtons()
     ' dec
     Dim BActPlayer As Byte
     Dim i As Integer
+    Dim t As Position
     
     If tTempBrick.Placed Then
     
         ' deactivates buttons which indicates not possible directions
+        For i = 0 To 3
+            
+            Me.cmdMove(i).Enabled = True
         
-        
+            Select Case i
+                
+                ' down
+                Case 0:
+                    If tTempBrick.Position(1) >= Playground.getDimension - 1 Then
+                        Me.cmdMove(i).Enabled = False
+                    End If
+                
+                ' right
+                Case 1:
+                    If tTempBrick.Position(0) >= Playground.getDimension - 1 Then
+                        Me.cmdMove(i).Enabled = False
+                    End If
+                
+                ' up
+                Case 2:
+                    If tTempBrick.Position(1) = 0 Then
+                        Me.cmdMove(i).Enabled = False
+                    End If
+                
+                ' left
+                Case 3:
+                    If tTempBrick.Position(0) = 0 Then
+                        Me.cmdMove(i).Enabled = False
+                    End If
+                    
+            End Select
+                    
+            cmdMove(i).FontBold = False
+            
+        Next i
     
     Else
     
