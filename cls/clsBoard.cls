@@ -173,6 +173,10 @@ Function movePlayer(i As Byte, dir As Byte) As Boolean
     End If
 End Function
 
+Function getWall() As Brick()
+    getWalls = Blocker
+End Function
+
 Function saveWall(Br As Brick, Player As Byte) As Integer
     'returnvalues
     '0 = ok
