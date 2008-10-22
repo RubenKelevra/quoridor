@@ -173,7 +173,7 @@ Function movePlayer(i As Byte, dir As Byte) As Boolean
     End If
 End Function
 
-Function saveBlocker(Br As Brick, Player As Byte) As Integer
+Function saveWall(Br As Brick, Player As Byte) As Integer
     'returnvalues
     '0 = ok
     '1 = player have no blockers left
@@ -184,17 +184,17 @@ Function saveBlocker(Br As Brick, Player As Byte) As Integer
     
     'check for valid player index
     If Player > UBound(Players) - LBound(Players) Then
-        saveBlocker = 3
+        saveWall = 3
         Exit Function
     End If
     
     If Players(Player).getBricks = 0 Then
-        saveBlocker = 1
+        saveWall = 1
         Exit Function
     End If
     
     If Not checkPlaceWall(Br) Then
-        saveBlocker = 2
+        saveWall = 2
         Exit Function
     End If
     

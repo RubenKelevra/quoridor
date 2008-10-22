@@ -342,7 +342,7 @@ Private Sub cmdSetBrick_Click()
         If Playground.checkPlaceWall(tTempBrick) Then
         
             ' save brick
-            ' Call saveBlocker(tTempBrick, Playground.getActivePlayer)
+            ' Call saveWall(tTempBrick, Playground.getActivePlayer)
             
             ' reset caption
             Me.cmdSetBrick.Caption = "set brick"
