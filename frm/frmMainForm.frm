@@ -346,9 +346,9 @@ Private Sub cmdSetBrick_Click()
                 Case 0:
                     Playground.NextTurn
                 Case 1:
-                    MsgBox "You havn't got any stones left, so you can't place one.", vbOKOnly, "No Stones Left"
+                    MsgBox "You don't have enough bricks.", vbOKOnly, "No Bricks Left"
                 Case 2:
-                    MsgBox "On this position you can't place a stone.", vbOKOnly, "Stone Not Placeable"
+                    MsgBox "You can't place a brick on this position.", vbOKOnly, "Brick Cannot Be Placed"
                 Case 3:
                     MsgBox "Internal Application Error" + vbCrLf + "Error No. 15" + vbCrLf + "Press OK to continue", vbCritical, "Internal Application Error"
             End Select
@@ -366,13 +366,7 @@ Private Sub cmdSetBrick_Click()
         Else
             
             ' placing on this position is not possible
-            ' do nothing
-            Me.cmdSetBrick.Caption = "set brick"
-            tTempBrick.Landscape = False
-            tTempBrick.Position(0) = 0
-            tTempBrick.Position(1) = 0
-            tTempBrick.Placed = False
-            Me.cmdRotateBrick.Enabled = False
+            MsgBox "You can't place a brick on this position.", vbOKOnly, "Brick Cannot Be Placed"
         
         End If
         
@@ -521,13 +515,13 @@ Private Sub deactMoveButtons()
                 
                 ' up
                 Case 2:
-                    If tTempBrick.Position(1) = 0 Then
+                    If tTempBrick.Position(1) <= 0 Then
                         Me.cmdMove(i).Enabled = False
                     End If
                 
                 ' left
                 Case 3:
-                    If tTempBrick.Position(0) = 0 Then
+                    If tTempBrick.Position(0) <= 0 Then
                         Me.cmdMove(i).Enabled = False
                     End If
                     
@@ -609,11 +603,16 @@ End Sub
 Public Sub drawBricks()
 ' draws the bricks between the board
 
+    Dim i As Integer
     Dim x As Integer
     Dim y As Integer
     Dim iCurX As Integer
     Dim iCurY As Integer
     Dim lCurColor As Long
+    Dim tSavedBrick() As Brick
+    
+    ReDim tSavedBrick(UBound(Playground.getWalls))
+    tSavedBrick = Playground.getWalls
     
     ' horizontal
     For x = 0 To 8
@@ -626,6 +625,26 @@ Public Sub drawBricks()
             iCurX = iDrawStartX + x * iFieldsize
             iCurY = iDrawStartY + (y + 1) * iFieldsize - iBricksize
             
+            For i = LBound(tSavedBrick) To UBound(tSavedBrick)
+                
+                ' if brick is not set
+                If tSavedBrick(i).Placed = False Or tSavedBrick(i).Position(0) = 255 Or tSavedBrick(i).Position(1) = 255 Then
+                    Exit For
+                End If
+                
+                ' saved brick
+                If Not tSavedBrick(i).Landscape And _
+                   ((x = tSavedBrick(i).Position(0) And y = tSavedBrick(i).Position(1)) Or _
+                   (x = tSavedBrick(i).Position(0) + 1 And y = tSavedBrick(i).Position(1))) _
+                Then
+                
+                    lCurColor = RGB(0, 192, 192)
+                    
+                End If
+                
+            Next i
+            
+            ' temp brick
             If tTempBrick.Placed And Not tTempBrick.Landscape And _
                ((x = tTempBrick.Position(0) And y = tTempBrick.Position(1)) Or _
                (x = tTempBrick.Position(0) + 1 And y = tTempBrick.Position(1))) _
@@ -655,6 +674,26 @@ Public Sub drawBricks()
             iCurX = iDrawStartX + (x + 1) * iFieldsize - iBricksize
             iCurY = iDrawStartY + y * iFieldsize
             
+            For i = LBound(tSavedBrick) To UBound(tSavedBrick)
+                
+                ' if brick is not set
+                If tSavedBrick(i).Placed = False Or tSavedBrick(i).Position(0) = 255 Or tSavedBrick(i).Position(1) = 255 Then
+                    Exit For
+                End If
+                
+                ' saved brick
+                If tSavedBrick(i).Landscape And _
+                   ((x = tSavedBrick(i).Position(0) And y = tSavedBrick(i).Position(1)) Or _
+                   (x = tSavedBrick(i).Position(0) And y = tSavedBrick(i).Position(1) + 1)) _
+                Then
+                
+                    lCurColor = RGB(0, 192, 192)
+                    
+                End If
+                
+            Next i
+            
+            ' temp brick
             If tTempBrick.Placed And tTempBrick.Landscape And _
                ((x = tTempBrick.Position(0) And y = tTempBrick.Position(1)) Or _
                (x = tTempBrick.Position(0) And y = tTempBrick.Position(1) + 1)) _
