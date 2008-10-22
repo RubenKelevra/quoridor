@@ -337,12 +337,21 @@ Private Sub cmdRotateBrick_MouseUp(Button As Integer, Shift As Integer, x As Sin
 End Sub
 
 Private Sub cmdSetBrick_Click()
-
+    
     If tTempBrick.Placed Then
         If Playground.checkPlaceWall(tTempBrick.Position(0), tTempBrick.Position(1), tTempBrick.Landscape) Then
         
             ' save brick
-            ' Call saveWall(tTempBrick, Playground.getActivePlayer)
+            Select Case Playground.saveWall(tTempBrick, Playground.getActivePlayer)
+                Case 0:
+                    Playground.NextTurn
+                Case 1:
+                    MsgBox "You havn't got any stones left, so you can't place one.", vbOKOnly, "No Stones Left"
+                Case 2:
+                    MsgBox "On this position you can't place a stone.", vbOKOnly, "Stone Not Placeable"
+                Case 3:
+                    MsgBox "Internal Application Error" + vbCrLf + "Error No. 15" + vbCrLf + "Press OK to continue", vbCritical, "Internal Application Error"
+            End Select
             
             ' reset caption
             Me.cmdSetBrick.Caption = "set brick"
