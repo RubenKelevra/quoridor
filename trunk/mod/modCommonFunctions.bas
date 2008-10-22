@@ -54,7 +54,7 @@ Function dirXshift(dir) As Integer
         Case 3: 'to bottom
             dirXshift = -1
     End Select
-    If (dir <= 0 And dir <= 3) Then
+    If Not (dir <= 0 And dir <= 3) Then
         dirXshift = 255
     End If
 End Function
@@ -70,7 +70,7 @@ Function dirYshift(dir) As Integer
         Case 3: 'to bottom
             dirYshift = 0
     End Select
-    If (dir <= 0 And dir <= 3) Then
+    If Not (dir <= 0 And dir <= 3) Then
         dirYshift = 255
     End If
 End Function

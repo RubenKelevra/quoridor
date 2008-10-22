@@ -259,44 +259,44 @@ End Sub
 
 Function checkFrontWall(pos As Position, direction As Byte) As Boolean
         'if true there are a wall in front of the position and with this direction
-    Dim Stone As Brick
+    Dim stone As Brick
     Dim i As Byte
     
     For i = LBound(Blocker) To UBound(Blocker)
-        Stone = Blocker(i)
+        stone = Blocker(i)
         'if we found the first stone which is not placed or which have a default value as position we exiting
-        If Stone.Placed = False Or Stone.Position(0) = 255 _
-                                    Or Stone.Position(0) = 255 Then
+        If stone.Placed = False Or stone.Position(0) = 255 _
+                                    Or stone.Position(0) = 255 Then
             Exit For
         End If
         Select Case direction
             Case 0: 'bottom
-                If Stone.Landscape = True And pos.Position(1) + 1 = Stone.Position(1) Then
+                If stone.Landscape = True And pos.Position(1) + 1 = stone.Position(1) Then
                     'stone is bottom on right
-                    If pos.Position(0) = Stone.Position(0) Then GoTo returnFalse
+                    If pos.Position(0) = stone.Position(0) Then GoTo returnFalse
                     'stone is bottom on left
-                    If pos.Position(0) = Stone.Position(0) + 1 Then GoTo returnFalse
+                    If pos.Position(0) = stone.Position(0) + 1 Then GoTo returnFalse
                 End If
             Case 1: 'right
-                If Stone.Landscape = False And pos.Position(0) = Stone.Position(0) Then
+                If stone.Landscape = False And pos.Position(0) = stone.Position(0) Then
                     'stone is upper on right
-                    If pos.Position(1) = Stone.Position(1) Then GoTo returnFalse
+                    If pos.Position(1) = stone.Position(1) Then GoTo returnFalse
                     'stone is lower on right
-                    If pos.Position(1) + 1 = Stone.Position(1) Then GoTo returnFalse
+                    If pos.Position(1) + 1 = stone.Position(1) Then GoTo returnFalse
                 End If
             Case 2: 'top
-                If Stone.Landscape = True And pos.Position(1) = Stone.Position(1) Then
+                If stone.Landscape = True And pos.Position(1) = stone.Position(1) Then
                     'stone is top on right
-                    If pos.Position(0) = Stone.Position(0) Then GoTo returnFalse
+                    If pos.Position(0) = stone.Position(0) Then GoTo returnFalse
                     'stone is top on left
-                    If pos.Position(0) = Stone.Position(0) + 1 Then GoTo returnFalse
+                    If pos.Position(0) = stone.Position(0) + 1 Then GoTo returnFalse
                 End If
             Case 3: 'left
-                If Stone.Landscape = False And pos.Position(0) = Stone.Position(0) + 1 Then
+                If stone.Landscape = False And pos.Position(0) = stone.Position(0) + 1 Then
                     'stone is upper on left
-                    If pos.Position(1) = Stone.Position(1) Then GoTo returnFalse
+                    If pos.Position(1) = stone.Position(1) Then GoTo returnFalse
                     'stone is lower on left
-                    If pos.Position(1) + 1 = Stone.Position(1) Then GoTo returnFalse
+                    If pos.Position(1) + 1 = stone.Position(1) Then GoTo returnFalse
                 End If
         End Select
     Next i
@@ -320,30 +320,30 @@ End Function
 
 Function checkPlaceWall(x As Byte, y As Byte, Landscape As Boolean) As Boolean
     'if true a wall can be placed on this position
-    Dim Stone As Brick
+    Dim stone As Brick
     Dim i As Byte
     
     For i = LBound(Blocker) To UBound(Blocker)
-        Stone = Blocker(i)
+        stone = Blocker(i)
         'if we found the first stone which is not placed or which have a default value as position we exiting
-        If Stone.Placed = False Or Stone.Position(0) = 255 _
-                                    Or Stone.Position(0) = 255 Then
+        If stone.Placed = False Or stone.Position(0) = 255 _
+                                    Or stone.Position(1) = 255 Then
             Exit For
         End If
         'stone is on the same position
-        If Stone.Position(0) = x And Stone.Position(1) = y Then
+        If stone.Position(0) = x And stone.Position(1) = y Then
             GoTo returnFalse_checkPlaceWall
         'same level but left and landscape
-        ElseIf Stone.Position(0) = x + 1 And Stone.Position(1) = y And Landscape Then
+        ElseIf stone.Position(0) = x + 1 And stone.Position(1) = y And Not Landscape And Not stone.Landscape Then
             GoTo returnFalse_checkPlaceWall
         'same level but right and landscape
-        ElseIf Stone.Position(0) + 1 = x And Stone.Position(1) = y And Landscape Then
+        ElseIf stone.Position(0) + 1 = x And stone.Position(1) = y And Not Landscape And Not stone.Landscape Then
             GoTo returnFalse_checkPlaceWall
         'up but same row and not landscape
-        ElseIf Stone.Position(0) = x And Stone.Position(1) = y + 1 And Not Landscape Then
+        ElseIf stone.Position(0) = x And stone.Position(1) = y + 1 And Landscape And stone.Landscape Then
             GoTo returnFalse_checkPlaceWall
         'down but same row and not landscape
-        ElseIf Stone.Position(0) = x And Stone.Position(1) + 1 = y And Not Landscape Then
+        ElseIf stone.Position(0) = x And stone.Position(1) + 1 = y And Landscape And stone.Landscape Then
             GoTo returnFalse_checkPlaceWall
         End If
         
