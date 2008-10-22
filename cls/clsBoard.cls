@@ -38,9 +38,6 @@ Private Blocker() As Brick
 Private Dimensions As Byte
 Private activePlayer As Byte
 
-'for constructs
-'Dim i As Integer 'FIXME: really used?
-
 Function getPlayerType(i As Byte) As Byte
     'get the type of player, see clsPlayer.setType()
     getPlayerType = Players(i).getType
@@ -271,32 +268,32 @@ Function checkFrontWall(pos As Position, direction As Byte) As Boolean
         End If
         Select Case direction
             Case 0: 'bottom
-                If stone.Landscape = True And pos.Position(1) + 1 = stone.Position(1) Then
+                If stone.Landscape = True And stone.Position(1) = pos.Position(1) Then
                     'stone is bottom on right
-                    If pos.Position(0) = stone.Position(0) Then GoTo returnFalse
+                    If stone.Position(0) = pos.Position(0) Then GoTo returnFalse
                     'stone is bottom on left
-                    If pos.Position(0) = stone.Position(0) + 1 Then GoTo returnFalse
+                    If stone.Position(0) + 1 = pos.Position(0) Then GoTo returnFalse
                 End If
             Case 1: 'right
-                If stone.Landscape = False And pos.Position(0) = stone.Position(0) Then
+                If stone.Landscape = False And stone.Position(0) = pos.Position(0) Then
                     'stone is upper on right
-                    If pos.Position(1) = stone.Position(1) Then GoTo returnFalse
+                    If stone.Position(1) + 1 = pos.Position(1) Then GoTo returnFalse
                     'stone is lower on right
-                    If pos.Position(1) + 1 = stone.Position(1) Then GoTo returnFalse
+                    If stone.Position(1) = pos.Position(1) Then GoTo returnFalse
                 End If
             Case 2: 'top
-                If stone.Landscape = True And pos.Position(1) = stone.Position(1) Then
+                If stone.Landscape = True And stone.Position(1) + 1 = pos.Position(1) Then
                     'stone is top on right
-                    If pos.Position(0) = stone.Position(0) Then GoTo returnFalse
+                    If stone.Position(0) = pos.Position(0) Then GoTo returnFalse
                     'stone is top on left
-                    If pos.Position(0) = stone.Position(0) + 1 Then GoTo returnFalse
+                    If stone.Position(0) + 1 = pos.Position(0) Then GoTo returnFalse
                 End If
             Case 3: 'left
-                If stone.Landscape = False And pos.Position(0) = stone.Position(0) + 1 Then
+                If stone.Landscape = False And stone.Position(0) + 1 = pos.Position(0) Then
                     'stone is upper on left
-                    If pos.Position(1) = stone.Position(1) Then GoTo returnFalse
+                    If stone.Position(1) + 1 = pos.Position(1) Then GoTo returnFalse
                     'stone is lower on left
-                    If pos.Position(1) + 1 = stone.Position(1) Then GoTo returnFalse
+                    If stone.Position(1) = pos.Position(1) Then GoTo returnFalse
                 End If
         End Select
     Next i
