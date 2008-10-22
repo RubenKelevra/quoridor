@@ -314,8 +314,45 @@ Private Function NoToField(i As Byte) As Byte
     NoToField = Switch(0 < i - 3, 0, True, 1)
 End Function
 
+Function checkPlaceWall(x As Byte, y As Byte, Landscape As Boolean) As Boolean
+    'if true a wall can be placed on this position
+    Dim Stone As Brick
+    Dim i As Byte
+    
+    For i = LBound(Blocker) To UBound(Blocker)
+        Stone = Blocker(i)
+        'if we found the first stone which is not placed or which have a default value as position we exiting
+        If Stone.Placed = False Or Stone.Position(0) = 255 _
+                                    Or Stone.Position(0) = 255 Then
+            Exit For
+        End If
+        'stone is on the same position
+        If Stone.Position(0) = x And Stone.Position(1) = y Then
+            GoTo returnFalse_checkPlaceWall
+        'same level but left and landscape
+        ElseIf Stone.Position(0) = x + 1 And Stone.Position(1) = y And Landscape Then
+            GoTo returnFalse_checkPlaceWall
+        'same level but right and landscape
+        ElseIf Stone.Position(0) + 1 = x And Stone.Position(1) = y And Landscape Then
+            GoTo returnFalse_checkPlaceWall
+        'up but same row and not landscape
+        ElseIf Stone.Position(0) = x And Stone.Position(1) = y + 1 And Not Landscape Then
+            GoTo returnFalse_checkPlaceWall
+        'down but same row and not landscape
+        ElseIf Stone.Position(0) = x And Stone.Position(1) + 1 = y And Not Landscape Then
+            GoTo returnFalse_checkPlaceWall
+        End If
+        
+    Next i
+    'no stone have been found which blocks our new stone
+    checkPlaceWall = True
+    Exit Function
+returnFalse_checkPlaceWall:
+    checkPlaceWall = False
+    Exit Function
+End Function
 
-Function checkPlaceWall(newPos As Brick) As Boolean
+Function checkPlaceWall_donotuse(newPos As Brick) As Boolean
     'for-counter
     Dim i As Byte
     Dim i2 As Integer
@@ -341,15 +378,10 @@ Function checkPlaceWall(newPos As Brick) As Boolean
     Dim turned() As Position
     ReDim turned(7, 20) '20 to get a default space, will be redim if we need more
     
-    'fixme
-    checkPlaceWall = True
-    Exit Function
-    
     For i = 0 To 7
         RunningResults(i) = 255
         rightLeftCount(i) = 127 'to be able to calc minus and plus for left and right
     Next i
-    
     
     direction = 255
     startPoint.Position(0) = 255
