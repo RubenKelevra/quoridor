@@ -322,18 +322,14 @@ End Sub
 
 Private Sub cmdRotateBrick_Click()
 
-    If Me.cmdRotateBrick.Enabled Then
-        
-        ' switches rotation variable
-        tTempBrick.Landscape = Not tTempBrick.Landscape
-        
-        ' set focus to picFocus for arrow-movement
-        Me.picFocus.SetFocus
-        
-        ' repaint form
-        Call Form_Paint
+    ' switches rotation variable
+    tTempBrick.Landscape = Not tTempBrick.Landscape
     
-    End If
+    ' set focus to picFocus for arrow-movement
+    Me.picFocus.SetFocus
+    
+    ' repaint form
+    Call Form_Paint
 
 End Sub
 
@@ -363,7 +359,7 @@ Private Sub cmdSetBrick_Click()
         Me.cmdSetBrick.Caption = "set brick"
 
         ' reset brick options
-        tTempBrick.Landscape = False
+        tTempBrick.Landscape = True
         tTempBrick.Position(0) = 0
         tTempBrick.Position(1) = 0
         bSetBrickMode = False
@@ -443,6 +439,7 @@ Private Sub Form_Load()
     ' hide picture box
     Me.picFocus.BackColor = Me.BackColor
     bSetBrickMode = False
+    tTempBrick.Landscape = True
 
 End Sub
 
@@ -617,7 +614,7 @@ Public Sub drawBricks()
     Dim lCurColor As Long
     Dim tSavedBrick() As Brick
     
-    ReDim tSavedBrick(UBound(Playground.getWalls)-LBound(Playground.getWalls))
+    ReDim tSavedBrick(UBound(Playground.getWalls) - LBound(Playground.getWalls))
     tSavedBrick = Playground.getWalls
     
     ' horizontal
@@ -639,7 +636,7 @@ Public Sub drawBricks()
                 End If
                 
                 ' saved brick
-                If Not tSavedBrick(i).Landscape And _
+                If tSavedBrick(i).Landscape And _
                    ((x = tSavedBrick(i).Position(0) And y = tSavedBrick(i).Position(1)) Or _
                    (x = tSavedBrick(i).Position(0) + 1 And y = tSavedBrick(i).Position(1))) _
                 Then
@@ -651,7 +648,7 @@ Public Sub drawBricks()
             Next i
             
             ' temp brick
-            If bSetBrickMode And Not tTempBrick.Landscape And _
+            If bSetBrickMode And tTempBrick.Landscape And _
                ((x = tTempBrick.Position(0) And y = tTempBrick.Position(1)) Or _
                (x = tTempBrick.Position(0) + 1 And y = tTempBrick.Position(1))) _
             Then
@@ -688,7 +685,7 @@ Public Sub drawBricks()
                 End If
                 
                 ' saved brick
-                If tSavedBrick(i).Landscape And _
+                If Not tSavedBrick(i).Landscape And _
                    ((x = tSavedBrick(i).Position(0) And y = tSavedBrick(i).Position(1)) Or _
                    (x = tSavedBrick(i).Position(0) And y = tSavedBrick(i).Position(1) + 1)) _
                 Then
@@ -700,7 +697,7 @@ Public Sub drawBricks()
             Next i
             
             ' temp brick
-            If bSetBrickMode And tTempBrick.Landscape And _
+            If bSetBrickMode And Not tTempBrick.Landscape And _
                ((x = tTempBrick.Position(0) And y = tTempBrick.Position(1)) Or _
                (x = tTempBrick.Position(0) And y = tTempBrick.Position(1) + 1)) _
             Then
@@ -738,9 +735,6 @@ Private Sub picFocus_KeyDown(KeyCode As Integer, Shift As Integer)
                 
             Case vbKeyLeft:
                 Call cmdMove_Click(3)
-                
-            Case vbKeySpace:
-                Call cmdRotateBrick_Click
         
         End Select
         
