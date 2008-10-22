@@ -59,9 +59,25 @@ Function setPlayerType(i As Byte, newType As Byte) As Byte
     End If
 End Function
 
-Function checkMove(ByRef pos As Position, ByVal dir As Byte) As Boolean
+Function getPlayerForLocation(pos As Position) As Byte
+    Dim i As Byte
+    getPlayerForLocation = 255 'if no player found return 255
+    For i = LBound(Players) To UBound(Players)
+        If comparePos(pos, Players(i).getLocation) Then
+            getPlayerForLocation = i
+            Exit Function
+        End If
+    Next i
+End Function
+
+Function checkMove(ByRef pos As Position, ByVal dir As Byte, DontSetMeOnTrue As Boolean) As Boolean
     Dim newPos As Position
     Dim i As Byte
+    Dim i2 As Byte
+    Dim i3 As Byte
+    Dim bRekursionCheck As Boolean
+    Dim int1 As Integer
+    Dim int2 As Integer
     If Not checkFrontWall(pos, dir) Then
     
         'there is a border
@@ -93,14 +109,50 @@ Function checkMove(ByRef pos As Position, ByVal dir As Byte) As Boolean
         End Select
     
         'is there a player
-        For i = LBound(Players) To UBound(Players)
-            If Not i = Me.getActivePlayer Then
-                If comparePos(Players(i).getLocation, newPos) Then
-                    GoTo fEnd
+        'AND does every player can do moves after our move?
+        If Not (getPlayerForLocation(newPos) = 255) Then
+            GoTo fEnd
+        End If
+        'FIXME switched off
+        'DontSetMeOnTrue = True
+                
+        If Not DontSetMeOnTrue Then 'if we are recursitioning
+            bRekursionCheck = True 'if we found no player in move dir which might be blocked
+                                   'we do allow this move
+            For i2 = LBound(Players) To UBound(Players)
+                int1 = 0
+                int2 = 0
+                int1 = Players(i2).getLocation.Position(0) + dirXshift(flipDir(dir)) * 2
+                int2 = Players(i2).getLocation.Position(1) + dirYshift(flipDir(dir)) * 2
+                If Dimensions <= int1 Or int1 < 0 Or Dimensions <= int2 Or int2 < 0 Then 'this couldn't be the playerposition, its out of range
+                    GoTo endNext_i2
                 End If
+                If comparePos(xy2pos(int1, int2), Players(getActivePlayer).getLocation) Then
+                    bRekursionCheck = False 'if the figure have no other way then the way to the player
+                                             'we aren't allowed to make this move
+                    'there is a figure that might be blocked, checkout if it haves another way to move
+                    For i3 = 0 To 3 'dirs for the figure what might be blocked
+                        'now we want to check if the given player has another way to turn on the next move if
+                        'the active player had moved to this position (deactivating recursion!)
+                        If (Not (i3 = flipDir(dir))) Then 'don't check in player direction,
+                                                          'this move isn't anymore possible
+                                                          'if active player had moved
+                            If bRekursionCheck = False Then 'if we hadn't found another way till now
+                                bRekursionCheck = checkMove(Players(i2).getLocation, i3, True)
+                            End If
+                        End If
+                    Next i3
+                    'there isn't the possibility that two players are on the same position
+                    Exit For
+                End If
+endNext_i2:
+            Next i2
+            If Not bRekursionCheck Then
+                checkMove = False
+                Exit Function
             End If
-        Next i
-        
+        End If
+                
         'field seems to be free and with no wall between us and it
         checkMove = True
         Exit Function
@@ -113,7 +165,7 @@ fEnd:
     Exit Function
 End Function
 Function movePlayer(i As Byte, dir As Byte) As Boolean
-    If checkMove(Players(i).getLocation, dir) Then
+    If checkMove(Players(i).getLocation, dir, False) Then
         movePlayer = Players(i).Move(dir)
         NextTurn
     Else
@@ -281,6 +333,7 @@ Function checkPlaceWall(newPos As Brick) As Boolean
     'starting algorithmus
     
     For i = 0 To 7 'startfields/directions
+        'setting up startposition
         Select Case NoToField(i)
             Case 0:
                 startPoint.Position(0) = newPos.Position(0)
@@ -381,12 +434,22 @@ Sub create(NoOfPl As Byte, NoOfBr As Byte, Dimension As Byte)
     'subtract to get the other line near the center for the mirrored player
     pStarts(2).Position(0) = Dimensions - CByte(Dimensions / 2)
         pStarts(3).Position(1) = pStarts(2).Position(0)
-    
+    'player blocked case
     'pStarts(0).Position(0) = 0
     'pStarts(0).Position(1) = 0
     'pStarts(1).Position(0) = 0
     'pStarts(1).Position(1) = 1
     'pStarts(2).Position(0) = 1
+    'pStarts(2).Position(1) = 0
+    'pStarts(3).Position(0) = 1
+    'pStarts(3).Position(1) = 1
+    
+    'player will be blocked by move
+    'pStarts(0).Position(0) = 2
+    'pStarts(0).Position(1) = 0
+    'pStarts(1).Position(0) = 0
+    'pStarts(1).Position(1) = 1
+    'pStarts(2).Position(0) = 0
     'pStarts(2).Position(1) = 0
     'pStarts(3).Position(0) = 1
     'pStarts(3).Position(1) = 1
