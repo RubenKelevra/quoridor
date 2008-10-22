@@ -193,14 +193,14 @@ Function saveWall(Br As Brick, Player As Byte) As Integer
         Exit Function
     End If
     
-    If Not checkPlaceWall(Br) Then
+    If Not checkPlaceWall(Br.Position(0), Br.Position(1), Br.Landscape) Then
         saveWall = 2
         Exit Function
     End If
     
     saved = False
     
-    'running thru setted Blockers to get last index of placed
+    'running thru setted Blockers to get last index of the placed ones
     For i = LBound(Blocker) To UBound(Blocker)
         If Not Blocker(i).Placed Then
             Exit For
