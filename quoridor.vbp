@@ -6,6 +6,7 @@ Class=clsBoard; cls\clsBoard.cls
 Class=clsPlayer; cls\clsPlayer.cls
 Form=frm\frmMainForm.frm
 Module=modCommonFunctions; mod\modCommonFunctions.bas
+Class=clsAI; cls\clsAI.cls
 IconForm="frmMainForm"
 Startup="frmMainForm"
 HelpFile=""

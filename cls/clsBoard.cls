@@ -172,17 +172,45 @@ Function movePlayer(i As Byte, dir As Byte) As Boolean
         movePlayer = False
     End If
 End Function
+
 Function saveBlocker(Br As Brick, Player As Byte) As Integer
     'returnvalues
     '0 = ok
-    '1 = player have no blocker left
-    '2 = position is used by another blocker
-    '3 = cannot be used cause you would envelop a figure
+    '1 = player have no blockers left
+    '2 = cannot be used cause you would envelop a figure or position is used by another blocker
+    '3 = player index out of range
     Dim i As Byte
+    Dim saved As Boolean
     
+    'check for valid player index
+    If Player > UBound(Players) - LBound(Players) Then
+        saveBlocker = 3
+        Exit Function
+    End If
+    
+    If Players(Player).getBricks = 0 Then
+        saveBlocker = 1
+        Exit Function
+    End If
+    
+    If Not checkPlaceWall(Br) Then
+        saveBlocker = 2
+        Exit Function
+    End If
+    
+    saved = False
+    
+    'running thru setted Blockers to get last index of placed
     For i = LBound(Blocker) To UBound(Blocker)
-        
+        If Not Blocker(i).Placed Then
+            Exit For
+        End If
     Next i
+    Blocker(i).Placed = True
+    Blocker(i).Landscape = Br.Landscape
+    Blocker(i).Position(0) = Br.Position(0)
+    Blocker(i).Position(1) = Br.Position(1)
+    Players(Player).subtractStone
 End Function
 Function getPlayerColor(i As Byte) As Long
     Select Case i
@@ -312,6 +340,10 @@ Function checkPlaceWall(newPos As Brick) As Boolean
     'saves points were we turned around
     Dim turned() As Position
     ReDim turned(7, 20) '20 to get a default space, will be redim if we need more
+    
+    'fixme
+    checkPlaceWall = True
+    Exit Function
     
     For i = 0 To 7
         RunningResults(i) = 255
@@ -470,7 +502,8 @@ Sub create(NoOfPl As Byte, NoOfBr As Byte, Dimension As Byte)
     Next i
     
     'reserve space for blockers
-    ReDim Blocker((NoOfPlayer + 1) * (NoOfBricks + 1) - 1) '+1-1 cause we need to move one right and left because of 0 starting values
+    '+1-1 cause we need to move one right and left because of 0 starting values
+    ReDim Blocker((NoOfPlayer + 1) * (NoOfBricks + 1) - 1)
     
     'set blockers start values
     For i = 0 To UBound(Blocker)
