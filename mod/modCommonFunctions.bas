@@ -18,6 +18,14 @@ Option Explicit
 ' You should have received a copy of the GNU General Public License along
 ' with this program; if not, see <http://www.gnu.org/licenses/>.
 
+Function flipDir(i As Byte) As Byte
+    flipDir = Switch( _
+                i = 0, 2, _
+                i = 1, 3, _
+                i = 2, 0, _
+                i = 3, 1 _
+                )
+End Function
 
 Function xy2pos(ByVal x As Byte, ByVal y As Byte) As Position
     'convert two values to position-type, saves usualy one line
@@ -32,6 +40,38 @@ Function comparePos(pos1 As Position, pos2 As Position) As Boolean
         comparePos = True
     Else
         comparePos = False
+    End If
+End Function
+
+Function dirXshift(dir) As Integer
+    Select Case dir
+        Case 0: 'to bottom
+            dirXshift = 0
+        Case 1: 'to right
+            dirXshift = 1
+        Case 2: 'to top
+            dirXshift = 0
+        Case 3: 'to bottom
+            dirXshift = -1
+    End Select
+    If (dir <= 0 And dir <= 3) Then
+        dirXshift = 255
+    End If
+End Function
+
+Function dirYshift(dir) As Integer
+    Select Case dir
+        Case 0: 'to bottom
+            dirYshift = 1
+        Case 1: 'to right
+            dirYshift = 0
+        Case 2: 'to top
+            dirYshift = -1
+        Case 3: 'to bottom
+            dirYshift = 0
+    End Select
+    If (dir <= 0 And dir <= 3) Then
+        dirYshift = 255
     End If
 End Function
 
