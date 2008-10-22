@@ -62,6 +62,7 @@ Begin VB.Form frmMainForm
       End
       Begin VB.CommandButton cmdSetBrick 
          Caption         =   "set brick"
+         Default         =   -1  'True
          Enabled         =   0   'False
          Height          =   495
          Left            =   120
@@ -196,24 +197,26 @@ Begin VB.Form frmMainForm
       End
    End
    Begin VB.Menu ddmMenuGame 
-      Caption         =   "Spiel"
+      Caption         =   "Game"
       Begin VB.Menu ddmNewGame 
-         Caption         =   "&Neues Spiel"
+         Caption         =   "&New Game"
          Shortcut        =   {F2}
       End
-      Begin VB.Menu ddmSaveGame 
-         Caption         =   "Spiel &speichern"
-         Shortcut        =   ^S
-      End
       Begin VB.Menu ddmLoadGame 
-         Caption         =   "Spiel &laden"
+         Caption         =   "L&oad Game"
+         Enabled         =   0   'False
          Shortcut        =   ^O
+      End
+      Begin VB.Menu ddmSaveGame 
+         Caption         =   "&Save Game"
+         Enabled         =   0   'False
+         Shortcut        =   ^S
       End
       Begin VB.Menu ddmLine1 
          Caption         =   "-"
       End
       Begin VB.Menu ddmExit 
-         Caption         =   "&Beenden"
+         Caption         =   "&Exit"
       End
    End
 End
@@ -319,14 +322,18 @@ End Sub
 
 Private Sub cmdRotateBrick_Click()
 
-    ' switches rotation variable
-    tTempBrick.Landscape = Not tTempBrick.Landscape
+    If Me.cmdRotateBrick.Enabled Then
+        
+        ' switches rotation variable
+        tTempBrick.Landscape = Not tTempBrick.Landscape
+        
+        ' set focus to picFocus for arrow-movement
+        Me.picFocus.SetFocus
+        
+        ' repaint form
+        Call Form_Paint
     
-    ' set focus to picFocus for arrow-movement
-    Me.picFocus.SetFocus
-    
-    ' repaint form
-    Call Form_Paint
+    End If
 
 End Sub
 
@@ -731,6 +738,9 @@ Private Sub picFocus_KeyDown(KeyCode As Integer, Shift As Integer)
                 
             Case vbKeyLeft:
                 Call cmdMove_Click(3)
+                
+            Case vbKeySpace:
+                Call cmdRotateBrick_Click
         
         End Select
         
