@@ -253,6 +253,7 @@ Private iDrawStartX As Integer
 Private iDrawStartY As Integer
 Private lBoardcolor As Long
 Private tTempBrick As Brick
+Private bSetBrickMode As Boolean
 
 Private Sub cmdMove_Click(Index As Integer)
     
@@ -260,7 +261,7 @@ Private Sub cmdMove_Click(Index As Integer)
     Dim changed As Boolean
     changed = False
     
-    If Not tTempBrick.Placed Then 'move figure
+    If Not bSetBrickMode Then 'move figure
         
         changed = Playground.movePlayer(Playground.getActivePlayer, CByte(Index))
     
@@ -338,46 +339,36 @@ End Sub
 
 Private Sub cmdSetBrick_Click()
     
-    If tTempBrick.Placed Then
-        If Playground.checkPlaceWall(tTempBrick.Position(0), tTempBrick.Position(1), tTempBrick.Landscape) Then
+    If bSetBrickMode Then
+        ' save brick
+        Select Case Playground.saveWall(tTempBrick, Playground.getActivePlayer)
+            Case 0:
+                Playground.NextTurn
+            Case 1:
+                MsgBox "You havn't got any stones left, so you can't place one.", vbOKOnly, "No Stones Left"
+            Case 2:
+                MsgBox "On this position you can't place a stone.", vbOKOnly, "Stone Not Placeable"
+            Case 3:
+                MsgBox "Internal Application Error" + vbCrLf + "Error No. 15" + vbCrLf + "Press OK to continue", vbCritical, "Internal Application Error"
+        End Select
         
-            ' save brick
-            Select Case Playground.saveWall(tTempBrick, Playground.getActivePlayer)
-                Case 0:
-                    Playground.NextTurn
-                Case 1:
-                    MsgBox "You don't have enough bricks.", vbOKOnly, "No Bricks Left"
-                Case 2:
-                    MsgBox "You can't place a brick on this position.", vbOKOnly, "Brick Cannot Be Placed"
-                Case 3:
-                    MsgBox "Internal Application Error" + vbCrLf + "Error No. 15" + vbCrLf + "Press OK to continue", vbCritical, "Internal Application Error"
-            End Select
-            
-            ' reset caption
-            Me.cmdSetBrick.Caption = "set brick"
+        ' reset caption
+        Me.cmdSetBrick.Caption = "set brick"
 
-            ' reset brick options
-            tTempBrick.Landscape = False
-            tTempBrick.Position(0) = 0
-            tTempBrick.Position(1) = 0
-            tTempBrick.Placed = False
-            Me.cmdRotateBrick.Enabled = False
-            
-        Else
-            
-            ' placing on this position is not possible
-            MsgBox "You can't place a brick on this position.", vbOKOnly, "Brick Cannot Be Placed"
-        
-        End If
+        ' reset brick options
+        tTempBrick.Landscape = False
+        tTempBrick.Position(0) = 0
+        tTempBrick.Position(1) = 0
+        bSetBrickMode = False
+        Me.cmdRotateBrick.Enabled = False
         
     Else
-        
         ' set new caption
         Me.cmdSetBrick.Caption = "OK?"
             
         ' enable brick options
         Me.cmdRotateBrick.Enabled = True
-        tTempBrick.Placed = True
+        bSetBrickMode = True
     
     End If
     
@@ -444,6 +435,7 @@ Private Sub Form_Load()
 
     ' hide picture box
     Me.picFocus.BackColor = Me.BackColor
+    bSetBrickMode = False
 
 End Sub
 
@@ -454,11 +446,18 @@ Private Sub Form_Paint()
         Call setCurFigureColor
         Call setBricksLeft
         Call deactMoveButtons
+        Call deactSetBrick
         
         Call drawBoard
         Call drawBricks
     End If
     
+End Sub
+
+Private Sub deactSetBrick()
+    If bSetBrickMode Then
+        cmdSetBrick.Enabled = Playground.checkPlaceWall(tTempBrick.Position(0), tTempBrick.Position(1), tTempBrick.Landscape)
+    End If
 End Sub
 
 Private Sub setCurFigureColor()
@@ -492,7 +491,7 @@ Private Sub deactMoveButtons()
     Dim i As Integer
     Dim t As Position
     
-    If tTempBrick.Placed Then
+    If bSetBrickMode Then
     
         ' deactivates buttons which indicates not possible directions
         For i = 0 To 3
@@ -515,13 +514,13 @@ Private Sub deactMoveButtons()
                 
                 ' up
                 Case 2:
-                    If tTempBrick.Position(1) <= 0 Then
+                    If tTempBrick.Position(1) = 0 Then
                         Me.cmdMove(i).Enabled = False
                     End If
                 
                 ' left
                 Case 3:
-                    If tTempBrick.Position(0) <= 0 Then
+                    If tTempBrick.Position(0) = 0 Then
                         Me.cmdMove(i).Enabled = False
                     End If
                     
@@ -611,7 +610,7 @@ Public Sub drawBricks()
     Dim lCurColor As Long
     Dim tSavedBrick() As Brick
     
-    ReDim tSavedBrick(UBound(Playground.getWalls))
+    ReDim tSavedBrick(UBound(Playground.getWalls)-LBound(Playground.getWalls))
     tSavedBrick = Playground.getWalls
     
     ' horizontal
@@ -645,7 +644,7 @@ Public Sub drawBricks()
             Next i
             
             ' temp brick
-            If tTempBrick.Placed And Not tTempBrick.Landscape And _
+            If bSetBrickMode And Not tTempBrick.Landscape And _
                ((x = tTempBrick.Position(0) And y = tTempBrick.Position(1)) Or _
                (x = tTempBrick.Position(0) + 1 And y = tTempBrick.Position(1))) _
             Then
@@ -694,7 +693,7 @@ Public Sub drawBricks()
             Next i
             
             ' temp brick
-            If tTempBrick.Placed And tTempBrick.Landscape And _
+            If bSetBrickMode And tTempBrick.Landscape And _
                ((x = tTempBrick.Position(0) And y = tTempBrick.Position(1)) Or _
                (x = tTempBrick.Position(0) And y = tTempBrick.Position(1) + 1)) _
             Then
