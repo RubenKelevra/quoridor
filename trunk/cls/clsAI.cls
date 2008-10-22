@@ -62,4 +62,6 @@ Sub create(Bricks() As Brick, PlayerPositions() As Position, ControlledPlayer As
         End With
     Next i
     
+    'generate
+    
 End Sub
