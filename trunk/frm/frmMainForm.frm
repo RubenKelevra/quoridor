@@ -38,6 +38,16 @@ Begin VB.Form frmMainForm
       TabIndex        =   5
       Top             =   1850
       Width           =   3855
+      Begin VB.CommandButton cmdCancelBrick 
+         Caption         =   "cancel brick"
+         Enabled         =   0   'False
+         Height          =   495
+         Left            =   120
+         TabIndex        =   13
+         TabStop         =   0   'False
+         Top             =   1440
+         Width           =   1455
+      End
       Begin VB.CommandButton cmdMove 
          Caption         =   "< -"
          Enabled         =   0   'False
@@ -62,7 +72,6 @@ Begin VB.Form frmMainForm
       End
       Begin VB.CommandButton cmdSetBrick 
          Caption         =   "set brick"
-         Default         =   -1  'True
          Enabled         =   0   'False
          Height          =   495
          Left            =   120
@@ -78,7 +87,7 @@ Begin VB.Form frmMainForm
          Left            =   120
          TabIndex        =   8
          TabStop         =   0   'False
-         Top             =   1080
+         Top             =   950
          Width           =   1455
       End
       Begin VB.CommandButton cmdMove 
@@ -256,7 +265,26 @@ Private iDrawStartX As Integer
 Private iDrawStartY As Integer
 Private lBoardcolor As Long
 Private tTempBrick As Brick
-Private bSetBrickMode As Boolean
+
+Private Sub cmdCancelBrick_Click()
+
+    ' reset bricks
+    Call resetBrickMode
+    
+    ' set focus to picFocus for keyboard control
+    Me.picFocus.SetFocus
+        
+    ' repaint form
+    Call Form_Paint
+
+End Sub
+
+Private Sub cmdCancelBrick_MouseUp(Button As Integer, Shift As Integer, X As Single, Y As Single)
+
+    ' set focus to picFocus for keyboard control
+    Me.picFocus.SetFocus
+
+End Sub
 
 Private Sub cmdMove_Click(Index As Integer)
     
@@ -264,7 +292,7 @@ Private Sub cmdMove_Click(Index As Integer)
     Dim changed As Boolean
     changed = False
     
-    If Not bSetBrickMode Then 'move figure
+    If Not tTempBrick.Placed Then 'move figure
         
         changed = Playground.movePlayer(Playground.getActivePlayer, CByte(Index))
     
@@ -304,6 +332,9 @@ Private Sub cmdMove_Click(Index As Integer)
         
     End If
     
+    ' set focus to picFocus for keyboard control
+    Me.picFocus.SetFocus
+    
     If changed Then
     
         ' repaint form
@@ -313,69 +344,74 @@ Private Sub cmdMove_Click(Index As Integer)
     
 End Sub
 
-Private Sub cmdMove_MouseUp(Index As Integer, Button As Integer, Shift As Integer, x As Single, y As Single)
+Private Sub cmdMove_MouseUp(Index As Integer, Button As Integer, Shift As Integer, X As Single, Y As Single)
 
-    ' set focus to picFocus for arrow-movement
+    ' set focus to picFocus for keyboard control
     Me.picFocus.SetFocus
 
 End Sub
 
 Private Sub cmdRotateBrick_Click()
 
-    ' switches rotation variable
-    tTempBrick.Landscape = Not tTempBrick.Landscape
+    If Me.cmdRotateBrick.Enabled Then
+        
+        ' switches rotation variable
+        tTempBrick.Landscape = Not tTempBrick.Landscape
     
-    ' set focus to picFocus for arrow-movement
-    Me.picFocus.SetFocus
+        ' set focus to picFocus for keyboard control
+        Me.picFocus.SetFocus
+        
+        ' repaint form
+        Call Form_Paint
     
-    ' repaint form
-    Call Form_Paint
+    End If
 
 End Sub
 
-Private Sub cmdRotateBrick_MouseUp(Button As Integer, Shift As Integer, x As Single, y As Single)
+Private Sub cmdRotateBrick_MouseUp(Button As Integer, Shift As Integer, X As Single, Y As Single)
     
-    ' set focus to picFocus for arrow-movement
+    ' set focus to picFocus for keyboard control
     Me.picFocus.SetFocus
 
 End Sub
 
 Private Sub cmdSetBrick_Click()
     
-    If bSetBrickMode Then
+    If tTempBrick.Placed Then
+    
         ' save brick
         Select Case Playground.saveWall(tTempBrick, Playground.getActivePlayer)
+        
             Case 0:
                 Playground.NextTurn
+            
             Case 1:
                 MsgBox "You havn't got any stones left, so you can't place one.", vbOKOnly, "No Stones Left"
+            
             Case 2:
                 MsgBox "On this position you can't place a stone.", vbOKOnly, "Stone Not Placeable"
+            
             Case 3:
                 MsgBox "Internal Application Error" + vbCrLf + "Error No. 15" + vbCrLf + "Press OK to continue", vbCritical, "Internal Application Error"
+        
         End Select
         
-        ' reset caption
-        Me.cmdSetBrick.Caption = "set brick"
-
-        ' reset brick options
-        tTempBrick.Landscape = True
-        tTempBrick.Position(0) = 0
-        tTempBrick.Position(1) = 0
-        bSetBrickMode = False
-        Me.cmdRotateBrick.Enabled = False
+        ' reset bricks
+        Call resetBrickMode
         
     Else
+        
         ' set new caption
         Me.cmdSetBrick.Caption = "OK?"
             
         ' enable brick options
         Me.cmdRotateBrick.Enabled = True
-        bSetBrickMode = True
+        Me.cmdCancelBrick.Enabled = True
+        tTempBrick.Placed = True
     
     End If
     
-    ' set focus to picFocus for arrow-movement
+    ' set focus to picFocus for keyboard control
     Me.picFocus.SetFocus
             
     ' repaint form
@@ -383,9 +419,9 @@ Private Sub cmdSetBrick_Click()
     
 End Sub
 
-Private Sub cmdSetBrick_MouseUp(Button As Integer, Shift As Integer, x As Single, y As Single)
+Private Sub cmdSetBrick_MouseUp(Button As Integer, Shift As Integer, X As Single, Y As Single)
 
-    ' set focus to picFocus for arrow-movement
+    ' set focus to picFocus for keyboard control
     Me.picFocus.SetFocus
 
 End Sub
@@ -414,18 +450,22 @@ Private Sub ddmNewGame_Click()
     ' init colors
     lBoardcolor = RGB(0, 0, 0)
     
+    ' init brick
+    Call resetBrickMode
+    
     ' init other vars
     bKeyUp = True
     
     ' enable GUI
     If Not bGameEnabled Then
+        
         Me.lblBricksLeftNumber.Visible = True
         Me.shpCurrentPlayer.Visible = True
         Me.cmdMove(0).Enabled = True
         Me.cmdMove(1).Enabled = True
         Me.cmdMove(2).Enabled = True
         Me.cmdMove(3).Enabled = True
-        Me.cmdSetBrick.Enabled = True
+        
     End If
     
     ' draw
@@ -438,8 +478,6 @@ Private Sub Form_Load()
 
     ' hide picture box
     Me.picFocus.BackColor = Me.BackColor
-    bSetBrickMode = False
-    tTempBrick.Landscape = True
 
 End Sub
 
@@ -459,9 +497,14 @@ Private Sub Form_Paint()
 End Sub
 
 Private Sub deactSetBrick()
-    If bSetBrickMode Then
+' deactivate placing button
+
+    If tTempBrick.Placed Then
+        
         cmdSetBrick.Enabled = Playground.checkPlaceWall(tTempBrick.Position(0), tTempBrick.Position(1), tTempBrick.Landscape)
+    
     End If
+
 End Sub
 
 Private Sub setCurFigureColor()
@@ -495,7 +538,7 @@ Private Sub deactMoveButtons()
     Dim i As Integer
     Dim t As Position
     
-    If bSetBrickMode Then
+    If tTempBrick.Placed Then
     
         ' deactivates buttons which indicates not possible directions
         For i = 0 To 3
@@ -556,8 +599,8 @@ Private Sub drawBoard()
     ' dec
     Dim BDimension As Byte
     Dim i As Byte
-    Dim x As Byte
-    Dim y As Byte
+    Dim X As Byte
+    Dim Y As Byte
     Dim iCurX As Integer
     Dim iCurY As Integer
     Dim lCurColor As Long
@@ -567,20 +610,20 @@ Private Sub drawBoard()
     ' save dimension
     BDimension = Playground.getDimension
     
-    For x = 0 To BDimension
-        For y = 0 To BDimension
+    For X = 0 To BDimension
+        For Y = 0 To BDimension
         
             ' init color
             lCurColor = lBoardcolor
         
             ' calc current coords
-            iCurX = iDrawStartX + x * iFieldsize
-            iCurY = iDrawStartY + y * iFieldsize
+            iCurX = iDrawStartX + X * iFieldsize
+            iCurY = iDrawStartY + Y * iFieldsize
             
             ' check current position with the position of all players
             For i = 0 To Playground.getNoOfPlayer
                 
-                tDrawPos = xy2pos(x, y)
+                tDrawPos = xy2pos(X, Y)
                 tPlayerPos = Playground.getPlayerLocation(i)
                 
                 If Not comparePos(xy2pos(255, 255), tPlayerPos) And comparePos(tDrawPos, tPlayerPos) Then
@@ -598,8 +641,8 @@ Private Sub drawBoard()
                           lCurColor, _
                           BF
             
-        Next y
-    Next x
+        Next Y
+    Next X
 
 End Sub
 
@@ -607,8 +650,8 @@ Public Sub drawBricks()
 ' draws the bricks between the board
 
     Dim i As Integer
-    Dim x As Integer
-    Dim y As Integer
+    Dim X As Integer
+    Dim Y As Integer
     Dim iCurX As Integer
     Dim iCurY As Integer
     Dim lCurColor As Long
@@ -618,15 +661,15 @@ Public Sub drawBricks()
     tSavedBrick = Playground.getWalls
     
     ' horizontal
-    For x = 0 To 8
-        For y = 0 To 7
+    For X = 0 To 8
+        For Y = 0 To 7
         
             ' init color
             lCurColor = Me.BackColor
         
             ' calc current coords
-            iCurX = iDrawStartX + x * iFieldsize
-            iCurY = iDrawStartY + (y + 1) * iFieldsize - iBricksize
+            iCurX = iDrawStartX + X * iFieldsize
+            iCurY = iDrawStartY + (Y + 1) * iFieldsize - iBricksize
             
             For i = LBound(tSavedBrick) To UBound(tSavedBrick)
                 
@@ -637,8 +680,8 @@ Public Sub drawBricks()
                 
                 ' saved brick
                 If tSavedBrick(i).Landscape And _
-                   ((x = tSavedBrick(i).Position(0) And y = tSavedBrick(i).Position(1)) Or _
-                   (x = tSavedBrick(i).Position(0) + 1 And y = tSavedBrick(i).Position(1))) _
+                   ((X = tSavedBrick(i).Position(0) And Y = tSavedBrick(i).Position(1)) Or _
+                   (X = tSavedBrick(i).Position(0) + 1 And Y = tSavedBrick(i).Position(1))) _
                 Then
                 
                     lCurColor = RGB(0, 192, 192)
@@ -648,9 +691,9 @@ Public Sub drawBricks()
             Next i
             
             ' temp brick
-            If bSetBrickMode And tTempBrick.Landscape And _
-               ((x = tTempBrick.Position(0) And y = tTempBrick.Position(1)) Or _
-               (x = tTempBrick.Position(0) + 1 And y = tTempBrick.Position(1))) _
+            If tTempBrick.Placed And tTempBrick.Landscape And _
+               ((X = tTempBrick.Position(0) And Y = tTempBrick.Position(1)) Or _
+               (X = tTempBrick.Position(0) + 1 And Y = tTempBrick.Position(1))) _
             Then
             
                 lCurColor = RGB(0, 192, 0)
@@ -663,19 +706,19 @@ Public Sub drawBricks()
                           lCurColor, _
                           BF
         
-        Next y
-    Next x
+        Next Y
+    Next X
     
     ' vertical
-    For x = 0 To 7
-        For y = 0 To 8
+    For X = 0 To 7
+        For Y = 0 To 8
         
             ' init color
             lCurColor = Me.BackColor
         
             ' calc current coords
-            iCurX = iDrawStartX + (x + 1) * iFieldsize - iBricksize
-            iCurY = iDrawStartY + y * iFieldsize
+            iCurX = iDrawStartX + (X + 1) * iFieldsize - iBricksize
+            iCurY = iDrawStartY + Y * iFieldsize
             
             For i = LBound(tSavedBrick) To UBound(tSavedBrick)
                 
@@ -686,8 +729,8 @@ Public Sub drawBricks()
                 
                 ' saved brick
                 If Not tSavedBrick(i).Landscape And _
-                   ((x = tSavedBrick(i).Position(0) And y = tSavedBrick(i).Position(1)) Or _
-                   (x = tSavedBrick(i).Position(0) And y = tSavedBrick(i).Position(1) + 1)) _
+                   ((X = tSavedBrick(i).Position(0) And Y = tSavedBrick(i).Position(1)) Or _
+                   (X = tSavedBrick(i).Position(0) And Y = tSavedBrick(i).Position(1) + 1)) _
                 Then
                 
                     lCurColor = RGB(0, 192, 192)
@@ -697,9 +740,9 @@ Public Sub drawBricks()
             Next i
             
             ' temp brick
-            If bSetBrickMode And Not tTempBrick.Landscape And _
-               ((x = tTempBrick.Position(0) And y = tTempBrick.Position(1)) Or _
-               (x = tTempBrick.Position(0) And y = tTempBrick.Position(1) + 1)) _
+            If tTempBrick.Placed And Not tTempBrick.Landscape And _
+               ((X = tTempBrick.Position(0) And Y = tTempBrick.Position(1)) Or _
+               (X = tTempBrick.Position(0) And Y = tTempBrick.Position(1) + 1)) _
             Then
             
                 lCurColor = RGB(0, 192, 0)
@@ -712,8 +755,26 @@ Public Sub drawBricks()
                           lCurColor, _
                           BF
         
-        Next y
-    Next x
+        Next Y
+    Next X
+
+End Sub
+
+Private Sub resetBrickMode()
+
+    ' reset caption
+    Me.cmdSetBrick.Caption = "set brick"
+
+    ' reset brick options
+    tTempBrick.Landscape = True
+    tTempBrick.Placed = False
+    tTempBrick.Position(0) = 0
+    tTempBrick.Position(1) = 0
+    
+    ' reset buttons
+    Me.cmdSetBrick.Enabled = True
+    Me.cmdRotateBrick.Enabled = False
+    Me.cmdCancelBrick.Enabled = False
 
 End Sub
 
@@ -724,17 +785,33 @@ Private Sub picFocus_KeyDown(KeyCode As Integer, Shift As Integer)
     
         Select Case KeyCode
         
+            ' move down
             Case vbKeyDown:
                 Call cmdMove_Click(0)
                 
+            ' move right
             Case vbKeyRight:
                 Call cmdMove_Click(1)
                 
+            ' move up
             Case vbKeyUp:
                 Call cmdMove_Click(2)
                 
+            ' move left
             Case vbKeyLeft:
                 Call cmdMove_Click(3)
+                
+            ' set brick
+            Case vbKeyReturn:
+                Call cmdSetBrick_Click
+                
+            ' rotate brick
+            Case vbKeySpace:
+                Call cmdRotateBrick_Click
+                
+            ' cancel brick mode
+            Case vbKeyC:
+                Call cmdCancelBrick_Click
         
         End Select
         
