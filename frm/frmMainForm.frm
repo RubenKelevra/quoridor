@@ -279,7 +279,7 @@ Private Sub cmdCancelBrick_Click()
 
 End Sub
 
-Private Sub cmdCancelBrick_MouseUp(Button As Integer, Shift As Integer, X As Single, Y As Single)
+Private Sub cmdCancelBrick_MouseUp(Button As Integer, Shift As Integer, x As Single, y As Single)
 
     ' set focus to picFocus for keyboard control
     Me.picFocus.SetFocus
@@ -344,7 +344,7 @@ Private Sub cmdMove_Click(Index As Integer)
     
 End Sub
 
-Private Sub cmdMove_MouseUp(Index As Integer, Button As Integer, Shift As Integer, X As Single, Y As Single)
+Private Sub cmdMove_MouseUp(Index As Integer, Button As Integer, Shift As Integer, x As Single, y As Single)
 
     ' set focus to picFocus for keyboard control
     Me.picFocus.SetFocus
@@ -368,7 +368,7 @@ Private Sub cmdRotateBrick_Click()
 
 End Sub
 
-Private Sub cmdRotateBrick_MouseUp(Button As Integer, Shift As Integer, X As Single, Y As Single)
+Private Sub cmdRotateBrick_MouseUp(Button As Integer, Shift As Integer, x As Single, y As Single)
     
     ' set focus to picFocus for keyboard control
     Me.picFocus.SetFocus
@@ -376,6 +376,14 @@ Private Sub cmdRotateBrick_MouseUp(Button As Integer, Shift As Integer, X As Sin
 End Sub
 
 Private Sub cmdSetBrick_Click()
+    
+    If Playground.getRemainingPlayerBricks(Playground.getActivePlayer) <= 0 Then
+        
+        ' exit sub
+        Exit Sub
+        
+    End If
+    
     
     If tTempBrick.Placed Then
     
@@ -385,6 +393,7 @@ Private Sub cmdSetBrick_Click()
             Case 0:
                 Playground.NextTurn
             
+            ' should not happen anyway
             Case 1:
                 MsgBox "You havn't got any stones left, so you can't place one.", vbOKOnly, "No Stones Left"
             
@@ -419,7 +428,7 @@ Private Sub cmdSetBrick_Click()
     
 End Sub
 
-Private Sub cmdSetBrick_MouseUp(Button As Integer, Shift As Integer, X As Single, Y As Single)
+Private Sub cmdSetBrick_MouseUp(Button As Integer, Shift As Integer, x As Single, y As Single)
 
     ' set focus to picFocus for keyboard control
     Me.picFocus.SetFocus
@@ -527,6 +536,9 @@ Private Sub setBricksLeft()
     If B = 0 Then
         ' deactivate brick button
         Me.cmdSetBrick.Enabled = False
+    Else
+        ' activate brick button
+        Me.cmdSetBrick.Enabled = True
     End If
 
 End Sub
@@ -599,8 +611,8 @@ Private Sub drawBoard()
     ' dec
     Dim BDimension As Byte
     Dim i As Byte
-    Dim X As Byte
-    Dim Y As Byte
+    Dim x As Byte
+    Dim y As Byte
     Dim iCurX As Integer
     Dim iCurY As Integer
     Dim lCurColor As Long
@@ -610,20 +622,20 @@ Private Sub drawBoard()
     ' save dimension
     BDimension = Playground.getDimension
     
-    For X = 0 To BDimension
-        For Y = 0 To BDimension
+    For x = 0 To BDimension
+        For y = 0 To BDimension
         
             ' init color
             lCurColor = lBoardcolor
         
             ' calc current coords
-            iCurX = iDrawStartX + X * iFieldsize
-            iCurY = iDrawStartY + Y * iFieldsize
+            iCurX = iDrawStartX + x * iFieldsize
+            iCurY = iDrawStartY + y * iFieldsize
             
             ' check current position with the position of all players
             For i = 0 To Playground.getNoOfPlayer
                 
-                tDrawPos = xy2pos(X, Y)
+                tDrawPos = xy2pos(x, y)
                 tPlayerPos = Playground.getPlayerLocation(i)
                 
                 If Not comparePos(xy2pos(255, 255), tPlayerPos) And comparePos(tDrawPos, tPlayerPos) Then
@@ -641,8 +653,8 @@ Private Sub drawBoard()
                           lCurColor, _
                           BF
             
-        Next Y
-    Next X
+        Next y
+    Next x
 
 End Sub
 
@@ -650,8 +662,8 @@ Public Sub drawBricks()
 ' draws the bricks between the board
 
     Dim i As Integer
-    Dim X As Integer
-    Dim Y As Integer
+    Dim x As Integer
+    Dim y As Integer
     Dim iCurX As Integer
     Dim iCurY As Integer
     Dim lCurColor As Long
@@ -661,15 +673,15 @@ Public Sub drawBricks()
     tSavedBrick = Playground.getWalls
     
     ' horizontal
-    For X = 0 To 8
-        For Y = 0 To 7
+    For x = 0 To 8
+        For y = 0 To 7
         
             ' init color
             lCurColor = Me.BackColor
         
             ' calc current coords
-            iCurX = iDrawStartX + X * iFieldsize
-            iCurY = iDrawStartY + (Y + 1) * iFieldsize - iBricksize
+            iCurX = iDrawStartX + x * iFieldsize
+            iCurY = iDrawStartY + (y + 1) * iFieldsize - iBricksize
             
             For i = LBound(tSavedBrick) To UBound(tSavedBrick)
                 
@@ -680,8 +692,8 @@ Public Sub drawBricks()
                 
                 ' saved brick
                 If tSavedBrick(i).Landscape And _
-                   ((X = tSavedBrick(i).Position(0) And Y = tSavedBrick(i).Position(1)) Or _
-                   (X = tSavedBrick(i).Position(0) + 1 And Y = tSavedBrick(i).Position(1))) _
+                   ((x = tSavedBrick(i).Position(0) And y = tSavedBrick(i).Position(1)) Or _
+                   (x = tSavedBrick(i).Position(0) + 1 And y = tSavedBrick(i).Position(1))) _
                 Then
                 
                     lCurColor = RGB(0, 192, 192)
@@ -692,8 +704,8 @@ Public Sub drawBricks()
             
             ' temp brick
             If tTempBrick.Placed And tTempBrick.Landscape And _
-               ((X = tTempBrick.Position(0) And Y = tTempBrick.Position(1)) Or _
-               (X = tTempBrick.Position(0) + 1 And Y = tTempBrick.Position(1))) _
+               ((x = tTempBrick.Position(0) And y = tTempBrick.Position(1)) Or _
+               (x = tTempBrick.Position(0) + 1 And y = tTempBrick.Position(1))) _
             Then
             
                 lCurColor = RGB(0, 192, 0)
@@ -706,19 +718,19 @@ Public Sub drawBricks()
                           lCurColor, _
                           BF
         
-        Next Y
-    Next X
+        Next y
+    Next x
     
     ' vertical
-    For X = 0 To 7
-        For Y = 0 To 8
+    For x = 0 To 7
+        For y = 0 To 8
         
             ' init color
             lCurColor = Me.BackColor
         
             ' calc current coords
-            iCurX = iDrawStartX + (X + 1) * iFieldsize - iBricksize
-            iCurY = iDrawStartY + Y * iFieldsize
+            iCurX = iDrawStartX + (x + 1) * iFieldsize - iBricksize
+            iCurY = iDrawStartY + y * iFieldsize
             
             For i = LBound(tSavedBrick) To UBound(tSavedBrick)
                 
@@ -729,8 +741,8 @@ Public Sub drawBricks()
                 
                 ' saved brick
                 If Not tSavedBrick(i).Landscape And _
-                   ((X = tSavedBrick(i).Position(0) And Y = tSavedBrick(i).Position(1)) Or _
-                   (X = tSavedBrick(i).Position(0) And Y = tSavedBrick(i).Position(1) + 1)) _
+                   ((x = tSavedBrick(i).Position(0) And y = tSavedBrick(i).Position(1)) Or _
+                   (x = tSavedBrick(i).Position(0) And y = tSavedBrick(i).Position(1) + 1)) _
                 Then
                 
                     lCurColor = RGB(0, 192, 192)
@@ -741,8 +753,8 @@ Public Sub drawBricks()
             
             ' temp brick
             If tTempBrick.Placed And Not tTempBrick.Landscape And _
-               ((X = tTempBrick.Position(0) And Y = tTempBrick.Position(1)) Or _
-               (X = tTempBrick.Position(0) And Y = tTempBrick.Position(1) + 1)) _
+               ((x = tTempBrick.Position(0) And y = tTempBrick.Position(1)) Or _
+               (x = tTempBrick.Position(0) And y = tTempBrick.Position(1) + 1)) _
             Then
             
                 lCurColor = RGB(0, 192, 0)
@@ -755,8 +767,8 @@ Public Sub drawBricks()
                           lCurColor, _
                           BF
         
-        Next Y
-    Next X
+        Next y
+    Next x
 
 End Sub
 
