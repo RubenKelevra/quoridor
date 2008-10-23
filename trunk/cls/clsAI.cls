@@ -35,6 +35,55 @@ Private PlayerPos() As Position
 Private SelfPlayerNo As Byte
 Private Dimensions As Byte
 Private PlayerMaxIndex As Byte
+Private genWaysIndex As Long
+
+Private Function genMovesWays(Position As Position, cutLevel As Byte, absolutMaxPL As Byte, maxPathCount As Integer) As Byte()
+    'cutLevel is a percentage*10 value to cut off ways which are longer than the shortest founded path till now
+    '   will be applied again after all runs are finished
+    '   0 means find only paths wich are exact the same till 10-1 % length
+    '   255 means no limit
+    '   cutted paths are deleted if they exceed this limit
+    'absolutMaxPL is the limit for the maximal length of a path, if this limit
+    '   is exceeded the path will remain.
+    '   this limit is used to limit the range of fields which the AI can 'see'
+    'maxPathCount is the limit of paths which are going to be returned by this function, it's limit only
+    '   the returnvalue, not the searchdeep
+    
+End Function
+Private Function genWays(x As Byte, y As Byte, Dir As Byte, deep As Long, ByRef cutLevel As Byte, ByRef absolutMaxPL As Byte) As Byte()
+    'dir < 3 means every way, else every direction except dir
+    'double check input values if you use this function directly!
+    'or you might get unexpected results
+    Dim aNodePosition As Variant
+    Dim aNodesPositions() As Position
+    Dim i As Byte
+    Dim newX As Integer
+    Dim newY As Integer
+    
+    'running thru all directions
+    For i = 0 To 3
+        'filter direction which we come from - if set
+        If i = Dir Then
+            GoTo Forend_genWays
+        End If
+        'calc new position
+        newX = x + dirXshift(i)
+        newY = y + dirYshift(i)
+        'if out of array
+        If newX < 0 Or newY < 0 Or newX > Dimensions Or newY > Dimensions Then
+            GoTo Forend_genWays
+        End If
+        'we call ourself
+        If deep < absolutMaxPL Then
+            'aNodesPositions = genWays(CByte(newX), CByte(newY), i, deep + 1, cutLevel, absolutMaxPL)
+        End If
+        'For Each aNodePosition In aNodesPositions
+        
+        'Next aNodePosition
+        
+Forend_genWays:
+    Next i
+End Function
     
 Sub create(Bricks() As Brick, PlayerPositions() As Position, ControlledPlayer As Byte, Dimension As Byte)
     Dim iSumBlocker As Byte
