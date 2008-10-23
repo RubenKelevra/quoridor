@@ -331,16 +331,16 @@ Function checkPlaceWall(x As Byte, y As Byte, Landscape As Boolean) As Boolean
         If stone.Position(0) = x And stone.Position(1) = y Then
             GoTo returnFalse_checkPlaceWall
         'same level but left and landscape
-        ElseIf stone.Position(0) = x + 1 And stone.Position(1) = y And Landscape And Not stone.Landscape Then
+        ElseIf stone.Position(0) = x + 1 And stone.Position(1) = y And Landscape And stone.Landscape Then
             GoTo returnFalse_checkPlaceWall
         'same level but right and landscape
-        ElseIf stone.Position(0) + 1 = x And stone.Position(1) = y And Landscape And Not stone.Landscape Then
+        ElseIf stone.Position(0) + 1 = x And stone.Position(1) = y And Landscape And stone.Landscape Then
             GoTo returnFalse_checkPlaceWall
         'up but same row and not landscape
-        ElseIf stone.Position(0) = x And stone.Position(1) = y + 1 And Not Landscape And stone.Landscape Then
+        ElseIf stone.Position(0) = x And stone.Position(1) = y + 1 And Not Landscape And Not stone.Landscape Then
             GoTo returnFalse_checkPlaceWall
         'down but same row and not landscape
-        ElseIf stone.Position(0) = x And stone.Position(1) + 1 = y And Not Landscape And stone.Landscape Then
+        ElseIf stone.Position(0) = x And stone.Position(1) + 1 = y And Not Landscape And Not stone.Landscape Then
             GoTo returnFalse_checkPlaceWall
         End If
         
@@ -469,7 +469,7 @@ Function getPlayerTarget(i As Byte) As Byte
 End Function
 
 Function getRemainingPlayerBricks(i As Byte) As Byte
-    getRemainingPlayerBricks = Players(i).getBricks + 1 'we want a number not an index
+    getRemainingPlayerBricks = Players(i).getBricks 'we want a number not an index
 End Function
 
 Sub create(NoOfPl As Byte, NoOfBr As Byte, Dimension As Byte)
