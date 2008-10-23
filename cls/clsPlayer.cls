@@ -131,7 +131,7 @@ Sub create(x As Byte, y As Byte, Stones As Byte, target As Byte)
     Location.Position(1) = y
 
     TypeOfPlayer = 0
-    RemainingStones = Stones
+    RemainingStones = Stones + 1
     Playtime = 0
     TargetWall = target
 End Sub
