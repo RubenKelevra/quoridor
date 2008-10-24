@@ -164,6 +164,7 @@ Function saveWall(Br As Brick, Player As Byte) As Integer
     Blocker(i).Position(1) = Br.Position(1)
     Players(Player).subtractStone
 End Function
+
 Function getPlayerColor(i As Byte) As Long
     Select Case i
         Case 0:
@@ -201,21 +202,19 @@ Function getActivePlayer() As Byte
     getActivePlayer = activePlayer
 End Function
 
-Function getPlayerMove() As Move
+Private Function getPlayerMove() As Move
     'function will ask networkhandler or AI for move direction
     getMove = Players(activePlayer)
 End Function
 
-Function NextTurn() As Byte
-    '0 = local player
-    '1 = you have to ask for move with getMove()
-    activePlayer = Switch(activePlayer < 3, activePlayer + 1, True, 0)
+Sub NextTurn()
+    Dim BReturn As Byte
+    activePlayer = getNextPlayer(activePlayer)
     If getPlayerType(activePlayer) = 1 Then 'player is AI controlled
-        NextTurn = 1
-    Else
-        NextTurn = 0
+        BReturn = getPlayerMove() 'start calculations
+        
     End If
-End Function
+End Sub
 
 Function checkFrontWall(pos As Position, direction As Byte) As Boolean
     'rev 86
