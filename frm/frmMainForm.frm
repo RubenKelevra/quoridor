@@ -138,8 +138,17 @@ Begin VB.Form frmMainForm
          ScaleWidth      =   375
          TabIndex        =   0
          TabStop         =   0   'False
-         Top             =   360
+         Top             =   1080
          Width           =   375
+      End
+      Begin VB.Label lblLoading 
+         Caption         =   "loading..."
+         Height          =   255
+         Left            =   2760
+         TabIndex        =   14
+         Top             =   480
+         Visible         =   0   'False
+         Width           =   975
       End
       Begin VB.Label lblBricksLeftNumber 
          Alignment       =   2  'Zentriert
@@ -391,14 +400,25 @@ Private Sub cmdSetBrick_Click()
         Select Case Playground.saveWall(tTempBrick, Playground.getActivePlayer)
         
             Case 0:
-                Playground.NextTurn
+                If Playground.getPlayerType(getNextPlayer(Playground.getActivePlayer)) = 1 Then
+                
+                    Me.lblLoading.Visible = True
+                    
+                Else
+                
+                    Me.lblLoading.Visible = False
+                
+                End If
+                
+                Call Playground.NextTurn
             
             ' should not happen anyway
             Case 1:
-                MsgBox "You havn't got any stones left, so you can't place one.", vbOKOnly, "No Stones Left"
+                MsgBox "You haven't got any stones left, so you can't place one.", vbOKOnly, "No Stones Left"
             
             Case 2:
                 MsgBox "On this position you can't place a stone.", vbOKOnly, "Stone Not Placeable"
+                Exit Sub
             
             Case 3:
                 MsgBox "Internal Application Error" + vbCrLf + "Error No. 15" + vbCrLf + "Press OK to continue", vbCritical, "Internal Application Error"
@@ -463,6 +483,7 @@ Private Sub ddmNewGame_Click()
     Call resetBrickMode
     
     ' init other vars
+    Me.lblLoading.Enabled = False
     bKeyUp = True
     
     ' enable GUI
@@ -727,7 +748,7 @@ Public Sub drawBricks()
         
             ' init color
             lCurColor = Me.BackColor
-        
+            
             ' calc current coords
             iCurX = iDrawStartX + (x + 1) * iFieldsize - iBricksize
             iCurY = iDrawStartY + y * iFieldsize
