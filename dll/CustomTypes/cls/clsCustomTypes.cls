@@ -30,6 +30,14 @@ Option Explicit
 ' You should have received a copy of the GNU General Public License along
 ' with this program; if not, see <http://www.gnu.org/licenses/>.
 
+Public Type Move
+    ErrorCode As Byte
+    FigureMove As Boolean
+    MoveDirection As Byte
+    Position(1) As Byte
+    Landscape As Boolean
+End Type
+
 Public Type Brick
     Placed As Boolean
     Position(1) As Byte

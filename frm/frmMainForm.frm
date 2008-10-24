@@ -596,7 +596,7 @@ Private Sub deactMoveButtons()
     
         ' deactivate buttons which indicates not posssible directions
         For i = 0 To 3
-            cmdMove(i).Enabled = Playground.checkMove(Playground.getPlayerLocation(BActPlayer), i, False)
+            cmdMove(i).Enabled = Playground.checkMove(Playground.getPlayerLocation(BActPlayer), i)
             cmdMove(i).FontBold = Playground.getPlayerTarget(BActPlayer) = i
         Next i
     
