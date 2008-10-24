@@ -67,14 +67,9 @@ Function getPlayerForLocation(pos As Position) As Byte
     Next i
 End Function
 
-Function checkMove(ByRef pos As Position, ByVal dir As Byte, DontSetMeOnTrue As Boolean) As Boolean
+Function checkMove(ByRef pos As Position, ByVal dir As Byte) As Boolean
+    'rev 86
     Dim newPos As Position
-    Dim i As Byte
-    Dim i2 As Byte
-    Dim i3 As Byte
-    Dim bRekursionCheck As Boolean
-    Dim int1 As Integer
-    Dim int2 As Integer
     If Not checkFrontWall(pos, dir) Then
     
         'there is a border
@@ -104,51 +99,6 @@ Function checkMove(ByRef pos As Position, ByVal dir As Byte, DontSetMeOnTrue As 
                 newPos.Position(0) = pos.Position(0) - 1
                 newPos.Position(1) = pos.Position(1)
         End Select
-    
-        'is there a player
-        'AND does every player can do moves after our move?
-        If Not (getPlayerForLocation(newPos) = 255) Then
-            GoTo fEnd
-        End If
-        'FIXME switched off
-        'DontSetMeOnTrue = True
-                
-        If Not DontSetMeOnTrue Then 'if we are recursitioning
-            bRekursionCheck = True 'if we found no player in move dir which might be blocked
-                                   'we do allow this move
-            For i2 = LBound(Players) To UBound(Players)
-                int1 = 0
-                int2 = 0
-                int1 = Players(i2).getLocation.Position(0) + dirXshift(flipDir(dir)) * 2
-                int2 = Players(i2).getLocation.Position(1) + dirYshift(flipDir(dir)) * 2
-                If Dimensions <= int1 Or int1 < 0 Or Dimensions <= int2 Or int2 < 0 Then 'this couldn't be the playerposition, its out of range
-                    GoTo endNext_i2
-                End If
-                If comparePos(xy2pos(int1, int2), Players(getActivePlayer).getLocation) Then
-                    bRekursionCheck = False 'if the figure have no other way then the way to the player
-                                             'we aren't allowed to make this move
-                    'there is a figure that might be blocked, checkout if it haves another way to move
-                    For i3 = 0 To 3 'dirs for the figure what might be blocked
-                        'now we want to check if the given player has another way to turn on the next move if
-                        'the active player had moved to this position (deactivating recursion!)
-                        If (Not (i3 = flipDir(dir))) Then 'don't check in player direction,
-                                                          'this move isn't anymore possible
-                                                          'if active player had moved
-                            If bRekursionCheck = False Then 'if we hadn't found another way till now
-                                bRekursionCheck = checkMove(Players(i2).getLocation, i3, True)
-                            End If
-                        End If
-                    Next i3
-                    'there isn't the possibility that two players are on the same position
-                    Exit For
-                End If
-endNext_i2:
-            Next i2
-            If Not bRekursionCheck Then
-                checkMove = False
-                Exit Function
-            End If
-        End If
                 
         'field seems to be free and with no wall between us and it
         checkMove = True
@@ -161,8 +111,9 @@ fEnd:
     checkMove = False
     Exit Function
 End Function
+
 Function movePlayer(i As Byte, dir As Byte) As Boolean
-    If checkMove(Players(i).getLocation, dir, False) Then
+    If checkMove(Players(i).getLocation, dir) Then
         movePlayer = Players(i).Move(dir)
         NextTurn
     Else
@@ -250,12 +201,25 @@ Function getActivePlayer() As Byte
     getActivePlayer = activePlayer
 End Function
 
-Sub NextTurn()
+Function getPlayerMove() As Move
+    'function will ask networkhandler or AI for move direction
+    getMove = Players(activePlayer)
+End Function
+
+Function NextTurn() As Byte
+    '0 = local player
+    '1 = you have to ask for move with getMove()
     activePlayer = Switch(activePlayer < 3, activePlayer + 1, True, 0)
-End Sub
+    If getPlayerType(activePlayer) = 1 Then 'player is AI controlled
+        NextTurn = 1
+    Else
+        NextTurn = 0
+    End If
+End Function
 
 Function checkFrontWall(pos As Position, direction As Byte) As Boolean
-        'if true there are a wall in front of the position and with this direction
+    'rev 86
+    'if true there are a wall in front of the position and with this direction
     Dim stone As Brick
     Dim i As Byte
     
@@ -454,6 +418,21 @@ Function checkPlaceWall_donotuse(newPos As Brick) As Boolean
     'Next i
 End Function
 
+Function activateAI(PlayerIndex As Byte) As Byte
+    'load a AI instance for given Player
+    'WARNING: load of four AIs will use 30MB RAM at minimum
+    '0 = ok
+    '1 = is already under AI control
+    '2 = is a network player which may have open network
+    '    connections, stop networking  first
+    ' 255  = out of playerindex range
+    If PlayerIndex > UBound(Players) - LBound(Players) Then
+        activateAI = 255
+    Else
+        activateAI = Players(PlayerIndex).startAI
+    End If
+End Function
+
 Function getNameOfPlayer(i As Byte) As String
     On Error GoTo OutOfIndex
     getNameOfPlayer = Players(i).getPlayerName
@@ -526,12 +505,7 @@ Sub create(NoOfPl As Byte, NoOfBr As Byte, Dimension As Byte)
                       'if two players playing
         End If
         'running create routine
-        Players(i).create pStarts(i).Position(0), pStarts(i).Position(1), NoOfBricks, _
-            Switch( _
-                i = 0, 0, _
-                i = 1, 3, _
-                i = 2, 2, _
-                i = 3, 1)
+        Players(i).create pStarts(i).Position(0), pStarts(i).Position(1), NoOfBricks, Player2Target(i)
     Next i
     
     'reserve space for blockers

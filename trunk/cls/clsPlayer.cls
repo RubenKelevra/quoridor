@@ -30,7 +30,6 @@ Option Explicit
 ' You should have received a copy of the GNU General Public License along
 ' with this program; if not, see <http://www.gnu.org/licenses/>.
 
-
 Private Location As Position
 Private Name As String
 Private Playtime As Long 'per round
@@ -40,12 +39,37 @@ Private RemainingStones As Byte
 Private TargetWall As Byte
 'defines see setType()
 Private TypeOfPlayer As Byte
+Private AI As clsAI
 
 Function getBricks() As Byte
     getBricks = RemainingStones
 End Function
 
-Function setType(i As Byte) As Byte
+Function getMove() As Move
+    getMove = AI.genMove
+End Function
+
+Function startAI(Bricks() As Brick, PlayerPos() As Position, PlayerIndex As Byte, Dimensions As Byte) As Byte
+    '0 = ok
+    '1 = is already under AI control
+    '2 = is a network player which may have open network
+    '    connections, stop networking  first
+    If getType = 0 Then
+        setType 1
+        startAI = 0
+    ElseIf getType = 1 Then
+        startAI = 1
+    ElseIf getType >= 2 Then
+        startAI = 2
+    End If
+    
+    'start AI
+    AI = New clsAI
+    AI.create Bricks, PlayerPos, PlayerIndex, Dimensions, 81
+    
+End Function
+
+Private Function setType(i As Byte) As Byte
     'i:
     '0 = user controlled local player
     '1 = AI controlled local player

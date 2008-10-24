@@ -59,6 +59,14 @@ Function dirXshift(dir) As Integer
     End If
 End Function
 
+Function Player2Target(i As Byte) As Byte
+    Player2Target = Switch( _
+                            i = 0, 0, _
+                            i = 1, 3, _
+                            i = 2, 2, _
+                            i = 3, 1)
+End Function
+
 Function dirYshift(dir) As Integer
     Select Case dir
         Case 0: 'to bottom
