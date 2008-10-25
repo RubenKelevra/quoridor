@@ -163,6 +163,7 @@ Function saveWall(Br As Brick, Player As Byte) As Integer
     Blocker(i).Position(0) = Br.Position(0)
     Blocker(i).Position(1) = Br.Position(1)
     Players(Player).subtractStone
+    NextTurn
 End Function
 
 Function getPlayerColor(i As Byte) As Long
