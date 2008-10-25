@@ -171,13 +171,13 @@ Function getPlayerColor(i As Byte) As Long
         Case 0:
             getPlayerColor = vbBlue
         Case 1:
-            If NoOfPlayer = 4 Then
+            If NoOfPlayer = 3 Then '4 player game
                 getPlayerColor = vbGreen
             Else
                 getPlayerColor = vbRed
             End If
         Case 2:
-            If NoOfPlayer = 4 Then
+            If NoOfPlayer = 3 Then '4 player game
                 getPlayerColor = vbRed
             Else
                 getPlayerColor = vbGreen
