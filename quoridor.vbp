@@ -1,6 +1,6 @@
 Type=Exe
-Reference=*\G{00020430-0000-0000-C000-000000000046}#2.0#0#..\..\..\..\..\WINDOWS\system32\stdole2.tlb#OLE Automation
-Reference=*\G{7C0FFAB0-CD84-11D0-949A-00A0C91110ED}#1.0#0#..\..\..\..\..\WINDOWS\system32\msdatsrc.tlb#Microsoft Data Source Interfaces
+Reference=*\G{00020430-0000-0000-C000-000000000046}#2.0#0#..\..\..\..\..\..\..\..\WINDOWS\system32\stdole2.tlb#OLE Automation
+Reference=*\G{7C0FFAB0-CD84-11D0-949A-00A0C91110ED}#1.0#0#..\..\..\..\..\..\..\..\WINDOWS\system32\msdatsrc.tlb#Microsoft Data Source Interfaces
 Reference=*\G{53247F67-D98D-4979-A6DD-810C9CE7BA35}#1.0#0#CustomTypes.dll#CustomTypes
 Class=clsBoard; cls\clsBoard.cls
 Class=clsPlayer; cls\clsPlayer.cls

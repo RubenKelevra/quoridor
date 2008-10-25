@@ -400,6 +400,7 @@ Private Sub cmdSetBrick_Click()
         Select Case Playground.saveWall(tTempBrick, Playground.getActivePlayer)
         
             Case 0:
+                ' (re-)set loading label
                 If Playground.getPlayerType(getNextPlayer(Playground.getActivePlayer)) = 1 Then
                 
                     Me.lblLoading.Visible = True
@@ -417,7 +418,8 @@ Private Sub cmdSetBrick_Click()
                 MsgBox "You haven't got any stones left, so you can't place one.", vbOKOnly, "No Stones Left"
             
             Case 2:
-                MsgBox "On this position you can't place a stone.", vbOKOnly, "Stone Not Placeable"
+                ' just exit the sub without popping up a msg window
+                ' MsgBox "On this position you can't place a stone.", vbOKOnly, "Stone Not Placeable"
                 Exit Sub
             
             Case 3:
@@ -483,7 +485,7 @@ Private Sub ddmNewGame_Click()
     Call resetBrickMode
     
     ' init other vars
-    Me.lblLoading.Enabled = False
+    Me.lblLoading.Visible = False
     bKeyUp = True
     
     ' enable GUI
