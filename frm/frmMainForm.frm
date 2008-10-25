@@ -302,7 +302,8 @@ Private Sub cmdMove_Click(Index As Integer)
     changed = False
     
     If Not tTempBrick.Placed Then 'move figure
-        
+        'set loading label to true if AI player is in use
+        setLoadingLabel
         changed = Playground.movePlayer(Playground.getActivePlayer, CByte(Index))
     
     Else
@@ -349,6 +350,9 @@ Private Sub cmdMove_Click(Index As Integer)
         ' repaint form
         Call Form_Paint
     
+    Else
+        'hide label if move was not ok
+        setLoadingLabel
     End If
     
 End Sub
@@ -395,23 +399,29 @@ Private Sub cmdSetBrick_Click()
     
     
     If tTempBrick.Placed Then
-    
+        'set AI indicator if next player is a AI
+        setLoadingLabel
         ' save brick
         Select Case Playground.saveWall(tTempBrick, Playground.getActivePlayer)
         
             Case 0:
-                ' do nothing special here
             
             ' should not happen anyway
             Case 1:
+                'reset AI indicator if savewall was not ok
+                setLoadingLabel
                 MsgBox "You haven't got any stones left, so you can't place one.", vbOKOnly, "No Stones Left"
             
             Case 2:
+                'reset AI indicator if savewall was not ok
+                setLoadingLabel
                 ' just exit the sub without popping up a msg window
                 ' MsgBox "On this position you can't place a stone.", vbOKOnly, "Stone Not Placeable"
                 Exit Sub
             
             Case 3:
+                'reset AI indicator if savewall was not ok
+                setLoadingLabel
                 MsgBox "Internal Application Error" + vbCrLf + "Error No. 15" + vbCrLf + "Press OK to continue", vbCritical, "Internal Application Error"
         
         End Select
@@ -513,8 +523,6 @@ Private Sub Form_Paint()
         
         Call drawBoard
         Call drawBricks
-        
-        Call setLoadingLabel
     End If
     
 End Sub
@@ -807,7 +815,7 @@ End Sub
 Public Sub setLoadingLabel()
 
     ' (re-)set loading label
-    If Playground.getPlayerTarget(getNextPlayer(Playground.getActivePlayer(), Playground.getNoOfPlayer)) = 1 Then
+    If Playground.getPlayerType(getNextPlayer(Playground.getActivePlayer(), Playground.getNoOfPlayer)) = 1 Then
     
         Me.lblLoading.Visible = True
         
