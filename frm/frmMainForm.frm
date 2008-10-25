@@ -807,7 +807,7 @@ End Sub
 Public Sub setLoadingLabel()
 
     ' (re-)set loading label
-    If Playground.getPlayerTarget(getNextPlayer(Playground.getActivePlayer() + 1)) = 1 Then
+    If Playground.getPlayerTarget(getNextPlayer(Playground.getActivePlayer(), Playground.getNoOfPlayer)) = 1 Then
     
         Me.lblLoading.Visible = True
         
