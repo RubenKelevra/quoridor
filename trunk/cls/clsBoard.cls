@@ -210,7 +210,7 @@ End Function
 
 Sub NextTurn()
     Dim PlayerMove As Move
-    activePlayer = getNextPlayer(activePlayer)
+    activePlayer = getNextPlayer(activePlayer, NoOfPlayer)
     If getPlayerType(activePlayer) = 1 Then 'player is AI controlled
         PlayerMove = getPlayerMove() 'start calculations
         
