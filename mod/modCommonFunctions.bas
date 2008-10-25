@@ -18,8 +18,8 @@ Option Explicit
 ' You should have received a copy of the GNU General Public License along
 ' with this program; if not, see <http://www.gnu.org/licenses/>.
 
-Function getNextPlayer(activePlayer) As Byte
-    getNextPlayer = Switch(activePlayer < 3, activePlayer + 1, True, 0)
+Function getNextPlayer(activePlayer, playerNo) As Byte
+    getNextPlayer = Switch(activePlayer < playerNo, activePlayer + 1, True, 0)
 End Function
 
 Function flipDir(i As Byte) As Byte
