@@ -216,41 +216,46 @@ Private Sub genWays(ByRef x As Byte, ByRef y As Byte, ByRef dir As Byte, ByRef l
                  bTouchedFieldsBitMap(PathIndex, i, i2) = bTouchedFieldsBitMap(lastPathIndex, i, i2)
             Next i2
         Next i
-        'we have also to copy our path to Paths
+        'we have also to copy our path to Paths()
         For i = 0 To deep - 1
             For i2 = 0 To 1
                 Paths(PathIndex, i, i2) = Paths(lastPathIndex, i, i2)
             Next i2
         Next i
     End If
+    'save that we touched the field
     bTouchedFieldsBitMap(PathIndex, x, y) = True
+    'save position
     Paths(PathIndex, deep, 0) = x
     Paths(PathIndex, deep, 1) = y
     
-    'running thru all directions
-    For Each vVar In getDirs(Player2Target(SelfPlayerNo))
-        'filter direction were we come from - if set
-        If i = dir Then
-            GoTo Forend_genWays
-        End If
-        'check if move is possible
-        If Not checkMove(xy2pos(x, y), i) Then
-            GoTo Forend_genWays
-        End If
-        'calc new position
-        newX = x + dirXshift(i)
-        newY = y + dirYshift(i)
-        'if out of array
-        If newX < 0 Or newY < 0 Or newX > Dimensions Or newY > Dimensions Then
-            GoTo Forend_genWays
-        End If
-        'check if we had touched the field before
-        If bTouchedFieldsBitMap(PathIndex, newX, newY) Then
-            GoTo Forend_genWays
-        End If
-        'we call ourself when max deep isn't exceeded
-        If deep < absolutMaxPL Then
-            If Not i = 0 Then 'increase index when creating another path
+    'when max deep isn't exceeded
+    If deep < absolutMaxPL Then
+        'running thru all directions
+        For Each vVar In getDirs(Player2Target(SelfPlayerNo))
+            'filter direction were we come from - if setted
+            If i = dir Then
+                GoTo Forend_genWays
+            End If
+            'check if move is possible
+            If Not checkMove(xy2pos(x, y), i) Then
+                GoTo Forend_genWays
+            End If
+            'calc new position
+            newX = x + dirXshift(i)
+            newY = y + dirYshift(i)
+            'double check if out of array
+            ' (normally checkMove() done this already)
+            If newX < 0 Or newY < 0 Or newX > Dimensions Or newY > Dimensions Then
+                GoTo Forend_genWays
+            End If
+            'check if we had touched the field before
+            If bTouchedFieldsBitMap(PathIndex, newX, newY) Then
+                GoTo Forend_genWays
+            End If
+            
+            'increase index when creating another path
+            If Not i = 0 Then
                 genWaysIndex = genWaysIndex + 1
                 'if there is no space left we reserver more for 1000 more paths
                 If genWaysIndex >= lMaxPathIndex Then
@@ -259,10 +264,11 @@ Private Sub genWays(ByRef x As Byte, ByRef y As Byte, ByRef dir As Byte, ByRef l
                     ReDim Paths(lMaxPathIndex, absolutMaxPL - 1, 1)
                 End If
             End If
+            'we call ourself
             genWays CByte(newX), CByte(newY), i, genWaysIndex, deep + 1
-        End If
 Forend_genWays:
-    Next vVar
+        Next vVar
+    End If
 End Sub
 
 Private Sub resetTouchedFields()

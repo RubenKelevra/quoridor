@@ -204,14 +204,14 @@ End Function
 
 Private Function getPlayerMove() As Move
     'function will ask networkhandler or AI for move direction
-    getMove = Players(activePlayer)
+    getPlayerMove = Players(activePlayer).getMove
 End Function
 
 Sub NextTurn()
-    Dim BReturn As Byte
+    Dim PlayerMove As Move
     activePlayer = getNextPlayer(activePlayer)
     If getPlayerType(activePlayer) = 1 Then 'player is AI controlled
-        BReturn = getPlayerMove() 'start calculations
+        PlayerMove = getPlayerMove() 'start calculations
         
     End If
 End Sub
@@ -517,4 +517,5 @@ Sub create(NoOfPl As Byte, NoOfBr As Byte, Dimension As Byte)
         Blocker(i).Position(0) = 255
         Blocker(i).Position(1) = 255
     Next i
+    Players(1).startAI Blocker, pStarts, 1, Dimensions
 End Sub
