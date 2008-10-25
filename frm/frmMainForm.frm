@@ -400,18 +400,7 @@ Private Sub cmdSetBrick_Click()
         Select Case Playground.saveWall(tTempBrick, Playground.getActivePlayer)
         
             Case 0:
-                ' (re-)set loading label
-                If Playground.getPlayerType(getNextPlayer(Playground.getActivePlayer)) = 1 Then
-                
-                    Me.lblLoading.Visible = True
-                    
-                Else
-                
-                    Me.lblLoading.Visible = False
-                
-                End If
-                
-                Call Playground.NextTurn
+                ' do nothing special here
             
             ' should not happen anyway
             Case 1:
@@ -524,6 +513,8 @@ Private Sub Form_Paint()
         
         Call drawBoard
         Call drawBricks
+        
+        Call setLoadingLabel
     End If
     
 End Sub
@@ -810,6 +801,21 @@ Private Sub resetBrickMode()
     Me.cmdSetBrick.Enabled = True
     Me.cmdRotateBrick.Enabled = False
     Me.cmdCancelBrick.Enabled = False
+
+End Sub
+
+Public Sub setLoadingLabel()
+
+    ' (re-)set loading label
+    If Playground.getPlayerTarget(getNextPlayer(Playground.getActivePlayer() + 1)) = 1 Then
+    
+        Me.lblLoading.Visible = True
+        
+    Else
+    
+        Me.lblLoading.Visible = False
+    
+    End If
 
 End Sub
 
