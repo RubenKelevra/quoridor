@@ -65,7 +65,7 @@ Function startAI(Bricks() As Brick, PlayerPos() As Position, PlayerIndex As Byte
     
     'start AI
     Set AI = New clsAI
-    AI.create Bricks, PlayerPos, PlayerIndex, Dimensions, 81
+    AI.create Bricks, PlayerPos, PlayerIndex, Dimensions, 6
     
 End Function
 

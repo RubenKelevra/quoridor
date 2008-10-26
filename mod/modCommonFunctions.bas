@@ -18,8 +18,17 @@ Option Explicit
 ' You should have received a copy of the GNU General Public License along
 ' with this program; if not, see <http://www.gnu.org/licenses/>.
 
-Function getNextPlayer(activePlayer, playerNo) As Byte
-    getNextPlayer = Switch(activePlayer < playerNo, activePlayer + 1, True, 0)
+Function checkPos(newX As Integer, newY As Integer, maxXY As Byte) As Boolean
+    If newX < 0 Or newY < 0 Or newX > maxXY Or newY > maxXY Then
+        checkPos = False
+    Else
+        checkPos = True
+    End If
+End Function
+
+
+Function getNextPlayer(activePlayer, PlayerNo) As Byte
+    getNextPlayer = Switch(activePlayer < PlayerNo, activePlayer + 1, True, 0)
 End Function
 
 Function flipDir(i As Byte) As Byte
@@ -27,8 +36,8 @@ Function flipDir(i As Byte) As Byte
                 i = 0, 2, _
                 i = 1, 3, _
                 i = 2, 0, _
-                i = 3, 1 _
-                )
+                i = 3, 1, _
+                True, 255)
 End Function
 
 Function xy2pos(ByVal x As Byte, ByVal y As Byte) As Position
@@ -47,6 +56,20 @@ Function comparePos(pos1 As Position, pos2 As Position) As Boolean
     End If
 End Function
 
+Function shift2dir(Xshift As Integer, Yshift As Integer) As Byte
+    If Xshift = 0 And Yshift = 1 Then 'to bottom
+        shift2dir = 0
+    ElseIf Xshift = 1 And Yshift = 0 Then 'to right
+        shift2dir = 1
+    ElseIf Xshift = 0 And Yshift = -1 Then 'to top
+        shift2dir = 2
+    ElseIf Xshift = -1 And Yshift = 0 Then 'to left
+        shift2dir = 3
+    Else
+        shift2dir = 255
+    End If
+End Function
+
 Function dirXshift(dir) As Integer
     Select Case dir
         Case 0: 'to bottom
@@ -55,10 +78,10 @@ Function dirXshift(dir) As Integer
             dirXshift = 1
         Case 2: 'to top
             dirXshift = 0
-        Case 3: 'to bottom
+        Case 3: 'to left
             dirXshift = -1
     End Select
-    If Not (dir <= 0 And dir <= 3) Then
+    If Not (0 <= dir And dir <= 3) Then
         dirXshift = 255
     End If
 End Function
@@ -79,10 +102,10 @@ Function dirYshift(dir) As Integer
             dirYshift = 0
         Case 2: 'to top
             dirYshift = -1
-        Case 3: 'to bottom
+        Case 3: 'to left
             dirYshift = 0
     End Select
-    If Not (dir <= 0 And dir <= 3) Then
+    If Not (0 <= dir And dir <= 3) Then
         dirYshift = 255
     End If
 End Function
