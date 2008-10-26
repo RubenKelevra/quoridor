@@ -43,17 +43,53 @@ Private lMaxPathIndex As Long
 '   is exceeded the path will remain.
 '   this limit is used to limit the range of fields which the AI can 'see'
 Private absolutMaxPL As Byte
-'cutLevel is a percentage*10 value to cut off ways which are longer than the shortest founded path till now
+'cutLevel is a percentage value to cut off ways which are longer than the shortest founded path till now
 '   will be applied again after all runs are finished
-'   0 means find only paths wich are exact the same till 10-1 % length
+'   0 means find only paths wich are exact the same till +1 % length
 '   255 means no limit
 '   cutted paths are deleted if they exceed this limit
 Private cutLevel As Byte
 Private bMinPathFoundToTarget As Boolean
 Private lMinPathToTarget As Long
 
+Function addWall(Br As Brick) As Boolean
+    Dim i As Byte
+    'running thru setted Blockers to get last index of the placed ones
+    For i = LBound(Blocker) To UBound(Blocker)
+        If Not Blocker(i).Placed Then
+            Exit For
+        End If
+    Next i
+    Blocker(i).Placed = True
+    Blocker(i).Landscape = Br.Landscape
+    Blocker(i).Position(0) = Br.Position(0)
+    Blocker(i).Position(1) = Br.Position(1)
+End Function
+
+Function updatePlayerPos(PlayerNo As Byte, dir As Byte) As Byte
+    '0 means okay
+    '1 means dir is going out of field
+    Dim newX As Integer
+    Dim newY As Integer
+    newX = dirXshift(dir) + PlayerPos(PlayerNo).Position(0)
+    newY = dirYshift(dir) + PlayerPos(PlayerNo).Position(1)
+    If Not checkPos(newX, newY, Dimensions) Then
+        updatePlayerPos = 1
+    Else
+        PlayerPos(PlayerNo).Position(0) = newX
+        PlayerPos(PlayerNo).Position(1) = newY
+    End If
+End Function
+
 Function genMove() As Move
+    Dim newDir As Byte
+    genMoveWays PlayerPos(SelfPlayerNo), 5
     
+    genMove.ErrorCode = 0
+    genMove.FigureMove = True
+    newDir = shift2dir(Paths(0, 0, 0) - PlayerPos(SelfPlayerNo).Position(0), Paths(0, 0, 1) - PlayerPos(SelfPlayerNo).Position(1))
+    genMove.MoveDirection = newDir
+    updatePlayerPos SelfPlayerNo, newDir
 End Function
 
 Private Function genMoveWays(Position As Position, maxPathCount As Integer) As Byte()
@@ -65,7 +101,7 @@ Private Function genMoveWays(Position As Position, maxPathCount As Integer) As B
     resetTouchedFields
     bMinPathFoundToTarget = False
     
-    bTargetReached = genWays(PlayerPos(SelfPlayerNo).Position(0), PlayerPos(SelfPlayerNo).Position(1), Player2Target(SelfPlayerNo), 0, 0)
+    bTargetReached = genWays(PlayerPos(SelfPlayerNo).Position(0), PlayerPos(SelfPlayerNo).Position(1), 255, 0, 0)
 End Function
 
 Function checkFrontWall(pos As Position, direction As Byte) As Boolean
@@ -124,12 +160,6 @@ End Function
 Private Function checkMove(ByRef pos As Position, ByVal dir As Byte) As Boolean
     'copied in rev 86
     Dim newPos As Position
-    Dim i As Byte
-    Dim i2 As Byte
-    Dim i3 As Byte
-    Dim bRekursionCheck As Boolean
-    Dim int1 As Integer
-    Dim int2 As Integer
     If Not checkFrontWall(pos, dir) Then
     
         'there is a border
@@ -173,21 +203,32 @@ fEnd:
 End Function
 
 Private Function getDirs(mainDir As Byte) As Byte()
-    Dim i As Integer
-    Dim i2 As Integer
-    Dim bReturn(3) As Byte
-    bReturn(0) = mainDir
-    For i = 1 To 3
-        For i2 = 0 To 3
-            If Not mainDir = i2 Then
-                bReturn(i) = i2
+    Dim i As Byte
+    Dim i2 As Byte
+    Dim BReturn(3) As Byte
+    Dim i3 As Byte
+    Dim b As Boolean
+    BReturn(0) = mainDir
+    BReturn(1) = 255
+    BReturn(2) = 255
+    BReturn(3) = 255
+    i3 = 1
+    For i = 0 To 3
+        b = True
+        For i2 = 1 To 3
+            If Not mainDir = i And BReturn(i2) = i Then
+                b = False
             End If
         Next i2
+        If b And i3 <= 3 Then
+            BReturn(i3) = i
+            i3 = i3 + 1
+        End If
     Next i
-    getDirs = bReturn
+    getDirs = BReturn
 End Function
 
-Private Sub genWays(ByRef x As Byte, ByRef y As Byte, ByRef dir As Byte, ByRef lastPathIndex As Long, ByVal deep As Long)
+Private Function genWays(ByRef x As Byte, ByRef y As Byte, ByRef dir As Byte, ByRef lastPathIndex As Long, ByVal deep As Long)
     'dir > 3 means every way, else every direction except dir
     'double check input values if you use this function directly!
     'or you might get unexpected results
@@ -203,8 +244,8 @@ Private Sub genWays(ByRef x As Byte, ByRef y As Byte, ByRef dir As Byte, ByRef l
     
     'if target wall was reached with one path we going to check if we had exceed the cut level
     If bMinPathFoundToTarget Then
-        If deep > lMinPathToTarget * (cutLevel / 10 + 1) Then
-            Exit Sub
+        If deep > lMinPathToTarget * (cutLevel / 100 + 1) Then
+            Exit Function
         End If
     End If
     
@@ -217,7 +258,7 @@ Private Sub genWays(ByRef x As Byte, ByRef y As Byte, ByRef dir As Byte, ByRef l
             Next i2
         Next i
         'we have also to copy our path to Paths()
-        For i = 0 To deep - 1
+        For i = 0 To deep
             For i2 = 0 To 1
                 Paths(PathIndex, i, i2) = Paths(lastPathIndex, i, i2)
             Next i2
@@ -234,19 +275,15 @@ Private Sub genWays(ByRef x As Byte, ByRef y As Byte, ByRef dir As Byte, ByRef l
         'running thru all directions
         For Each vVar In getDirs(Player2Target(SelfPlayerNo))
             'filter direction were we come from - if setted
-            If i = dir Then
-                GoTo Forend_genWays
-            End If
-            'check if move is possible
-            If Not checkMove(xy2pos(x, y), i) Then
+            If vVar = flipDir(dir) Then
                 GoTo Forend_genWays
             End If
             'calc new position
-            newX = x + dirXshift(i)
-            newY = y + dirYshift(i)
+            newX = x + dirXshift(vVar)
+            newY = y + dirYshift(vVar)
             'double check if out of array
             ' (normally checkMove() done this already)
-            If newX < 0 Or newY < 0 Or newX > Dimensions Or newY > Dimensions Then
+            If Not checkPos(newX, newY, Dimensions) Then
                 GoTo Forend_genWays
             End If
             'check if we had touched the field before
@@ -255,20 +292,35 @@ Private Sub genWays(ByRef x As Byte, ByRef y As Byte, ByRef dir As Byte, ByRef l
             End If
             
             'increase index when creating another path
-            If Not i = 0 Then
+            If Not vVar = 0 Then
                 genWaysIndex = genWaysIndex + 1
                 'if there is no space left we reserver more for 1000 more paths
                 If genWaysIndex >= lMaxPathIndex Then
-                    lMaxPathIndex = lMaxPathIndex + 1000
+                    lMaxPathIndex = lMaxPathIndex + 1 '000 'testing
                     ReDim bTouchedFieldsBitMap(lMaxPathIndex, Dimensions, Dimensions)
-                    ReDim Paths(lMaxPathIndex, absolutMaxPL - 1, 1)
+                    ReDim Paths(lMaxPathIndex, absolutMaxPL, 1)
                 End If
             End If
             'we call ourself
-            genWays CByte(newX), CByte(newY), i, genWaysIndex, deep + 1
+            genWays CByte(newX), CByte(newY), CByte(vVar), PathIndex, deep + 1
 Forend_genWays:
         Next vVar
     End If
+End Function
+
+Sub delPath()
+    Dim i As Byte
+    Dim i2 As Byte
+    For i = 0 To absolutMaxPL
+        Paths(genWaysIndex, i, 0) = 255
+        Paths(genWaysIndex, i, 1) = 255
+    Next i
+    For i = 0 To Dimensions
+        For i2 = 0 To Dimensions
+            bTouchedFieldsBitMap(genWaysIndex, i, i2) = False
+        Next i2
+    Next i
+    genWaysIndex = genWaysIndex - 1
 End Sub
 
 Private Sub resetTouchedFields()
@@ -296,13 +348,13 @@ Sub create(Bricks() As Brick, PlayerPositions() As Position, ControlledPlayer As
     PlayerMaxIndex = UBound(PlayerPositions) - LBound(PlayerPositions)
     
     'reserve space for BitMap for touched fields
-    lMaxPathIndex = 10000
+    lMaxPathIndex = 0
     
     ReDim bTouchedFieldsBitMap(lMaxPathIndex, Dimensions, Dimensions) 'bitmaps for the first 10000 ways
     resetTouchedFields
     
     'reserve space for Paths
-    ReDim Paths(lMaxPathIndex, absolutMaxPL - 1, 1)
+    ReDim Paths(lMaxPathIndex, absolutMaxPL, 1)
     
     'reserve space for playerpositions
     ReDim PlayerPos(PlayerMaxIndex)
@@ -311,6 +363,7 @@ Sub create(Bricks() As Brick, PlayerPositions() As Position, ControlledPlayer As
     
     For i = 0 To PlayerMaxIndex
         PlayerPos(i).Position(0) = PlayerPositions(i).Position(0)
+        PlayerPos(i).Position(1) = PlayerPositions(i).Position(1)
     Next i
     For i = 0 To iSumBlocker
         With Blocker(i)
