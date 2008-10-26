@@ -346,8 +346,14 @@ Private Sub cmdMove_Click(Index As Integer)
     Me.picFocus.SetFocus
     
     If changed Then
-    
-        ' repaint form
+        
+        If Playground.NextTurn Then
+            'repaint form after change to next player
+            Call Form_Paint
+            'next move
+            Playground.doPlayerMove
+        End If
+        'repaint after AI/network move OR after change to next player
         Call Form_Paint
     
     Else
@@ -408,20 +414,14 @@ Private Sub cmdSetBrick_Click()
             
             ' should not happen anyway
             Case 1:
-                'reset AI indicator if savewall was not ok
-                setLoadingLabel
                 MsgBox "You haven't got any stones left, so you can't place one.", vbOKOnly, "No Stones Left"
             
             Case 2:
-                'reset AI indicator if savewall was not ok
-                setLoadingLabel
                 ' just exit the sub without popping up a msg window
                 ' MsgBox "On this position you can't place a stone.", vbOKOnly, "Stone Not Placeable"
                 Exit Sub
             
             Case 3:
-                'reset AI indicator if savewall was not ok
-                setLoadingLabel
                 MsgBox "Internal Application Error" + vbCrLf + "Error No. 15" + vbCrLf + "Press OK to continue", vbCritical, "Internal Application Error"
         
         End Select
@@ -443,8 +443,14 @@ Private Sub cmdSetBrick_Click()
     
     ' set focus to picFocus for keyboard control
     Me.picFocus.SetFocus
-            
-    ' repaint form
+    
+    If Playground.NextTurn Then
+        'repaint form after stone is placed
+        Call Form_Paint
+        'next move
+        Playground.doPlayerMove
+    End If
+    'repaint after AI/network move
     Call Form_Paint
     
 End Sub
@@ -496,6 +502,7 @@ Private Sub ddmNewGame_Click()
         Me.cmdMove(1).Enabled = True
         Me.cmdMove(2).Enabled = True
         Me.cmdMove(3).Enabled = True
+        Me.lblLoading.Visible = False
         
     End If
     
@@ -520,7 +527,7 @@ Private Sub Form_Paint()
         Call setBricksLeft
         Call deactMoveButtons
         Call deactSetBrick
-        
+        Call setLoadingLabel
         Call drawBoard
         Call drawBricks
     End If
@@ -547,15 +554,15 @@ End Sub
 
 Private Sub setBricksLeft()
 
-    Dim B As Byte
+    Dim b As Byte
     
     ' set current ammount of brick
-    B = Playground.getRemainingPlayerBricks(Playground.getActivePlayer)
+    b = Playground.getRemainingPlayerBricks(Playground.getActivePlayer)
     
     ' update player bricks
-    Me.lblBricksLeftNumber.Caption = CStr(B)
+    Me.lblBricksLeftNumber.Caption = CStr(b)
     
-    If B = 0 Then
+    If b = 0 Then
         ' deactivate brick button
         Me.cmdSetBrick.Enabled = False
     Else
@@ -815,7 +822,7 @@ End Sub
 Public Sub setLoadingLabel()
 
     ' (re-)set loading label
-    If Playground.getPlayerType(getNextPlayer(Playground.getActivePlayer(), Playground.getNoOfPlayer)) = 1 Then
+    If Playground.getPlayerType(Playground.getActivePlayer()) = 1 Then
     
         Me.lblLoading.Visible = True
         

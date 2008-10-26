@@ -43,18 +43,18 @@ Function getPlayerType(i As Byte) As Byte
     getPlayerType = Players(i).getType
 End Function
 
-Function setPlayerType(i As Byte, newType As Byte) As Byte
-    'only necessary if not a local user controled player, definition of Type see clsPlayer.setType()
-    'returnvalue
-    '0 = ok
-    '1 = out of valid type range
-    '2 = out of player index range
-    If i <= NoOfPlayer Then
-        setPlayerType = Players(i).setType(newType)
-    Else
-        setPlayerType = 2
-    End If
-End Function
+'Function setPlayerType(i As Byte, newType As Byte) As Byte
+'    'only necessary if not a local user controled player, definition of Type see clsPlayer.setType()
+'    'returnvalue
+'    '0 = ok
+'    '1 = out of valid type range
+'    '2 = out of player index range
+'    If i <= NoOfPlayer Then
+'        setPlayerType = Players(i).Set.setType(newType)
+'    Else
+'        setPlayerType = 2
+'    End If
+'End Function
 
 Function getPlayerForLocation(pos As Position) As Byte
     Dim i As Byte
@@ -115,7 +115,6 @@ End Function
 Function movePlayer(i As Byte, dir As Byte) As Boolean
     If checkMove(Players(i).getLocation, dir) Then
         movePlayer = Players(i).Move(dir)
-        NextTurn
     Else
         movePlayer = False
     End If
@@ -163,7 +162,6 @@ Function saveWall(Br As Brick, Player As Byte) As Integer
     Blocker(i).Position(0) = Br.Position(0)
     Blocker(i).Position(1) = Br.Position(1)
     Players(Player).subtractStone
-    NextTurn
 End Function
 
 Function getPlayerColor(i As Byte) As Long
@@ -208,14 +206,32 @@ Private Function getPlayerMove() As Move
     getPlayerMove = Players(activePlayer).getMove
 End Function
 
-Sub NextTurn()
+Sub doPlayerMove()
     Dim PlayerMove As Move
-    activePlayer = getNextPlayer(activePlayer, NoOfPlayer)
     If getPlayerType(activePlayer) = 1 Then 'player is AI controlled
         PlayerMove = getPlayerMove() 'start calculations
         
+        If PlayerMove.ErrorCode <> 0 Then
+            Exit Sub
+        End If
+        If PlayerMove.FigureMove = True Then
+            movePlayer activePlayer, PlayerMove.MoveDirection
+        Else
+            'saveWall
+        End If
+    ElseIf getPlayerType(activePlayer) < 1 Then
+        'networkhandler
     End If
 End Sub
+
+Function NextTurn() As Boolean
+    activePlayer = getNextPlayer(activePlayer, NoOfPlayer)
+    If getPlayerType(activePlayer) > 0 Then 'player is AI or network controlled
+        NextTurn = True
+    Else
+        NextTurn = False
+    End If
+End Function
 
 Function checkFrontWall(pos As Position, direction As Byte) As Boolean
     'rev 86
@@ -429,7 +445,7 @@ Function activateAI(PlayerIndex As Byte) As Byte
     If PlayerIndex > UBound(Players) - LBound(Players) Then
         activateAI = 255
     Else
-        activateAI = Players(PlayerIndex).startAI
+        activateAI = Players(PlayerIndex).startAI(Blocker, getPlayerPositions, PlayerIndex, Dimensions)
     End If
 End Function
 
@@ -449,6 +465,17 @@ End Function
 
 Function getRemainingPlayerBricks(i As Byte) As Byte
     getRemainingPlayerBricks = Players(i).getBricks 'we want a number not an index
+End Function
+
+Private Function getPlayerPositions() As Position()
+    Dim i As Byte
+    Dim returnvalue() As Position
+    ReDim returnvalue(NoOfPlayer)
+    For i = 0 To NoOfPlayer
+        returnvalue(i).Position(0) = getPlayerLocation(i).Position(0)
+        returnvalue(i).Position(1) = getPlayerLocation(i).Position(1)
+    Next i
+    getPlayerPositions = returnvalue
 End Function
 
 Sub create(NoOfPl As Byte, NoOfBr As Byte, Dimension As Byte)
