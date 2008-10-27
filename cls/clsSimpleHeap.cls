@@ -91,6 +91,7 @@ Public Function Alloc() As Integer
     Alloc = getNextUnused(1)
     If Alloc <= ListSize Then
         List(Alloc).Used = True
+        ElementsInList = ElementsInList + 1
         Exit Function
     End If
     'if no space left, we get to this position, now we allocate more space
@@ -98,6 +99,7 @@ Public Function Alloc() As Integer
     If ListDynamically Then
         Call ReSizeHeap(ListSize + AllocationStep)
         List(Alloc).Used = True
+        ElementsInList = ElementsInList + 1
     Else
         Call Err.Raise(vbObjectError, "GC::Alloc", "Heap overflow")
     End If
