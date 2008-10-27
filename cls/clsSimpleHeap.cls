@@ -141,12 +141,14 @@ Public Sub SetDefrag(Enabled As Boolean)
     AutoDefrag = Enabled
 End Sub
 
-Private Function getLastUsed(Optional Start As Integer = ListSize) As Integer
+Private Function getLastUsed(Optional Start As Integer) As Integer
     ' getLastUsed As Integer
     ' get the last used element out of the array
     ' - [IN] Optional Start As Integer: allows you to set a different start then the end
     '                                   of the list
     ' - returns the index of the last as used marked element or 0 if List is empty
+    Start = Switch(Start = 0, ListSize, True, Start)
+    
     For getLastUsed = Start To 1 Step -1
         If List(getLastUsed).Used Then
             Exit Function
