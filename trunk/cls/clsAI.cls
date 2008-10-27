@@ -273,7 +273,7 @@ Private Function genWays(ByRef x As Byte, ByRef y As Byte, ByRef dir As Byte, By
     'when max deep isn't exceeded
     If deep < absolutMaxPL Then
         'running thru all directions
-        For Each vVar In getDirs(Player2Target(SelfPlayerNo))
+        For Each vVar In getDirs(Player2Target(SelfPlayerNo, PlayerMaxIndex))
             'filter direction were we come from - if setted
             If vVar = flipDir(dir) Then
                 GoTo Forend_genWays
