@@ -545,5 +545,5 @@ Sub create(NoOfPl As Byte, NoOfBr As Byte, Dimension As Byte)
         Blocker(i).Position(0) = 255
         Blocker(i).Position(1) = 255
     Next i
-    Players(1).startAI Blocker, pStarts, 1, Dimensions
+    'Players(1).startAI Blocker, pStarts, 1, Dimensions
 End Sub
