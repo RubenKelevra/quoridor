@@ -255,7 +255,7 @@ Option Explicit
 ' option) any later version.
 '
 ' This program is distributed in the hope that it will be useful, but
-' WITHOUT ANY WARRANTY; without even the implied warranty of
+' WITHOUT ANY WARRANTY; without even the impliefd warranty of
 ' MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
 ' Public License for more details.
 '
@@ -302,8 +302,6 @@ Private Sub cmdMove_Click(Index As Integer)
     changed = False
     
     If Not tTempBrick.Placed Then 'move figure
-        'set loading label to true if AI player is in use
-        setLoadingLabel
         changed = Playground.movePlayer(Playground.getActivePlayer, CByte(Index))
     
     Else
@@ -355,10 +353,6 @@ Private Sub cmdMove_Click(Index As Integer)
         End If
         'repaint after AI/network move OR after change to next player
         Call Form_Paint
-    
-    Else
-        'hide label if move was not ok
-        setLoadingLabel
     End If
     
 End Sub
@@ -405,8 +399,6 @@ Private Sub cmdSetBrick_Click()
     
     
     If tTempBrick.Placed Then
-        'set AI indicator if next player is a AI
-        setLoadingLabel
         ' save brick
         Select Case Playground.saveWall(tTempBrick, Playground.getActivePlayer)
         
