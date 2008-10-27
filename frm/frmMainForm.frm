@@ -442,9 +442,9 @@ Private Sub cmdSetBrick_Click()
             'next move
             Playground.doPlayerMove
         End If
-        'repaint after AI/network move
-        Call Form_Paint
     End If
+    'repaint after AI/network move or draw stone after change to set stone mode
+    Call Form_Paint
 End Sub
 
 Private Sub cmdSetBrick_MouseUp(Button As Integer, Shift As Integer, x As Single, y As Single)
