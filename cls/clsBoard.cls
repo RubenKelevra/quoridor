@@ -481,6 +481,7 @@ End Function
 Sub create(NoOfPl As Byte, NoOfBr As Byte, Dimension As Byte)
     Dim pStarts(3) As Position
     Dim i As Byte
+    Dim i2 As Byte
     
     'check input value of NoOfPl if not 4 set to 2 - started with 0
     NoOfPlayer = Switch(NoOfPl = 3, 3, True, 1)
@@ -527,12 +528,15 @@ Sub create(NoOfPl As Byte, NoOfBr As Byte, Dimension As Byte)
     
     'set player starts
     For i = LBound(Players) To UBound(Players)
-        If NoOfPlayer = 2 And i = 1 Then
-            i = i + 1 'change 2th player's startposition to 3rd players's
+        If NoOfPlayer = 1 And i = 1 Then
+            i2 = i + 1
+            'change 2th player's startposition to 3rd players's
                       'if two players playing
+        Else
+            i2 = i
         End If
         'running create routine
-        Players(i).create pStarts(i).Position(0), pStarts(i).Position(1), NoOfBricks, Player2Target(i)
+        Players(i).create pStarts(i2).Position(0), pStarts(i2).Position(1), NoOfBricks, Player2Target(i, NoOfPlayer)
     Next i
     
     'reserve space for blockers
