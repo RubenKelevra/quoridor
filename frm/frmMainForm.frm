@@ -344,12 +344,13 @@ Private Sub cmdMove_Click(Index As Integer)
     Me.picFocus.SetFocus
     
     If changed Then
-        
-        If Playground.NextTurn Then
-            'repaint form after change to next player
-            Call Form_Paint
-            'next move
-            Playground.doPlayerMove
+        If Not tTempBrick.Placed Then
+            If Playground.NextTurn Then
+                'repaint form after change to next player
+                Call Form_Paint
+                'next move
+                Playground.doPlayerMove
+            End If
         End If
         'repaint after AI/network move OR after change to next player
         Call Form_Paint
@@ -389,23 +390,21 @@ Private Sub cmdRotateBrick_MouseUp(Button As Integer, Shift As Integer, x As Sin
 End Sub
 
 Private Sub cmdSetBrick_Click()
-    
+    Dim bStoneSaved As Boolean
+    bStoneSaved = False
     If Playground.getRemainingPlayerBricks(Playground.getActivePlayer) <= 0 Then
-        
-        ' exit sub
         Exit Sub
-        
     End If
-    
     
     If tTempBrick.Placed Then
         ' save brick
         Select Case Playground.saveWall(tTempBrick, Playground.getActivePlayer)
         
             Case 0:
-            
-            ' should not happen anyway
+                bStoneSaved = True
+                
             Case 1:
+                ' should not happen anyway
                 MsgBox "You haven't got any stones left, so you can't place one.", vbOKOnly, "No Stones Left"
             
             Case 2:
@@ -436,15 +435,16 @@ Private Sub cmdSetBrick_Click()
     ' set focus to picFocus for keyboard control
     Me.picFocus.SetFocus
     
-    If Playground.NextTurn Then
-        'repaint form after stone is placed
+    If bStoneSaved Then
+        If Playground.NextTurn Then
+            'repaint form after stone is placed
+            Call Form_Paint
+            'next move
+            Playground.doPlayerMove
+        End If
+        'repaint after AI/network move
         Call Form_Paint
-        'next move
-        Playground.doPlayerMove
     End If
-    'repaint after AI/network move
-    Call Form_Paint
-    
 End Sub
 
 Private Sub cmdSetBrick_MouseUp(Button As Integer, Shift As Integer, x As Single, y As Single)
