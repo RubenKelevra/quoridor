@@ -57,6 +57,12 @@ Private ElementsInList As Integer
 Private AutoDefrag As Boolean
 Private DefragTempIndex As Integer
 
+Public Function getNoOfItems() As Integer
+    ' getNoOfItems
+    ' - returns the number of currently inserted items
+    getNoOfItems = ElementsInList
+End Function
+
 Public Sub setHeapSize(Size As Integer)
     ' SetHeapSize
     ' define the logical size of heap
