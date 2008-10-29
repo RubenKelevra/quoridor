@@ -18,6 +18,10 @@ Option Explicit
 ' You should have received a copy of the GNU General Public License along
 ' with this program; if not, see <http://www.gnu.org/licenses/>.
 
+Function getNoOfWalls(NoOfPlayer As Byte) As Byte
+    getNoOfWalls = Switch(NoOfPlayer > 0, 20 / (NoOfPlayer + 1) - 1, True, 0)
+End Function
+
 Function checkPos(newX As Integer, newY As Integer, maxXY As Byte) As Boolean
     If newX < 0 Or newY < 0 Or newX > maxXY Or newY > maxXY Then
         checkPos = False

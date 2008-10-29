@@ -34,14 +34,28 @@ Option Explicit
 ' with this program; if not, see <http://www.gnu.org/licenses/>.
 
 Private Type ListData
+    'number of children
+    iDegree As Integer
+    
+    bMark As Boolean
+    
+    ' heap-pointer
+    'child's
+    pChild As Integer
+    'left's
+    pLeft As Integer
+    'right's
+    pRight As Integer
     'parent's heap-pointer
-    parent As Integer
+    pParent As Integer
+
+    'data of node
     'costs which we think that we need to reach target
-    heuristic As Integer
+    iHeuristic As Integer
     'costs to get to this position
-    value As Byte
+    BValue As Byte
     'position
-    pos(1) As Byte
+    BPos(1) As Byte
 End Type
 
 Private Type List
@@ -96,6 +110,7 @@ Public Function Alloc() As Integer
     ' - returns a pointer of the heap position
     Alloc = getNextUnused(1)
     If Alloc <= ListSize Then
+        On Error Resume Next
         List(Alloc).Used = True
         ElementsInList = ElementsInList + 1
         Exit Function
@@ -114,21 +129,21 @@ End Function
 Public Sub FreeListElement(Pointer As Integer)
     ' FreeListElement
     ' set the position Pointer to unused and may start a run of defragmentation
+    ' - [IN] Pointer As Integer: position in List which is going to set to unused
     If openlist(Pointer).Used Then
         openlist(Pointer).Used = False
-    
+        ElementsInList = ElementsInList - 1
+        
         If AutoDefrag Then
-            ElementsInList = ElementsInList - 1
             'if we exceed the threshold we going to defrag and ReDim to save memoryspace
-            If ListSize - ElementsInList >= AllocationStep Then
+            If ListSize - ElementsInList >= AllocationStep * 2 Then
                 DefragTempIndex = Defrag
                 'if true we can save a full allocationstep of memory, so we going to
                 ' ReSize to save memory
                 If ListSize - DefragTempIndex > AllocationStep * 2 Then
+                    'redim to save memoryspace
                     Call ReSizeHeap(Defrag + AllocationStep)
                 End If
-                FreedCounter = 0
-                'redim to save memoryspace
             End If
         End If
     End If
@@ -165,6 +180,7 @@ Private Function getLastUsed(Optional Start As Integer) As Integer
 End Function
 
 Public Function Defrag() As Integer
+    'does NOT work currently
     ' Defrag
     ' its slow, so you shouldn't use this often, use it only if you have a large list which
     ' is heavily fragmented so you may save a LOT of memory
@@ -187,7 +203,7 @@ Public Function Defrag() As Integer
         List(lastFirstFree).Data = List(lastUsedFound).Data
         List(lastFirstFree).Used = True
         'now set this last used to unused and go ahead
-        Call FreeListElement(lastUsedFound)
+        List(lastUsedFound).Used = False
     While True
     
     Defrag = lastUsedFound

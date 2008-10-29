@@ -38,25 +38,18 @@ Private Blocker() As Brick
 Private Dimensions As Byte
 Private activePlayer As Byte
 
-Function getPlayerType(i As Byte) As Byte
-    'get the type of player, see clsPlayer.setType()
-    getPlayerType = Players(i).getType
+Function getPlayerType(Player As Byte) As Byte
+    ' getPlayerType As Byte
+    ' get the type of player
+    ' - [IN] Player As Byte: player number which should be asked
+    ' - returns the type of player, see clsPlayer.setType()
+    getPlayerType = Players(Player).getType
 End Function
 
-'Function setPlayerType(i As Byte, newType As Byte) As Byte
-'    'only necessary if not a local user controled player, definition of Type see clsPlayer.setType()
-'    'returnvalue
-'    '0 = ok
-'    '1 = out of valid type range
-'    '2 = out of player index range
-'    If i <= NoOfPlayer Then
-'        setPlayerType = Players(i).Set.setType(newType)
-'    Else
-'        setPlayerType = 2
-'    End If
-'End Function
-
 Function getPlayerForLocation(pos As Position) As Byte
+    ' getPlayerForLocation As Byte
+    ' - [IN] pos as Position: defines the position which should be checked
+    ' - returns the player number if a player is on the position, else 255
     Dim i As Byte
     getPlayerForLocation = 255 'if no player found return 255
     For i = LBound(Players) To UBound(Players)
@@ -68,7 +61,11 @@ Function getPlayerForLocation(pos As Position) As Byte
 End Function
 
 Function checkMove(ByRef pos As Position, ByVal dir As Byte) As Boolean
-    'rev 86
+    ' checkMove As Boolean
+    ' checks for possibility to move to given direction
+    ' - [IN] ByRef pos As Position: defines position
+    ' - [IN] ByVal dir As Byte: defines direction
+    ' - returns True if move is possible
     Dim newPos As Position
     If Not checkFrontWall(pos, dir) Then
     
@@ -478,14 +475,24 @@ Private Function getPlayerPositions() As Position()
     getPlayerPositions = returnvalue
 End Function
 
-Sub create(NoOfPl As Byte, NoOfBr As Byte, Dimension As Byte)
+Sub create(NoOfPl As Byte, Dimension As Byte)
     Dim pStarts(3) As Position
     Dim i As Byte
     Dim i2 As Byte
     
+    'Testing
+    
+    
+'    Dim Heap As clsSimpleHeap
+'    Dim integ As Integer
+'    Call Heap.setHeapSize(5)
+    
+    
+    '/testing
+    
     'check input value of NoOfPl if not 4 set to 2 - started with 0
     NoOfPlayer = Switch(NoOfPl = 3, 3, True, 1)
-    NoOfBricks = NoOfBr
+    NoOfBricks = getNoOfWalls(NoOfPlayer)
     'if the dimension is smaller than the NoOfPlayer the field will be made bigger
     'if dimension = 255 it'll set to 254 otherwise we may get unexpected results of some functions
     ' because we use 255 as defaultvalue in some functions
