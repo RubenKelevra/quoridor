@@ -465,7 +465,7 @@ Private Sub ddmNewGame_Click()
 
     ' init board
     Set Playground = New clsBoard
-    Call Playground.create(3, 4, 8) 'player, bricks, fields dimension (x=y)
+    Call Playground.create(1, 8) 'player, fields dimension (x=y)
     Me.shpCurrentPlayer.FillColor = Playground.getPlayerColor(0) 'init current player marker
     
     ' init drawing coords
@@ -717,7 +717,7 @@ Public Sub drawBricks()
                    (x = tSavedBrick(i).Position(0) + 1 And y = tSavedBrick(i).Position(1))) _
                 Then
                 
-                    lCurColor = RGB(0, 192, 192)
+                    lCurColor = RGB(108, 192, 192)
                     
                 End If
                 
