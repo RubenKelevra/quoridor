@@ -13,7 +13,7 @@ Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
 Option Explicit
 
-Dim Heap As clsSimpleHeap
+Dim HeapArray As clsSimpleHeap
 
 Public Sub create(Dimensions As Byte)
     ' create
@@ -38,11 +38,7 @@ Public Function isEmpty() As Boolean
 End Function
 
 Public Function insert(pos() As Byte, value As Byte) As Integer
-    Dim l As Long
-    l = UBound(Paths) - LBound(Paths) + 1
-    Paths(l).pos(0) = pos(0)
-    Paths(l).pos(1) = pos(1)
-    Paths(l).value = value
+    
 End Function
 
 
