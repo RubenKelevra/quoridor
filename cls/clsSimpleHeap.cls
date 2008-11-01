@@ -34,20 +34,22 @@ Option Explicit
 ' with this program; if not, see <http://www.gnu.org/licenses/>.
 
 Private Type ListData
-    'number of children
-    iDegree As Integer
-    
-    bMark As Boolean
-    
-    ' heap-pointer
-    'child's
-    pChild As Integer
-    'left's
-    pLeft As Integer
-    'right's
-    pRight As Integer
-    'parent's heap-pointer
-    pParent As Integer
+'   Information for FibonacciHeap
+
+'    'number of children
+'    iDegree As Integer
+'
+'    bMark As Boolean
+'
+'    ' heap-pointer
+'    'child's
+'    pChild As Integer
+'    'left's
+'    pLeft As Integer
+'    'right's
+'    pRight As Integer
+'    'parent's heap-pointer
+'    pParent As Integer
 
     'data of node
     'costs which we think that we need to reach target
@@ -60,16 +62,41 @@ End Type
 
 Private Type List
     Used As Boolean
+    Handle As Boolean
     Data As ListData
 End Type
 
-Private List() As List
+' our heap of dataentries
+Private Heap() As List
+
+' holds our current size of the list
 Private ListSize As Integer
-Private ListDynamically As Boolean
+' the steps we increase or decrease our HeapSize - if activated
 Private AllocationStep As Integer
-Private ElementsInList As Integer
-Private AutoDefrag As Boolean
+' the number of used entries
+Private NoOfUsed As Integer
+' the number of open handles to entries (used for defrag() each entry which haven't got an open handle
+' is moveable in the Heap, so we can defrag this entries
+Private NoOfHandles As Integer
+'defines the minimal heap size, so if we clear it this size will be reach if decrease is activated
+Private iMinListSize As Integer
+'use with care, no upper limit
+Private bAutoIncrease As Boolean
+'only works probably with defrag() but this require an unmapping of all handles to defrag all entries
+Private bAutoDecrease As Boolean
+'temporary value to save the last entry of used entries while defraging
 Private DefragTempIndex As Integer
+Private i As Integer
+
+Public Sub clear()
+    ' clear
+    ' set all used values to false
+    For i = 1 To ListSize
+        Heap(i).Used = False
+        ElementsInList =
+        Heap(i).Handle = False
+    Next i
+End Sub
 
 Public Function getNoOfItems() As Integer
     ' getNoOfItems
@@ -77,12 +104,16 @@ Public Function getNoOfItems() As Integer
     getNoOfItems = ElementsInList
 End Function
 
+Public Function getNoOfHandles() As Integer
+    
+End Function
+
 Public Sub setHeapSize(Size As Integer)
     ' SetHeapSize
     ' define the logical size of heap
     ' - [IN] Size As Integer: Count of segments in heap
     OpenListSize = Size
-    ReDim openlist(1 To Size)
+    ReDim Heap(1 To Size)
 End Sub
 
 Private Function getNextUnused(Optional Start As Integer = 1) As Integer
@@ -91,7 +122,7 @@ Private Function getNextUnused(Optional Start As Integer = 1) As Integer
     ' - returns the first as unused declaired field in List or if nothing is free
     '   last index + 1
     For getNextUnused = Start To ListSize
-        If Not List(getNextUnused).Used Then
+        If Not Heap(getNextUnused).Used Then
             Exit Function
         End If
     Next NextUnused
@@ -101,7 +132,7 @@ Public Sub ReSizeHeap(newSize As Integer)
     ' ReSizeHeap
     ' - [IN] newSize As Integer: defines the new logical size of List
     ListSize = newSize
-    ReDim Preserve List(1 To newSize)
+    ReDim Preserve Heap(1 To newSize)
 End Sub
 
 Public Function Alloc() As Integer
@@ -111,7 +142,7 @@ Public Function Alloc() As Integer
     Alloc = getNextUnused(1)
     If Alloc <= ListSize Then
         On Error Resume Next
-        List(Alloc).Used = True
+        Heap(Alloc).Used = True
         ElementsInList = ElementsInList + 1
         Exit Function
     End If
@@ -119,7 +150,7 @@ Public Function Alloc() As Integer
     'if it's dynamical and adding at the next free point that we created right now
     If ListDynamically Then
         Call ReSizeHeap(ListSize + AllocationStep)
-        List(Alloc).Used = True
+        Heap(Alloc).Used = True
         ElementsInList = ElementsInList + 1
     Else
         Call Err.Raise(vbObjectError, "GC::Alloc", "Heap overflow")
@@ -130,11 +161,11 @@ Public Sub FreeListElement(Pointer As Integer)
     ' FreeListElement
     ' set the position Pointer to unused and may start a run of defragmentation
     ' - [IN] Pointer As Integer: position in List which is going to set to unused
-    If openlist(Pointer).Used Then
-        openlist(Pointer).Used = False
+    If Heap(Pointer).Used Then
+        Heap(Pointer).Used = False
         ElementsInList = ElementsInList - 1
         
-        If AutoDefrag Then
+        If AutoReduce Then
             'if we exceed the threshold we going to defrag and ReDim to save memoryspace
             If ListSize - ElementsInList >= AllocationStep * 2 Then
                 DefragTempIndex = Defrag
@@ -142,7 +173,7 @@ Public Sub FreeListElement(Pointer As Integer)
                 ' ReSize to save memory
                 If ListSize - DefragTempIndex > AllocationStep * 2 Then
                     'redim to save memoryspace
-                    Call ReSizeHeap(Defrag + AllocationStep)
+                    Call ReSizeHeap(DefragTempIndex + AllocationStep)
                 End If
             End If
         End If
@@ -157,6 +188,10 @@ Public Sub SetDynamical(Enabled As Boolean, AllocStep As Integer)
     ListDynamically = Enabled
     AllocationStep = AllocStep
 End Sub
+
+Public Function getMinValEntry() As Integer
+    for i = 0 to
+End Function
 
 Public Sub SetDefrag(Enabled As Boolean)
     ' SetDefrag
@@ -173,15 +208,17 @@ Private Function getLastUsed(Optional Start As Integer) As Integer
     Start = Switch(Start = 0, ListSize, True, Start)
     
     For getLastUsed = Start To 1 Step -1
-        If List(getLastUsed).Used Then
+        If Heap(getLastUsed).Used Then
             Exit Function
         End If
     Next getLastUsed
 End Function
 
 Public Function Defrag() As Integer
-    'does NOT work currently
     ' Defrag
+    ' This is reodering to fill holes after this the
+    ' Keep in Mind that this defrag function does NOT keep the old pointeraddresses
+    ' if there is a old value stored somewhere it may NOT map to the same entry
     ' its slow, so you shouldn't use this often, use it only if you have a large list which
     ' is heavily fragmented so you may save a LOT of memory
     ' - returns the last used entry or 0 if no entry is marked as used
@@ -200,10 +237,10 @@ Public Function Defrag() As Integer
             Exit Do
         End If
         'copy data from last used to this position
-        List(lastFirstFree).Data = List(lastUsedFound).Data
-        List(lastFirstFree).Used = True
+        Heap(lastFirstFree).Data = Heap(lastUsedFound).Data
+        Heap(lastFirstFree).Used = True
         'now set this last used to unused and go ahead
-        List(lastUsedFound).Used = False
+        Heap(lastUsedFound).Used = False
     While True
     
     Defrag = lastUsedFound

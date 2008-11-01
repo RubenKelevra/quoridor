@@ -717,7 +717,7 @@ Public Sub drawBricks()
                    (x = tSavedBrick(i).Position(0) + 1 And y = tSavedBrick(i).Position(1))) _
                 Then
                 
-                    lCurColor = RGB(108, 192, 192)
+                    lCurColor = RGB(255, 255, 0)
                     
                 End If
                 
@@ -766,7 +766,7 @@ Public Sub drawBricks()
                    (x = tSavedBrick(i).Position(0) And y = tSavedBrick(i).Position(1) + 1)) _
                 Then
                 
-                    lCurColor = RGB(0, 192, 192)
+                    lCurColor = RGB(255, 255, 0)
                     
                 End If
                 
