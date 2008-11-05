@@ -26,12 +26,12 @@ Friend Class frmMainForm
 	
 	'formdata
 	Private bKeyUp As Boolean
-	Private bGameEnabled As Boolean
-	Private iFieldsize As Short
-	Private iBricksize As Short
-	Private iDrawStartX As Short
-	Private iDrawStartY As Short
-	Private lBoardcolor As Integer
+    Private bGameEnabled As Boolean
+    Private GBoard As Graphics
+    Private PfFieldsize As PointF
+    Private PfBricksize As PointF
+    Private PiStartCoords As Point
+
 	'UPGRADE_WARNING: Arrays in Struktur tTempBrick müssen möglicherweise initialisiert werden, bevor sie verwendet werden können. Klicken Sie hier für weitere Informationen: 'ms-help://MS.VSCC.v90/dv_commoner/local/redirect.htm?keyword="814DF224-76BD-4BB4-BFFB-EA359CB9FC48"'
 	Private tTempBrick As CustomTypes.Brick
 	
@@ -240,24 +240,41 @@ Friend Class frmMainForm
 	End Sub
 	
 	Public Sub ddmNewGame_Click(ByVal eventSender As System.Object, ByVal eventArgs As System.EventArgs) Handles ddmNewGame.Click
-		
-		' init board
+
+        Dim BTempDimension As Byte ' to be deleted if a proper game start form is implemented
+
+        BTempDimension = 8
+
+        ' init board
 		Playground = New clsBoard
-		Call Playground.create(1, 8) 'player, fields dimension (x=y)
+        Call Playground.create(1, BTempDimension) 'player, fields dimension (x=y)
 		Me.shpCurrentPlayer.FillColor = System.Drawing.ColorTranslator.FromOle(Playground.getPlayerColor(0)) 'init current player marker
-		
-		' init drawing coords
-		iDrawStartX = VB6.PixelsToTwipsX(Me.fraBoard.Left)
-		iDrawStartY = VB6.PixelsToTwipsY(Me.fraBoard.Top)
-		
-		iFieldsize = (VB6.PixelsToTwipsY(Me.fraBoard.Height) + VB6.PixelsToTwipsX(Me.fraBoard.Width)) / (9 + 9)
-		iBricksize = iFieldsize / 9
-		
-		' init colors
-		lBoardcolor = RGB(0, 0, 0)
-		
+
+        ' max. fieldsize
+        PfFieldsize.X = Me.fraBoard.Width / (BTempDimension + 1)
+        PfFieldsize.Y = Me.fraBoard.Height / (BTempDimension + 1)
+
+        ' max. bricksize
+        PfBricksize.X = PfFieldsize.X / BTempDimension
+        PfBricksize.Y = PfFieldsize.Y / BTempDimension
+
+        ' real fieldsize ( minus bricks )
+        PfFieldsize.X = PfFieldsize.X - PfBricksize.X
+        PfFieldsize.Y = PfFieldsize.Y - PfBricksize.Y
+
+        ' real bricksize ( fit to "screen" )
+        PfBricksize.X = PfBricksize.X * (1 + 1 / BTempDimension)
+        PfBricksize.Y = PfBricksize.Y * (1 + 1 / BTempDimension)
+
+        ' starting positions
+        PiStartCoords.X = Me.fraBoard.Left
+        PiStartCoords.Y = Me.fraBoard.Top
+
+        ' init graphic
+        GBoard.Clear(Me.BackColor)
+
 		' init brick
-		Call resetBrickMode()
+        Call resetBrickMode()
 		
 		' init other vars
 		Me.lblLoading.Visible = False
@@ -283,7 +300,7 @@ Friend Class frmMainForm
 	End Sub
 	
 	Private Sub frmMainForm_Load(ByVal eventSender As System.Object, ByVal eventArgs As System.EventArgs) Handles MyBase.Load
-		
+
 		' hide picture box
 		Me.picFocus.BackColor = Me.BackColor
 		
@@ -299,7 +316,8 @@ Friend Class frmMainForm
 			Call deactSetBrick()
 			Call setLoadingLabel()
 			Call drawBoard()
-			Call drawBricks()
+            Call drawBricksHori()
+            Call drawBricksVert()
 		End If
 		
 	End Sub
@@ -401,160 +419,347 @@ Friend Class frmMainForm
 		End If
 		
 	End Sub
+
+    Private Sub drawBoard()
+
+        ' dec
+        Dim BDimension As Byte
+        Dim i As Byte
+        Dim x As Byte
+        Dim y As Byte
+        Dim pen As Pen
+        Dim PfCurPosition As PointF
+        Dim rect(,) As RectangleF
+
+        ' init
+        BDimension = Playground.getDimension
+        ReDim rect(BDimension, BDimension)
+
+        For x = 0 To BDimension
+
+            PfCurPosition.X = PiStartCoords.X + x * PfFieldsize.X + x * PfBricksize.X
+
+            For y = 0 To BDimension
+
+                PfCurPosition.Y = PiStartCoords.Y + y * PfFieldsize.Y + y * PfBricksize.Y
+
+                rect(x, y) = New RectangleF(PfCurPosition.X, PfCurPosition.Y, PfFieldsize.X, PfFieldsize.Y)
+
+                ' TBD: reimplement correct types/functions for VB.net
+                '' check current position with the position of all players
+                'For i = 0 To Playground.getNoOfPlayer
+
+                '    'UPGRADE_WARNING: Die Standardeigenschaft des Objekts tDrawPos konnte nicht aufgelöst werden. Klicken Sie hier für weitere Informationen: 'ms-help://MS.VSCC.v90/dv_commoner/local/redirect.htm?keyword="6A50421D-15FE-4896-8A1B-2EC21E9037B2"'
+                '    tDrawPos = xy2pos(x, y)
+                '    'UPGRADE_WARNING: Die Standardeigenschaft des Objekts tPlayerPos konnte nicht aufgelöst werden. Klicken Sie hier für weitere Informationen: 'ms-help://MS.VSCC.v90/dv_commoner/local/redirect.htm?keyword="6A50421D-15FE-4896-8A1B-2EC21E9037B2"'
+                '    tPlayerPos = Playground.getPlayerLocation(i)
+
+                '    If Not comparePos(xy2pos(255, 255), tPlayerPos) And comparePos(tDrawPos, tPlayerPos) Then
+
+                '        ' set playercolor
+                '        lCurColor = Playground.getPlayerColor(i)
+
+                '    End If
+
+                'Next i
+
+                Call GBoard.FillRectangle(Brushes.Black, rect(x, y))
+
+            Next y
+
+        Next x
+
+    End Sub
+
+    Public Sub drawBricksHori()
+        ' draws the bricks between the board
+
+        Dim BDimension As Boolean
+        Dim x As Byte
+        Dim y As Byte
+        Dim PfCurPosition As PointF
+        Dim rect(,) As RectangleF
+
+        ' init
+        BDimension = Playground.getDimension
+        ReDim rect(BDimension, BDimension - 1)
+
+        ' horizontal
+        For x = 0 To BDimension
+            For y = 0 To BDimension - 1
+
+                ' calc current coords
+
+                ' set x frame position
+                PfCurPosition.X = PiStartCoords.X
+                ' set next position
+                PfCurPosition.X = PfCurPosition.X + x * PfFieldsize.X
+                ' set empty space
+                PfCurPosition.X = PfCurPosition.X + x * PfBricksize.X
+
+                ' set y frame position
+                PfCurPosition.Y = PiStartCoords.Y
+                ' set next position
+                PfCurPosition.Y = PfCurPosition.Y + (y + 1) * PfFieldsize.Y
+                ' set empty space
+                PfCurPosition.Y = PfCurPosition.Y + y * PfBricksize.Y
+
+
+                ' TBD: reimplement correct types/functions for VB.net
+                '			For i = LBound(tSavedBrick) To UBound(tSavedBrick)
+
+                '				' if brick is not set
+                '				If tSavedBrick(i).Placed = False Or tSavedBrick(i).Position(0) = 255 Or tSavedBrick(i).Position(1) = 255 Then
+                '					Exit For
+                '				End If
+
+                '				' saved brick
+                '				If tSavedBrick(i).Landscape And ((x = tSavedBrick(i).Position(0) And y = tSavedBrick(i).Position(1)) Or (x = tSavedBrick(i).Position(0) + 1 And y = tSavedBrick(i).Position(1))) Then
+
+                '					lCurColor = RGB(255, 255, 0)
+
+                '				End If
+
+                '			Next i
+
+                '			' temp brick
+                '			If tTempBrick.Placed And tTempBrick.Landscape And ((x = tTempBrick.Position(0) And y = tTempBrick.Position(1)) Or (x = tTempBrick.Position(0) + 1 And y = tTempBrick.Position(1))) Then
+
+                '				lCurColor = RGB(0, 192, 0)
+
+                '			End If
+
+                rect(x, y) = New RectangleF(PfCurPosition.X, PfCurPosition.Y, PfFieldsize.X, PfBricksize.Y)
+
+                ' draw bricks
+                Call GBoard.FillRectangle(Brushes.Blue, rect(x, y))
+
+            Next y
+
+        Next x
+
+    End Sub
+
+    Public Sub drawBricksVert()
+        ' draws the bricks between the board
+
+        Dim BDimension As Boolean
+        Dim x As Byte
+        Dim y As Byte
+        Dim PfCurPosition As PointF
+        Dim rect(,) As RectangleF
+
+        ' init
+        BDimension = Playground.getDimension
+        ReDim rect(BDimension - 1, BDimension)
+
+        ' horizontal
+        For x = 0 To BDimension - 1
+            For y = 0 To BDimension
+
+                ' calc current coords
+
+                ' set x frame position
+                PfCurPosition.X = PiStartCoords.X
+                ' set next position
+                PfCurPosition.X = PfCurPosition.X + (x + 1) * PfFieldsize.X
+                ' set empty space
+                PfCurPosition.X = PfCurPosition.X + x * PfBricksize.X
+
+                ' set y frame position
+                PfCurPosition.Y = PiStartCoords.Y
+                ' set next position
+                PfCurPosition.Y = PfCurPosition.Y + y * PfFieldsize.Y
+                ' set empty space
+                PfCurPosition.Y = PfCurPosition.Y + y * PfBricksize.Y
+
+                ' TBD: reimplement correct types/functions for VB.net
+                '			For i = LBound(tSavedBrick) To UBound(tSavedBrick)
+
+                '				' if brick is not set
+                '				If tSavedBrick(i).Placed = False Or tSavedBrick(i).Position(0) = 255 Or tSavedBrick(i).Position(1) = 255 Then
+                '					Exit For
+                '				End If
+
+                '				' saved brick
+                '				If Not tSavedBrick(i).Landscape And ((x = tSavedBrick(i).Position(0) And y = tSavedBrick(i).Position(1)) Or (x = tSavedBrick(i).Position(0) And y = tSavedBrick(i).Position(1) + 1)) Then
+
+                '					lCurColor = RGB(255, 255, 0)
+
+                '				End If
+
+                '			Next i
+
+                '			' temp brick
+                '			If tTempBrick.Placed And Not tTempBrick.Landscape And ((x = tTempBrick.Position(0) And y = tTempBrick.Position(1)) Or (x = tTempBrick.Position(0) And y = tTempBrick.Position(1) + 1)) Then
+
+                '				lCurColor = RGB(0, 192, 0)
+
+                '			End If
+
+                rect(x, y) = New RectangleF(PfCurPosition.X, PfCurPosition.Y, PfBricksize.X, PfFieldsize.Y)
+
+                ' draw bricks
+                Call GBoard.FillRectangle(Brushes.Red, rect(x, y))
+
+            Next y
+
+        Next x
+
+    End Sub
 	
+    'Private Sub drawBoard()
+    '	' draws the fields on which a player can move
+
+    '	' dec
+    '	Dim BDimension As Byte
+    '	Dim i As Byte
+    '	Dim x As Byte
+    '	Dim y As Byte
+    '	Dim iCurX As Short
+    '	Dim iCurY As Short
+    '	Dim lCurColor As Integer
+    '	'UPGRADE_WARNING: Arrays in Struktur tDrawPos müssen möglicherweise initialisiert werden, bevor sie verwendet werden können. Klicken Sie hier für weitere Informationen: 'ms-help://MS.VSCC.v90/dv_commoner/local/redirect.htm?keyword="814DF224-76BD-4BB4-BFFB-EA359CB9FC48"'
+    '	Dim tDrawPos As CustomTypes.Position
+    '	'UPGRADE_WARNING: Arrays in Struktur tPlayerPos müssen möglicherweise initialisiert werden, bevor sie verwendet werden können. Klicken Sie hier für weitere Informationen: 'ms-help://MS.VSCC.v90/dv_commoner/local/redirect.htm?keyword="814DF224-76BD-4BB4-BFFB-EA359CB9FC48"'
+    '	Dim tPlayerPos As CustomTypes.Position
+
+    '	' save dimension
+    '	BDimension = Playground.getDimension
+
+    '	For x = 0 To BDimension
+    '		For y = 0 To BDimension
+
+    '			' init color
+    '			lCurColor = lBoardcolor
+
+    '			' calc current coords
+    '			iCurX = iDrawStartX + x * iFieldsize
+    '			iCurY = iDrawStartY + y * iFieldsize
+
+    '			' check current position with the position of all players
+    '			For i = 0 To Playground.getNoOfPlayer
+
+    '				'UPGRADE_WARNING: Die Standardeigenschaft des Objekts tDrawPos konnte nicht aufgelöst werden. Klicken Sie hier für weitere Informationen: 'ms-help://MS.VSCC.v90/dv_commoner/local/redirect.htm?keyword="6A50421D-15FE-4896-8A1B-2EC21E9037B2"'
+    '				tDrawPos = xy2pos(x, y)
+    '				'UPGRADE_WARNING: Die Standardeigenschaft des Objekts tPlayerPos konnte nicht aufgelöst werden. Klicken Sie hier für weitere Informationen: 'ms-help://MS.VSCC.v90/dv_commoner/local/redirect.htm?keyword="6A50421D-15FE-4896-8A1B-2EC21E9037B2"'
+    '				tPlayerPos = Playground.getPlayerLocation(i)
+
+    '				If Not comparePos(xy2pos(255, 255), tPlayerPos) And comparePos(tDrawPos, tPlayerPos) Then
+
+    '					' set playercolor
+    '					lCurColor = Playground.getPlayerColor(i)
+
+    '				End If
+
+    '			Next i
+
+    '			' draw lines
+    '			'UPGRADE_ISSUE: Form Methode frmMainForm.Line wurde nicht aktualisiert. Klicken Sie hier für weitere Informationen: 'ms-help://MS.VSCC.v90/dv_commoner/local/redirect.htm?keyword="CC4C7EC0-C903-48FC-ACCC-81861D12DA4A"'
+    '               'Me.Line (iCurX, iCurY) - (iCurX + iFieldsize - iBricksize, iCurY + iFieldsize - iBricksize), lCurColor, BF
+
+    '		Next y
+    '	Next x
+
+    'End Sub
 	
-	Private Sub drawBoard()
-		' draws the fields on which a player can move
-		
-		' dec
-		Dim BDimension As Byte
-		Dim i As Byte
-		Dim x As Byte
-		Dim y As Byte
-		Dim iCurX As Short
-		Dim iCurY As Short
-		Dim lCurColor As Integer
-		'UPGRADE_WARNING: Arrays in Struktur tDrawPos müssen möglicherweise initialisiert werden, bevor sie verwendet werden können. Klicken Sie hier für weitere Informationen: 'ms-help://MS.VSCC.v90/dv_commoner/local/redirect.htm?keyword="814DF224-76BD-4BB4-BFFB-EA359CB9FC48"'
-		Dim tDrawPos As CustomTypes.Position
-		'UPGRADE_WARNING: Arrays in Struktur tPlayerPos müssen möglicherweise initialisiert werden, bevor sie verwendet werden können. Klicken Sie hier für weitere Informationen: 'ms-help://MS.VSCC.v90/dv_commoner/local/redirect.htm?keyword="814DF224-76BD-4BB4-BFFB-EA359CB9FC48"'
-		Dim tPlayerPos As CustomTypes.Position
-		
-		' save dimension
-		BDimension = Playground.getDimension
-		
-		For x = 0 To BDimension
-			For y = 0 To BDimension
-				
-				' init color
-				lCurColor = lBoardcolor
-				
-				' calc current coords
-				iCurX = iDrawStartX + x * iFieldsize
-				iCurY = iDrawStartY + y * iFieldsize
-				
-				' check current position with the position of all players
-				For i = 0 To Playground.getNoOfPlayer
-					
-					'UPGRADE_WARNING: Die Standardeigenschaft des Objekts tDrawPos konnte nicht aufgelöst werden. Klicken Sie hier für weitere Informationen: 'ms-help://MS.VSCC.v90/dv_commoner/local/redirect.htm?keyword="6A50421D-15FE-4896-8A1B-2EC21E9037B2"'
-					tDrawPos = xy2pos(x, y)
-					'UPGRADE_WARNING: Die Standardeigenschaft des Objekts tPlayerPos konnte nicht aufgelöst werden. Klicken Sie hier für weitere Informationen: 'ms-help://MS.VSCC.v90/dv_commoner/local/redirect.htm?keyword="6A50421D-15FE-4896-8A1B-2EC21E9037B2"'
-					tPlayerPos = Playground.getPlayerLocation(i)
-					
-					If Not comparePos(xy2pos(255, 255), tPlayerPos) And comparePos(tDrawPos, tPlayerPos) Then
-						
-						' set playercolor
-						lCurColor = Playground.getPlayerColor(i)
-						
-					End If
-					
-				Next i
-				
-				' draw lines
-				'UPGRADE_ISSUE: Form Methode frmMainForm.Line wurde nicht aktualisiert. Klicken Sie hier für weitere Informationen: 'ms-help://MS.VSCC.v90/dv_commoner/local/redirect.htm?keyword="CC4C7EC0-C903-48FC-ACCC-81861D12DA4A"'
-                'Me.Line (iCurX, iCurY) - (iCurX + iFieldsize - iBricksize, iCurY + iFieldsize - iBricksize), lCurColor, BF
-				
-			Next y
-		Next x
-		
-	End Sub
-	
-	Public Sub drawBricks()
-		' draws the bricks between the board
-		
-		Dim i As Short
-		Dim x As Short
-		Dim y As Short
-		Dim iCurX As Short
-		Dim iCurY As Short
-		Dim lCurColor As Integer
-		Dim tSavedBrick() As CustomTypes.Brick
-		
-		ReDim tSavedBrick(UBound(Playground.getWalls) - LBound(Playground.getWalls))
-		tSavedBrick = VB6.CopyArray(Playground.getWalls)
-		
-		' horizontal
-		For x = 0 To 8
-			For y = 0 To 7
-				
-				' init color
-				lCurColor = System.Drawing.ColorTranslator.ToOle(Me.BackColor)
-				
-				' calc current coords
-				iCurX = iDrawStartX + x * iFieldsize
-				iCurY = iDrawStartY + (y + 1) * iFieldsize - iBricksize
-				
-				For i = LBound(tSavedBrick) To UBound(tSavedBrick)
-					
-					' if brick is not set
-					If tSavedBrick(i).Placed = False Or tSavedBrick(i).Position(0) = 255 Or tSavedBrick(i).Position(1) = 255 Then
-						Exit For
-					End If
-					
-					' saved brick
-					If tSavedBrick(i).Landscape And ((x = tSavedBrick(i).Position(0) And y = tSavedBrick(i).Position(1)) Or (x = tSavedBrick(i).Position(0) + 1 And y = tSavedBrick(i).Position(1))) Then
-						
-						lCurColor = RGB(255, 255, 0)
-						
-					End If
-					
-				Next i
-				
-				' temp brick
-				If tTempBrick.Placed And tTempBrick.Landscape And ((x = tTempBrick.Position(0) And y = tTempBrick.Position(1)) Or (x = tTempBrick.Position(0) + 1 And y = tTempBrick.Position(1))) Then
-					
-					lCurColor = RGB(0, 192, 0)
-					
-				End If
-				
-				' draw bricks
-				'UPGRADE_ISSUE: Form Methode frmMainForm.Line wurde nicht aktualisiert. Klicken Sie hier für weitere Informationen: 'ms-help://MS.VSCC.v90/dv_commoner/local/redirect.htm?keyword="CC4C7EC0-C903-48FC-ACCC-81861D12DA4A"'
-                'Me.Line (iCurX, iCurY) - (iCurX + iFieldsize - iBricksize, iCurY + iBricksize), lCurColor, BF
-				
-			Next y
-		Next x
-		
-		' vertical
-		For x = 0 To 7
-			For y = 0 To 8
-				
-				' init color
-				lCurColor = System.Drawing.ColorTranslator.ToOle(Me.BackColor)
-				
-				' calc current coords
-				iCurX = iDrawStartX + (x + 1) * iFieldsize - iBricksize
-				iCurY = iDrawStartY + y * iFieldsize
-				
-				For i = LBound(tSavedBrick) To UBound(tSavedBrick)
-					
-					' if brick is not set
-					If tSavedBrick(i).Placed = False Or tSavedBrick(i).Position(0) = 255 Or tSavedBrick(i).Position(1) = 255 Then
-						Exit For
-					End If
-					
-					' saved brick
-					If Not tSavedBrick(i).Landscape And ((x = tSavedBrick(i).Position(0) And y = tSavedBrick(i).Position(1)) Or (x = tSavedBrick(i).Position(0) And y = tSavedBrick(i).Position(1) + 1)) Then
-						
-						lCurColor = RGB(255, 255, 0)
-						
-					End If
-					
-				Next i
-				
-				' temp brick
-				If tTempBrick.Placed And Not tTempBrick.Landscape And ((x = tTempBrick.Position(0) And y = tTempBrick.Position(1)) Or (x = tTempBrick.Position(0) And y = tTempBrick.Position(1) + 1)) Then
-					
-					lCurColor = RGB(0, 192, 0)
-					
-				End If
-				
-				' draw bricks
-				'UPGRADE_ISSUE: Form Methode frmMainForm.Line wurde nicht aktualisiert. Klicken Sie hier für weitere Informationen: 'ms-help://MS.VSCC.v90/dv_commoner/local/redirect.htm?keyword="CC4C7EC0-C903-48FC-ACCC-81861D12DA4A"'
-                'Me.Line (iCurX, iCurY) - (iCurX + iBricksize, iCurY + iFieldsize - iBricksize), lCurColor, BF
-				
-			Next y
-		Next x
-		
-	End Sub
+    'Public Sub drawBricks()
+    '	' draws the bricks between the board
+
+    '	Dim i As Short
+    '	Dim x As Short
+    '	Dim y As Short
+    '	Dim iCurX As Short
+    '	Dim iCurY As Short
+    '	Dim lCurColor As Integer
+    '	Dim tSavedBrick() As CustomTypes.Brick
+
+    '	ReDim tSavedBrick(UBound(Playground.getWalls) - LBound(Playground.getWalls))
+    '	tSavedBrick = VB6.CopyArray(Playground.getWalls)
+
+    '	' horizontal
+    '	For x = 0 To 8
+    '		For y = 0 To 7
+
+    '			' init color
+    '			lCurColor = System.Drawing.ColorTranslator.ToOle(Me.BackColor)
+
+    '			' calc current coords
+    '			iCurX = iDrawStartX + x * iFieldsize
+    '			iCurY = iDrawStartY + (y + 1) * iFieldsize - iBricksize
+
+    '			For i = LBound(tSavedBrick) To UBound(tSavedBrick)
+
+    '				' if brick is not set
+    '				If tSavedBrick(i).Placed = False Or tSavedBrick(i).Position(0) = 255 Or tSavedBrick(i).Position(1) = 255 Then
+    '					Exit For
+    '				End If
+
+    '				' saved brick
+    '				If tSavedBrick(i).Landscape And ((x = tSavedBrick(i).Position(0) And y = tSavedBrick(i).Position(1)) Or (x = tSavedBrick(i).Position(0) + 1 And y = tSavedBrick(i).Position(1))) Then
+
+    '					lCurColor = RGB(255, 255, 0)
+
+    '				End If
+
+    '			Next i
+
+    '			' temp brick
+    '			If tTempBrick.Placed And tTempBrick.Landscape And ((x = tTempBrick.Position(0) And y = tTempBrick.Position(1)) Or (x = tTempBrick.Position(0) + 1 And y = tTempBrick.Position(1))) Then
+
+    '				lCurColor = RGB(0, 192, 0)
+
+    '			End If
+
+    '			' draw bricks
+    '			'UPGRADE_ISSUE: Form Methode frmMainForm.Line wurde nicht aktualisiert. Klicken Sie hier für weitere Informationen: 'ms-help://MS.VSCC.v90/dv_commoner/local/redirect.htm?keyword="CC4C7EC0-C903-48FC-ACCC-81861D12DA4A"'
+    '               'Me.Line (iCurX, iCurY) - (iCurX + iFieldsize - iBricksize, iCurY + iBricksize), lCurColor, BF
+
+    '		Next y
+    '	Next x
+
+    '	' vertical
+    '	For x = 0 To 7
+    '		For y = 0 To 8
+
+    '			' init color
+    '			lCurColor = System.Drawing.ColorTranslator.ToOle(Me.BackColor)
+
+    '			' calc current coords
+    '			iCurX = iDrawStartX + (x + 1) * iFieldsize - iBricksize
+    '			iCurY = iDrawStartY + y * iFieldsize
+
+    '			For i = LBound(tSavedBrick) To UBound(tSavedBrick)
+
+    '				' if brick is not set
+    '				If tSavedBrick(i).Placed = False Or tSavedBrick(i).Position(0) = 255 Or tSavedBrick(i).Position(1) = 255 Then
+    '					Exit For
+    '				End If
+
+    '				' saved brick
+    '				If Not tSavedBrick(i).Landscape And ((x = tSavedBrick(i).Position(0) And y = tSavedBrick(i).Position(1)) Or (x = tSavedBrick(i).Position(0) And y = tSavedBrick(i).Position(1) + 1)) Then
+
+    '					lCurColor = RGB(255, 255, 0)
+
+    '				End If
+
+    '			Next i
+
+    '			' temp brick
+    '			If tTempBrick.Placed And Not tTempBrick.Landscape And ((x = tTempBrick.Position(0) And y = tTempBrick.Position(1)) Or (x = tTempBrick.Position(0) And y = tTempBrick.Position(1) + 1)) Then
+
+    '				lCurColor = RGB(0, 192, 0)
+
+    '			End If
+
+    '			' draw bricks
+    '			'UPGRADE_ISSUE: Form Methode frmMainForm.Line wurde nicht aktualisiert. Klicken Sie hier für weitere Informationen: 'ms-help://MS.VSCC.v90/dv_commoner/local/redirect.htm?keyword="CC4C7EC0-C903-48FC-ACCC-81861D12DA4A"'
+    '               'Me.Line (iCurX, iCurY) - (iCurX + iBricksize, iCurY + iFieldsize - iBricksize), lCurColor, BF
+
+    '		Next y
+    '	Next x
+
+    'End Sub
 	
 	Private Sub resetBrickMode()
 		
