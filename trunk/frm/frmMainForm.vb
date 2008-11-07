@@ -24,104 +24,151 @@ Friend Class frmMainForm
 	'gamedata
 	Private Playground As clsBoard
 	
-	'formdata
-	Private bKeyUp As Boolean
+    'formdata
+    Private bAIPlayers() As Boolean
     Private bGameEnabled As Boolean
+    Private bKeyUp As Boolean
+    Private BBoardDimension As Byte
+    Private BNumOfPlayers As Byte
     Private GBoard As Graphics
+    Private PiStartCoords As Point
     Private PfFieldsize As PointF
     Private PfBricksize As PointF
-    Private PiStartCoords As Point
+    Private sPlayerNames() As String
 
 	'UPGRADE_WARNING: Arrays in Struktur tTempBrick müssen möglicherweise initialisiert werden, bevor sie verwendet werden können. Klicken Sie hier für weitere Informationen: 'ms-help://MS.VSCC.v90/dv_commoner/local/redirect.htm?keyword="814DF224-76BD-4BB4-BFFB-EA359CB9FC48"'
 	Private tTempBrick As CustomTypes.Brick
+
+    Public Function getNumOfPlayers() As Boolean
+
+        getNumOfPlayers = BNumOfPlayers
+
+    End Function
+
+    Public Sub setDimOfPlayers(ByVal B As Byte)
+
+        ReDim bAIPlayers(B)
+
+    End Sub
+
+    Public Sub setPlayers(ByVal b() As Boolean)
+
+        bAIPlayers = b
+
+    End Sub
+
+    Public Sub setNumOfPlayers(ByVal B As Byte)
+
+        BNumOfPlayers = B
+
+    End Sub
+
+    Public Sub setBoardDimension(ByVal B As Byte)
+
+        BBoardDimension = B
+
+    End Sub
+
+    Public Sub setPlayerNames(ByVal s() As String)
+
+        sPlayerNames = s
+
+    End Sub
+
+    Public Sub setDimOfNames(ByVal B As Byte)
+
+        ReDim sPlayerNames(B)
+
+    End Sub
+
+    Private Sub cmdCancelBrick_Click(ByVal eventSender As System.Object, ByVal eventArgs As System.EventArgs) Handles cmdCancelBrick.Click
+
+        ' reset bricks
+        Call resetBrickMode()
+
+        ' set focus to picFocus for keyboard control
+        Me.picFocus.Focus()
+
+        ' repaint form
+        Call frmMainForm_Paint(Me, New System.Windows.Forms.PaintEventArgs(Nothing, Nothing))
+
+    End Sub
 	
-	Private Sub cmdCancelBrick_Click(ByVal eventSender As System.Object, ByVal eventArgs As System.EventArgs) Handles cmdCancelBrick.Click
-		
-		' reset bricks
-		Call resetBrickMode()
-		
-		' set focus to picFocus for keyboard control
-		Me.picFocus.Focus()
-		
-		' repaint form
-		Call frmMainForm_Paint(Me, New System.Windows.Forms.PaintEventArgs(Nothing, Nothing))
-		
-	End Sub
+    Private Sub cmdCancelBrick_MouseUp(ByVal eventSender As System.Object, ByVal eventArgs As System.Windows.Forms.MouseEventArgs) Handles cmdCancelBrick.MouseUp
+
+        Dim Button As Short = eventArgs.Button \ &H100000
+        Dim Shift As Short = System.Windows.Forms.Control.ModifierKeys \ &H10000
+        Dim x As Single = VB6.PixelsToTwipsX(eventArgs.X)
+        Dim y As Single = VB6.PixelsToTwipsY(eventArgs.Y)
+
+        ' set focus to picFocus for keyboard control
+        Me.picFocus.Focus()
+
+    End Sub
 	
-	Private Sub cmdCancelBrick_MouseUp(ByVal eventSender As System.Object, ByVal eventArgs As System.Windows.Forms.MouseEventArgs) Handles cmdCancelBrick.MouseUp
-		Dim Button As Short = eventArgs.Button \ &H100000
-		Dim Shift As Short = System.Windows.Forms.Control.ModifierKeys \ &H10000
-		Dim x As Single = VB6.PixelsToTwipsX(eventArgs.X)
-		Dim y As Single = VB6.PixelsToTwipsY(eventArgs.Y)
-		
-		' set focus to picFocus for keyboard control
-		Me.picFocus.Focus()
-		
-	End Sub
-	
-	Private Sub cmdMove_Click(ByVal eventSender As System.Object, ByVal eventArgs As System.EventArgs) Handles cmdMove.Click
-		Dim Index As Short = cmdMove.GetIndex(eventSender)
-		
-		' dec
-		Dim changed As Boolean
-		changed = False
-		
-		If Not tTempBrick.Placed Then 'move figure
-			changed = Playground.movePlayer(Playground.getActivePlayer, CByte(Index))
-			
-		Else
-			
-			Select Case Index
-				
-				' move down
-				Case 0
-					If tTempBrick.Position(1) < Playground.getDimension - 1 Then
-						tTempBrick.Position(1) = tTempBrick.Position(1) + 1
-						changed = True
-					End If
-					
-					' move right
-				Case 1
-					If tTempBrick.Position(0) < Playground.getDimension - 1 Then
-						tTempBrick.Position(0) = tTempBrick.Position(0) + 1
-						changed = True
-					End If
-					
-					' move up
-				Case 2
-					If tTempBrick.Position(1) > 0 Then
-						tTempBrick.Position(1) = tTempBrick.Position(1) - 1
-						changed = True
-					End If
-					
-					' move left
-				Case 3
-					If tTempBrick.Position(0) > 0 Then
-						tTempBrick.Position(0) = tTempBrick.Position(0) - 1
-						changed = True
-					End If
-					
-			End Select
-			
-		End If
-		
-		' set focus to picFocus for keyboard control
-		Me.picFocus.Focus()
-		
-		If changed Then
-			If Not tTempBrick.Placed Then
-				If Playground.NextTurn Then
-					'repaint form after change to next player
-					Call frmMainForm_Paint(Me, New System.Windows.Forms.PaintEventArgs(Nothing, Nothing))
-					'next move
-					Playground.doPlayerMove()
-				End If
-			End If
-			'repaint after AI/network move OR after change to next player
-			Call frmMainForm_Paint(Me, New System.Windows.Forms.PaintEventArgs(Nothing, Nothing))
-		End If
-		
-	End Sub
+    Private Sub cmdMove_Click(ByVal eventSender As System.Object, ByVal eventArgs As System.EventArgs) Handles cmdMove.Click
+        Dim Index As Short = cmdMove.GetIndex(eventSender)
+
+        ' dec
+        Dim changed As Boolean
+        changed = False
+
+        If Not tTempBrick.Placed Then 'move figure
+            changed = Playground.movePlayer(Playground.getActivePlayer, CByte(Index))
+
+        Else
+
+            Select Case Index
+
+                ' move down
+                Case 0
+                    If tTempBrick.Position(1) < Playground.getDimension - 1 Then
+                        tTempBrick.Position(1) = tTempBrick.Position(1) + 1
+                        changed = True
+                    End If
+
+                    ' move right
+                Case 1
+                    If tTempBrick.Position(0) < Playground.getDimension - 1 Then
+                        tTempBrick.Position(0) = tTempBrick.Position(0) + 1
+                        changed = True
+                    End If
+
+                    ' move up
+                Case 2
+                    If tTempBrick.Position(1) > 0 Then
+                        tTempBrick.Position(1) = tTempBrick.Position(1) - 1
+                        changed = True
+                    End If
+
+                    ' move left
+                Case 3
+                    If tTempBrick.Position(0) > 0 Then
+                        tTempBrick.Position(0) = tTempBrick.Position(0) - 1
+                        changed = True
+                    End If
+
+            End Select
+
+        End If
+
+        ' set focus to picFocus for keyboard control
+        Me.picFocus.Focus()
+
+        If changed Then
+            If Not tTempBrick.Placed Then
+                If Playground.NextTurn Then
+                    'repaint form after change to next player
+                    Call frmMainForm_Paint(Me, New System.Windows.Forms.PaintEventArgs(Nothing, Nothing))
+                    'next move
+                    Playground.doPlayerMove()
+                End If
+            End If
+            'repaint after AI/network move OR after change to next player
+            Call frmMainForm_Paint(Me, New System.Windows.Forms.PaintEventArgs(Nothing, Nothing))
+        End If
+
+    End Sub
 	
 	Private Sub cmdMove_MouseUp(ByVal eventSender As System.Object, ByVal eventArgs As System.Windows.Forms.MouseEventArgs) Handles cmdMove.MouseUp
 		Dim Button As Short = eventArgs.Button \ &H100000
@@ -241,30 +288,29 @@ Friend Class frmMainForm
 	
 	Public Sub ddmNewGame_Click(ByVal eventSender As System.Object, ByVal eventArgs As System.EventArgs) Handles ddmNewGame.Click
 
-        Dim BTempDimension As Byte ' to be deleted if a proper game start form is implemented
-
-        BTempDimension = 8
+        ' open setting window for new games
+        Call frmNewGame.ShowDialog()
 
         ' init board
-		Playground = New clsBoard
-        Call Playground.create(1, BTempDimension) 'player, fields dimension (x=y)
-		Me.shpCurrentPlayer.FillColor = System.Drawing.ColorTranslator.FromOle(Playground.getPlayerColor(0)) 'init current player marker
+        Playground = New clsBoard
+        Call Playground.create(BNumOfPlayers, BBoardDimension) ' player, number of fields (x=y)
+        Me.shpCurrentPlayer.FillColor = System.Drawing.ColorTranslator.FromOle(Playground.getPlayerColor(0)) 'init current player marker
 
         ' max. fieldsize
-        PfFieldsize.X = Me.fraBoard.Width / (BTempDimension + 1)
-        PfFieldsize.Y = Me.fraBoard.Height / (BTempDimension + 1)
+        PfFieldsize.X = Me.fraBoard.Width / (BBoardDimension + 1)
+        PfFieldsize.Y = Me.fraBoard.Height / (BBoardDimension + 1)
 
         ' max. bricksize
-        PfBricksize.X = PfFieldsize.X / BTempDimension
-        PfBricksize.Y = PfFieldsize.Y / BTempDimension
+        PfBricksize.X = PfFieldsize.X / BBoardDimension
+        PfBricksize.Y = PfFieldsize.Y / BBoardDimension
 
         ' real fieldsize ( minus bricks )
         PfFieldsize.X = PfFieldsize.X - PfBricksize.X
         PfFieldsize.Y = PfFieldsize.Y - PfBricksize.Y
 
         ' real bricksize ( fit to "screen" )
-        PfBricksize.X = PfBricksize.X * (1 + 1 / BTempDimension)
-        PfBricksize.Y = PfBricksize.Y * (1 + 1 / BTempDimension)
+        PfBricksize.X = PfBricksize.X * (1 + 1 / BBoardDimension)
+        PfBricksize.Y = PfBricksize.Y * (1 + 1 / BBoardDimension)
 
         ' starting positions
         PiStartCoords.X = Me.fraBoard.Left
@@ -273,31 +319,31 @@ Friend Class frmMainForm
         ' init graphic
         GBoard.Clear(Me.BackColor)
 
-		' init brick
+        ' init brick
         Call resetBrickMode()
-		
-		' init other vars
-		Me.lblLoading.Visible = False
-		bKeyUp = True
-		
-		' enable GUI
-		If Not bGameEnabled Then
-			
-			Me.lblBricksLeftNumber.Visible = True
-			Me.shpCurrentPlayer.Visible = True
-			Me.cmdMove(0).Enabled = True
-			Me.cmdMove(1).Enabled = True
-			Me.cmdMove(2).Enabled = True
-			Me.cmdMove(3).Enabled = True
-			Me.lblLoading.Visible = False
-			
-		End If
-		
-		' draw
-		bGameEnabled = True
-		Call frmMainForm_Paint(Me, New System.Windows.Forms.PaintEventArgs(Nothing, Nothing))
-		
-	End Sub
+
+        ' init other vars
+        Me.lblLoading.Visible = False
+        bKeyUp = True
+
+        ' enable GUI
+        If Not bGameEnabled Then
+
+            Me.lblBricksLeftNumber.Visible = True
+            Me.shpCurrentPlayer.Visible = True
+            Me.cmdMove(0).Enabled = True
+            Me.cmdMove(1).Enabled = True
+            Me.cmdMove(2).Enabled = True
+            Me.cmdMove(3).Enabled = True
+            Me.lblLoading.Visible = False
+
+        End If
+
+        ' draw
+        bGameEnabled = True
+        Call frmMainForm_Paint(Me, New System.Windows.Forms.PaintEventArgs(Nothing, Nothing))
+
+    End Sub
 	
 	Private Sub frmMainForm_Load(ByVal eventSender As System.Object, ByVal eventArgs As System.EventArgs) Handles MyBase.Load
 
@@ -845,4 +891,5 @@ Friend Class frmMainForm
 		bKeyUp = True
 		
 	End Sub
+
 End Class
