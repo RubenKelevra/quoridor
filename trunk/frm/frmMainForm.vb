@@ -26,18 +26,23 @@ Friend Class frmMainForm
 	
     'formdata
     Private bAIPlayers() As Boolean
+    Private bRunGame As Boolean
     Private bGameEnabled As Boolean
     Private bKeyUp As Boolean
     Private BBoardDimension As Byte
     Private BNumOfPlayers As Byte
+    Private tTempBrick As clsBrick
     Private GBoard As Graphics
     Private PiStartCoords As Point
     Private PfFieldsize As PointF
     Private PfBricksize As PointF
     Private sPlayerNames() As String
 
-	'UPGRADE_WARNING: Arrays in Struktur tTempBrick müssen möglicherweise initialisiert werden, bevor sie verwendet werden können. Klicken Sie hier für weitere Informationen: 'ms-help://MS.VSCC.v90/dv_commoner/local/redirect.htm?keyword="814DF224-76BD-4BB4-BFFB-EA359CB9FC48"'
-	Private tTempBrick As CustomTypes.Brick
+    Public Sub setRunGame(ByVal b As Boolean)
+
+        bRunGame = b
+
+    End Sub
 
     Public Function getNumOfPlayers() As Boolean
 
@@ -90,10 +95,11 @@ Friend Class frmMainForm
         Me.picFocus.Focus()
 
         ' repaint form
-        Call frmMainForm_Paint(Me, New System.Windows.Forms.PaintEventArgs(Nothing, Nothing))
+        'Call frmMainForm_Paint(Me, New System.Windows.Forms.PaintEventArgs(Nothing, Nothing))
+        Call paintForm()
 
     End Sub
-	
+
     Private Sub cmdCancelBrick_MouseUp(ByVal eventSender As System.Object, ByVal eventArgs As System.Windows.Forms.MouseEventArgs) Handles cmdCancelBrick.MouseUp
 
         Dim Button As Short = eventArgs.Button \ &H100000
@@ -105,7 +111,7 @@ Friend Class frmMainForm
         Me.picFocus.Focus()
 
     End Sub
-	
+
     Private Sub cmdMove_Click(ByVal eventSender As System.Object, ByVal eventArgs As System.EventArgs) Handles cmdMove.Click
         Dim Index As Short = cmdMove.GetIndex(eventSender)
 
@@ -114,6 +120,7 @@ Friend Class frmMainForm
         changed = False
 
         If Not tTempBrick.Placed Then 'move figure
+
             changed = Playground.movePlayer(Playground.getActivePlayer, CByte(Index))
 
         Else
@@ -122,29 +129,29 @@ Friend Class frmMainForm
 
                 ' move down
                 Case 0
-                    If tTempBrick.Position(1) < Playground.getDimension - 1 Then
-                        tTempBrick.Position(1) = tTempBrick.Position(1) + 1
+                    If tTempBrick.Position.Y < Playground.getDimension - 1 Then
+                        tTempBrick.Position.Y = tTempBrick.Position.Y + 1
                         changed = True
                     End If
 
                     ' move right
                 Case 1
-                    If tTempBrick.Position(0) < Playground.getDimension - 1 Then
-                        tTempBrick.Position(0) = tTempBrick.Position(0) + 1
+                    If tTempBrick.Position.X < Playground.getDimension - 1 Then
+                        tTempBrick.Position.X = tTempBrick.Position.X + 1
                         changed = True
                     End If
 
                     ' move up
                 Case 2
-                    If tTempBrick.Position(1) > 0 Then
-                        tTempBrick.Position(1) = tTempBrick.Position(1) - 1
+                    If tTempBrick.Position.Y > 0 Then
+                        tTempBrick.Position.Y = tTempBrick.Position.Y - 1
                         changed = True
                     End If
 
                     ' move left
                 Case 3
-                    If tTempBrick.Position(0) > 0 Then
-                        tTempBrick.Position(0) = tTempBrick.Position(0) - 1
+                    If tTempBrick.Position.X > 0 Then
+                        tTempBrick.Position.X = tTempBrick.Position.X - 1
                         changed = True
                     End If
 
@@ -159,142 +166,153 @@ Friend Class frmMainForm
             If Not tTempBrick.Placed Then
                 If Playground.NextTurn Then
                     'repaint form after change to next player
-                    Call frmMainForm_Paint(Me, New System.Windows.Forms.PaintEventArgs(Nothing, Nothing))
+                    'Call frmMainForm_Paint(Me, New System.Windows.Forms.PaintEventArgs(Nothing, Nothing))
+                    Call paintForm()
                     'next move
                     Playground.doPlayerMove()
                 End If
             End If
             'repaint after AI/network move OR after change to next player
-            Call frmMainForm_Paint(Me, New System.Windows.Forms.PaintEventArgs(Nothing, Nothing))
+            'Call frmMainForm_Paint(Me, New System.Windows.Forms.PaintEventArgs(Nothing, Nothing))
+            Call paintForm()
+
         End If
 
     End Sub
-	
-	Private Sub cmdMove_MouseUp(ByVal eventSender As System.Object, ByVal eventArgs As System.Windows.Forms.MouseEventArgs) Handles cmdMove.MouseUp
-		Dim Button As Short = eventArgs.Button \ &H100000
-		Dim Shift As Short = System.Windows.Forms.Control.ModifierKeys \ &H10000
-		Dim x As Single = VB6.PixelsToTwipsX(eventArgs.X)
-		Dim y As Single = VB6.PixelsToTwipsY(eventArgs.Y)
-		Dim Index As Short = cmdMove.GetIndex(eventSender)
-		
-		' set focus to picFocus for keyboard control
-		Me.picFocus.Focus()
-		
-	End Sub
-	
-	Private Sub cmdRotateBrick_Click(ByVal eventSender As System.Object, ByVal eventArgs As System.EventArgs) Handles cmdRotateBrick.Click
-		
-		If Me.cmdRotateBrick.Enabled Then
-			
-			' switches rotation variable
-			tTempBrick.Landscape = Not tTempBrick.Landscape
-			
-			' set focus to picFocus for keyboard control
-			Me.picFocus.Focus()
-			
-			' repaint form
-			Call frmMainForm_Paint(Me, New System.Windows.Forms.PaintEventArgs(Nothing, Nothing))
-			
-		End If
-		
-	End Sub
-	
-	Private Sub cmdRotateBrick_MouseUp(ByVal eventSender As System.Object, ByVal eventArgs As System.Windows.Forms.MouseEventArgs) Handles cmdRotateBrick.MouseUp
-		Dim Button As Short = eventArgs.Button \ &H100000
-		Dim Shift As Short = System.Windows.Forms.Control.ModifierKeys \ &H10000
-		Dim x As Single = VB6.PixelsToTwipsX(eventArgs.X)
-		Dim y As Single = VB6.PixelsToTwipsY(eventArgs.Y)
-		
-		' set focus to picFocus for keyboard control
-		Me.picFocus.Focus()
-		
-	End Sub
-	
-	Private Sub cmdSetBrick_Click(ByVal eventSender As System.Object, ByVal eventArgs As System.EventArgs) Handles cmdSetBrick.Click
-		Dim bStoneSaved As Boolean
-		bStoneSaved = False
-		If Playground.getRemainingPlayerBricks(Playground.getActivePlayer) <= 0 Then
-			Exit Sub
-		End If
-		
-		If tTempBrick.Placed Then
-			' save brick
-			Select Case Playground.saveWall(tTempBrick, Playground.getActivePlayer)
-				
-				Case 0
-					bStoneSaved = True
-					
-				Case 1
-					' should not happen anyway
-					MsgBox("You haven't got any stones left, so you can't place one.", MsgBoxStyle.OKOnly, "No Stones Left")
-					
-				Case 2
-					' just exit the sub without popping up a msg window
-					' MsgBox "On this position you can't place a stone.", vbOKOnly, "Stone Not Placeable"
-					Exit Sub
-					
-				Case 3
-					MsgBox("Internal Application Error" & vbCrLf & "Error No. 15" & vbCrLf & "Press OK to continue", MsgBoxStyle.Critical, "Internal Application Error")
-					
-			End Select
-			
-			' reset bricks
-			Call resetBrickMode()
-			
-		Else
-			
-			' set new caption
-			Me.cmdSetBrick.Text = "OK?"
-			
-			' enable brick options
-			Me.cmdRotateBrick.Enabled = True
-			Me.cmdCancelBrick.Enabled = True
-			tTempBrick.Placed = True
-			
-		End If
-		
-		' set focus to picFocus for keyboard control
-		Me.picFocus.Focus()
-		
-		If bStoneSaved Then
-			If Playground.NextTurn Then
-				'repaint form after stone is placed
-				Call frmMainForm_Paint(Me, New System.Windows.Forms.PaintEventArgs(Nothing, Nothing))
-				'next move
-				Playground.doPlayerMove()
-			End If
-		End If
-		'repaint after AI/network move or draw stone after change to set stone mode
-		Call frmMainForm_Paint(Me, New System.Windows.Forms.PaintEventArgs(Nothing, Nothing))
-	End Sub
-	
-	Private Sub cmdSetBrick_MouseUp(ByVal eventSender As System.Object, ByVal eventArgs As System.Windows.Forms.MouseEventArgs) Handles cmdSetBrick.MouseUp
-		Dim Button As Short = eventArgs.Button \ &H100000
-		Dim Shift As Short = System.Windows.Forms.Control.ModifierKeys \ &H10000
-		Dim x As Single = VB6.PixelsToTwipsX(eventArgs.X)
-		Dim y As Single = VB6.PixelsToTwipsY(eventArgs.Y)
-		
-		' set focus to picFocus for keyboard control
-		Me.picFocus.Focus()
-		
-	End Sub
-	
-	Public Sub ddmExit_Click(ByVal eventSender As System.Object, ByVal eventArgs As System.EventArgs) Handles ddmExit.Click
-		
-		' exit programm
-		End
-		
-	End Sub
-	
-	Public Sub ddmNewGame_Click(ByVal eventSender As System.Object, ByVal eventArgs As System.EventArgs) Handles ddmNewGame.Click
+
+    Private Sub cmdMove_MouseUp(ByVal eventSender As System.Object, ByVal eventArgs As System.Windows.Forms.MouseEventArgs) Handles cmdMove.MouseUp
+        Dim Button As Short = eventArgs.Button \ &H100000
+        Dim Shift As Short = System.Windows.Forms.Control.ModifierKeys \ &H10000
+        Dim x As Single = VB6.PixelsToTwipsX(eventArgs.X)
+        Dim y As Single = VB6.PixelsToTwipsY(eventArgs.Y)
+        Dim Index As Short = cmdMove.GetIndex(eventSender)
+
+        ' set focus to picFocus for keyboard control
+        Me.picFocus.Focus()
+
+    End Sub
+
+    Private Sub cmdRotateBrick_Click(ByVal eventSender As System.Object, ByVal eventArgs As System.EventArgs) Handles cmdRotateBrick.Click
+
+        If Me.cmdRotateBrick.Enabled Then
+
+            ' switches rotation variable
+            tTempBrick.Horizontal = Not tTempBrick.Horizontal
+
+            ' set focus to picFocus for keyboard control
+            Me.picFocus.Focus()
+
+            ' repaint form
+            'Call frmMainForm_Paint(Me, New System.Windows.Forms.PaintEventArgs(Nothing, Nothing))
+            Call paintForm()
+
+        End If
+
+    End Sub
+
+    Private Sub cmdRotateBrick_MouseUp(ByVal eventSender As System.Object, ByVal eventArgs As System.Windows.Forms.MouseEventArgs) Handles cmdRotateBrick.MouseUp
+        Dim Button As Short = eventArgs.Button \ &H100000
+        Dim Shift As Short = System.Windows.Forms.Control.ModifierKeys \ &H10000
+        Dim x As Single = VB6.PixelsToTwipsX(eventArgs.X)
+        Dim y As Single = VB6.PixelsToTwipsY(eventArgs.Y)
+
+        ' set focus to picFocus for keyboard control
+        Me.picFocus.Focus()
+
+    End Sub
+
+    Private Sub cmdSetBrick_Click(ByVal eventSender As System.Object, ByVal eventArgs As System.EventArgs) Handles cmdSetBrick.Click
+        Dim bStoneSaved As Boolean
+        bStoneSaved = False
+        If Playground.getRemainingPlayerBricks(Playground.getActivePlayer) <= 0 Then
+            Exit Sub
+        End If
+
+        If tTempBrick.Placed Then
+            ' save brick
+            Select Case Playground.saveWall(tTempBrick, Playground.getActivePlayer)
+
+                Case 0
+                    bStoneSaved = True
+
+                Case 1
+                    ' should not happen anyway
+                    MsgBox("You haven't got any stones left, so you can't place one.", MsgBoxStyle.OkOnly, "No Stones Left")
+
+                Case 2
+                    ' just exit the sub without popping up a msg window
+                    ' MsgBox "On this position you can't place a stone.", vbOKOnly, "Stone Not Placeable"
+                    Exit Sub
+
+                Case 3
+                    MsgBox("Internal Application Error" & vbCrLf & "Error No. 15" & vbCrLf & "Press OK to continue", MsgBoxStyle.Critical, "Internal Application Error")
+
+            End Select
+
+            ' reset bricks
+            Call resetBrickMode()
+
+        Else
+
+            ' set new caption
+            Me.cmdSetBrick.Text = "OK?"
+
+            ' enable brick options
+            Me.cmdRotateBrick.Enabled = True
+            Me.cmdCancelBrick.Enabled = True
+            tTempBrick.Placed = True
+
+        End If
+
+        ' set focus to picFocus for keyboard control
+        Me.picFocus.Focus()
+
+        If bStoneSaved Then
+            If Playground.NextTurn Then
+                'repaint form after stone is placed
+                'Call frmMainForm_Paint(Me, New System.Windows.Forms.PaintEventArgs(Nothing, Nothing))
+                Call paintForm()
+                'next move
+                Playground.doPlayerMove()
+            End If
+        End If
+        'repaint after AI/network move or draw stone after change to set stone mode
+        'Call frmMainForm_Paint(Me, New System.Windows.Forms.PaintEventArgs(Nothing, Nothing))
+        Call paintForm()
+    End Sub
+
+    Private Sub cmdSetBrick_MouseUp(ByVal eventSender As System.Object, ByVal eventArgs As System.Windows.Forms.MouseEventArgs) Handles cmdSetBrick.MouseUp
+        Dim Button As Short = eventArgs.Button \ &H100000
+        Dim Shift As Short = System.Windows.Forms.Control.ModifierKeys \ &H10000
+        Dim x As Single = VB6.PixelsToTwipsX(eventArgs.X)
+        Dim y As Single = VB6.PixelsToTwipsY(eventArgs.Y)
+
+        ' set focus to picFocus for keyboard control
+        Me.picFocus.Focus()
+
+    End Sub
+
+    Public Sub ddmExit_Click(ByVal eventSender As System.Object, ByVal eventArgs As System.EventArgs) Handles ddmExit.Click
+
+        ' exit programm
+        End
+
+    End Sub
+
+    Public Sub ddmNewGame_Click(ByVal eventSender As System.Object, ByVal eventArgs As System.EventArgs) Handles ddmNewGame.Click
 
         ' open setting window for new games
         Call frmNewGame.ShowDialog()
+        If Not bRunGame Then
+
+            Exit Sub
+
+        End If
 
         ' init board
         Playground = New clsBoard
         Call Playground.create(BNumOfPlayers, BBoardDimension) ' player, number of fields (x=y)
-        Me.shpCurrentPlayer.FillColor = System.Drawing.ColorTranslator.FromOle(Playground.getPlayerColor(0)) 'init current player marker
+        Me.shpCurrentPlayer.FillColor = Playground.getPlayerColor(0) 'init current player marker
 
         ' max. fieldsize
         PfFieldsize.X = Me.fraBoard.Width / (BBoardDimension + 1)
@@ -317,7 +335,8 @@ Friend Class frmMainForm
         PiStartCoords.Y = Me.fraBoard.Top
 
         ' init graphic
-        GBoard.Clear(Me.BackColor)
+        GBoard = Me.CreateGraphics
+        'GBoard.Clear(Me.BackColor)
 
         ' init brick
         Call resetBrickMode()
@@ -341,130 +360,125 @@ Friend Class frmMainForm
 
         ' draw
         bGameEnabled = True
-        Call frmMainForm_Paint(Me, New System.Windows.Forms.PaintEventArgs(Nothing, Nothing))
+        'Call frmMainForm_Paint(Me, New System.Windows.Forms.PaintEventArgs(Nothing, Nothing))
+        'Call frmMainForm_Paint(Me, New System.Windows.Forms.PaintEventArgs(GBoard, New System.Drawing.Rectangle))
+        Call paintForm()
 
     End Sub
-	
-	Private Sub frmMainForm_Load(ByVal eventSender As System.Object, ByVal eventArgs As System.EventArgs) Handles MyBase.Load
 
-		' hide picture box
-		Me.picFocus.BackColor = Me.BackColor
-		
-	End Sub
-	
-	Private Sub frmMainForm_Paint(ByVal eventSender As System.Object, ByVal eventArgs As System.Windows.Forms.PaintEventArgs) Handles MyBase.Paint
-		
-		' sets current color of the active figure
-		If bGameEnabled Then
-			Call setCurFigureColor()
-			Call setBricksLeft()
-			Call deactMoveButtons()
-			Call deactSetBrick()
-			Call setLoadingLabel()
-			Call drawBoard()
-            Call drawBricksHori()
-            Call drawBricksVert()
-		End If
-		
-	End Sub
-	
-	Private Sub deactSetBrick()
-		' deactivate placing button
-		
-		If tTempBrick.Placed Then
-			
-			cmdSetBrick.Enabled = Playground.checkPlaceWall(tTempBrick.Position(0), tTempBrick.Position(1), (tTempBrick.Landscape))
-			
-		End If
-		
-	End Sub
-	
-	Private Sub setCurFigureColor()
-		
-		' set current player marker
-		Me.shpCurrentPlayer.FillColor = System.Drawing.ColorTranslator.FromOle(Playground.getPlayerColor(Playground.getActivePlayer))
-		
-	End Sub
-	
-	Private Sub setBricksLeft()
-		
-		Dim b As Byte
-		
-		' set current ammount of brick
-		b = Playground.getRemainingPlayerBricks(Playground.getActivePlayer)
-		
-		' update player bricks
-		Me.lblBricksLeftNumber.Text = CStr(b)
-		
-		If b = 0 Then
-			' deactivate brick button
-			Me.cmdSetBrick.Enabled = False
-		Else
-			' activate brick button
-			Me.cmdSetBrick.Enabled = True
-		End If
-		
-	End Sub
-	
-	Private Sub deactMoveButtons()
-		
-		' dec
-		Dim BActPlayer As Byte
-		Dim i As Short
-		
-		If tTempBrick.Placed Then
-			
-			' deactivates buttons which indicates not possible directions
-			For i = 0 To 3
-				
-				Me.cmdMove(i).Enabled = True
-				
-				Select Case i
-					
-					' down
-					Case 0
-						If tTempBrick.Position(1) >= Playground.getDimension - 1 Then
-							Me.cmdMove(i).Enabled = False
-						End If
-						
-						' right
-					Case 1
-						If tTempBrick.Position(0) >= Playground.getDimension - 1 Then
-							Me.cmdMove(i).Enabled = False
-						End If
-						
-						' up
-					Case 2
-						If tTempBrick.Position(1) = 0 Then
-							Me.cmdMove(i).Enabled = False
-						End If
-						
-						' left
-					Case 3
-						If tTempBrick.Position(0) = 0 Then
-							Me.cmdMove(i).Enabled = False
-						End If
-						
-				End Select
-				
-				cmdMove(i).Font = VB6.FontChangeBold(cmdMove(i).Font, False)
-				
-			Next i
-			
-		Else
-			
-			' init
-			BActPlayer = Playground.getActivePlayer
-			
-			' deactivate buttons which indicates not posssible directions
-			For i = 0 To 3
-				cmdMove(i).Enabled = Playground.checkMove(Playground.getPlayerLocation(BActPlayer), i)
-				cmdMove(i).Font = VB6.FontChangeBold(cmdMove(i).Font, Playground.getPlayerTarget(BActPlayer) = i)
-			Next i
-			
-		End If
-		
-	End Sub
+    Private Sub frmMainForm_Load(ByVal eventSender As System.Object, ByVal eventArgs As System.EventArgs) Handles MyBase.Load
+
+        ' hide picture box
+        Me.picFocus.BackColor = Me.BackColor
+
+        tTempBrick = New clsBrick
+
+    End Sub
+
+    Private Sub frmMainForm_Paint(ByVal eventSender As System.Object, ByVal eventArgs As System.Windows.Forms.PaintEventArgs) Handles MyBase.Paint
+
+        ' sets current color of the active figure
+        Call paintForm()
+
+    End Sub
+
+    Private Sub deactSetBrick()
+        ' deactivate placing button
+
+        If tTempBrick.Placed Then
+
+            cmdSetBrick.Enabled = Playground.checkPlaceWall(tTempBrick.Position.X, tTempBrick.Position.Y, (tTempBrick.Horizontal))
+
+        End If
+
+    End Sub
+
+    Private Sub setCurFigureColor()
+
+        ' set current player marker
+        Me.shpCurrentPlayer.FillColor = Playground.getPlayerColor(Playground.getActivePlayer)
+
+    End Sub
+
+    Private Sub setBricksLeft()
+
+        Dim b As Byte
+
+        ' set current ammount of brick
+        b = Playground.getRemainingPlayerBricks(Playground.getActivePlayer)
+
+        ' update player bricks
+        Me.lblBricksLeftNumber.Text = CStr(b)
+
+        If b = 0 Then
+            ' deactivate brick button
+            Me.cmdSetBrick.Enabled = False
+        Else
+            ' activate brick button
+            Me.cmdSetBrick.Enabled = True
+        End If
+
+    End Sub
+
+    Private Sub deactMoveButtons()
+
+        ' dec
+        Dim BActPlayer As Byte
+        Dim i As Short
+
+        If tTempBrick.Placed Then
+
+            ' deactivates buttons which indicates not possible directions
+            For i = 0 To 3
+
+                Me.cmdMove(i).Enabled = True
+
+                Select Case i
+
+                    ' down
+                    Case 0
+                        If tTempBrick.Position.Y >= Playground.getDimension - 1 Then
+                            Me.cmdMove(i).Enabled = False
+                        End If
+
+                        ' right
+                    Case 1
+                        If tTempBrick.Position.X >= Playground.getDimension - 1 Then
+                            Me.cmdMove(i).Enabled = False
+                        End If
+
+                        ' up
+                    Case 2
+                        If tTempBrick.Position.Y = 0 Then
+                            Me.cmdMove(i).Enabled = False
+                        End If
+
+                        ' left
+                    Case 3
+                        If tTempBrick.Position.X = 0 Then
+                            Me.cmdMove(i).Enabled = False
+                        End If
+
+                End Select
+
+                cmdMove(i).Font = VB6.FontChangeBold(cmdMove(i).Font, False)
+
+            Next i
+
+        Else
+
+            ' init
+            BActPlayer = Playground.getActivePlayer
+
+            ' deactivate buttons which indicates not posssible directions
+            For i = 0 To 3
+                cmdMove(i).Enabled = Playground.checkMove(Playground.getPlayerLocation(BActPlayer), i)
+                cmdMove(i).Font = VB6.FontChangeBold(cmdMove(i).Font, Playground.getPlayerTarget(BActPlayer) = i)
+            Next i
+
+        End If
+
+    End Sub
 
     Private Sub drawBoard()
 
@@ -473,13 +487,22 @@ Friend Class frmMainForm
         Dim i As Byte
         Dim x As Byte
         Dim y As Byte
-        Dim pen As Pen
+        Dim colorPen As System.Drawing.Color 'System.Drawing.Brush
+        Dim curLocation As Point
+        Dim playerLocation() As Point
         Dim PfCurPosition As PointF
         Dim rect(,) As RectangleF
 
         ' init
         BDimension = Playground.getDimension
         ReDim rect(BDimension, BDimension)
+        ReDim playerLocation(Playground.getNoOfPlayer)
+        For i = LBound(playerLocation) To UBound(playerLocation)
+
+            playerLocation(i) = Playground.getPlayerLocation(i)
+
+        Next i
+
 
         For x = 0 To BDimension
 
@@ -491,25 +514,23 @@ Friend Class frmMainForm
 
                 rect(x, y) = New RectangleF(PfCurPosition.X, PfCurPosition.Y, PfFieldsize.X, PfFieldsize.Y)
 
-                ' TBD: reimplement correct types/functions for VB.net
-                '' check current position with the position of all players
-                'For i = 0 To Playground.getNoOfPlayer
+                colorPen = Color.Black ' default board color
 
-                '    'UPGRADE_WARNING: Die Standardeigenschaft des Objekts tDrawPos konnte nicht aufgelöst werden. Klicken Sie hier für weitere Informationen: 'ms-help://MS.VSCC.v90/dv_commoner/local/redirect.htm?keyword="6A50421D-15FE-4896-8A1B-2EC21E9037B2"'
-                '    tDrawPos = xy2pos(x, y)
-                '    'UPGRADE_WARNING: Die Standardeigenschaft des Objekts tPlayerPos konnte nicht aufgelöst werden. Klicken Sie hier für weitere Informationen: 'ms-help://MS.VSCC.v90/dv_commoner/local/redirect.htm?keyword="6A50421D-15FE-4896-8A1B-2EC21E9037B2"'
-                '    tPlayerPos = Playground.getPlayerLocation(i)
+                ' check current position with the position of all players
+                For i = LBound(playerLocation) To UBound(playerLocation)
 
-                '    If Not comparePos(xy2pos(255, 255), tPlayerPos) And comparePos(tDrawPos, tPlayerPos) Then
+                    curLocation = xy2pos(x, y)
 
-                '        ' set playercolor
-                '        lCurColor = Playground.getPlayerColor(i)
+                    If comparePos(curLocation, playerLocation(i)) Then
 
-                '    End If
+                        ' set playercolor
+                        colorPen = Playground.getPlayerColor(i)
 
-                'Next i
+                    End If
 
-                Call GBoard.FillRectangle(Brushes.Black, rect(x, y))
+                Next i
+
+                Call GBoard.FillRectangle(New SolidBrush(colorPen), rect(x, y))
 
             Next y
 
@@ -519,20 +540,30 @@ Friend Class frmMainForm
 
     Public Sub drawBricksHori()
         ' draws the bricks between the board
+        ' return values:
+        ' none
 
-        Dim BDimension As Boolean
+        ' dec
+        Dim BDimension As Byte 'boolean
+        Dim i As Byte
         Dim x As Byte
         Dim y As Byte
+        Dim cCurColor As System.Drawing.Color
         Dim PfCurPosition As PointF
         Dim rect(,) As RectangleF
+        Dim mySavedBricks() As clsBrick
 
         ' init
         BDimension = Playground.getDimension
         ReDim rect(BDimension, BDimension - 1)
+        'ReDim mySavedBricks(UBound(Playground.getWalls))
+        mySavedBricks = Playground.getWalls
 
         ' horizontal
         For x = 0 To BDimension
             For y = 0 To BDimension - 1
+
+                cCurColor = Me.BackColor 'default brick color
 
                 ' calc current coords
 
@@ -551,34 +582,35 @@ Friend Class frmMainForm
                 PfCurPosition.Y = PfCurPosition.Y + y * PfBricksize.Y
 
 
-                ' TBD: reimplement correct types/functions for VB.net
-                '			For i = LBound(tSavedBrick) To UBound(tSavedBrick)
+                For i = LBound(mySavedBricks) To UBound(mySavedBricks)
 
-                '				' if brick is not set
-                '				If tSavedBrick(i).Placed = False Or tSavedBrick(i).Position(0) = 255 Or tSavedBrick(i).Position(1) = 255 Then
-                '					Exit For
-                '				End If
+                    ' if brick is not set
+                    If mySavedBricks(i).Placed = False Or comparePos(xy2pos(255, 255), mySavedBricks(i).Position) Then
 
-                '				' saved brick
-                '				If tSavedBrick(i).Landscape And ((x = tSavedBrick(i).Position(0) And y = tSavedBrick(i).Position(1)) Or (x = tSavedBrick(i).Position(0) + 1 And y = tSavedBrick(i).Position(1))) Then
+                        Exit For
 
-                '					lCurColor = RGB(255, 255, 0)
+                    End If
 
-                '				End If
+                    ' saved brick
+                    If mySavedBricks(i).Horizontal And (comparePos(xy2pos(x, y), mySavedBricks(i).Position) Or comparePos(xy2pos(x, y), xy2pos(mySavedBricks(i).Position.X + 1, mySavedBricks(i).Position.Y))) Then
 
-                '			Next i
+                        cCurColor = Color.DarkOrange
 
-                '			' temp brick
-                '			If tTempBrick.Placed And tTempBrick.Landscape And ((x = tTempBrick.Position(0) And y = tTempBrick.Position(1)) Or (x = tTempBrick.Position(0) + 1 And y = tTempBrick.Position(1))) Then
+                    End If
 
-                '				lCurColor = RGB(0, 192, 0)
+                Next i
 
-                '			End If
+                If tTempBrick.Placed And tTempBrick.Horizontal And (comparePos(xy2pos(x, y), tTempBrick.Position) Or (comparePos(xy2pos(x, y), xy2pos(tTempBrick.Position.X + 1, tTempBrick.Position.Y)))) Then
+
+                    cCurColor = Color.CornflowerBlue
+
+                End If
+
 
                 rect(x, y) = New RectangleF(PfCurPosition.X, PfCurPosition.Y, PfFieldsize.X, PfBricksize.Y)
 
                 ' draw bricks
-                Call GBoard.FillRectangle(Brushes.Blue, rect(x, y))
+                Call GBoard.FillRectangle(New SolidBrush(cCurColor), rect(x, y))
 
             Next y
 
@@ -589,15 +621,19 @@ Friend Class frmMainForm
     Public Sub drawBricksVert()
         ' draws the bricks between the board
 
-        Dim BDimension As Boolean
+        Dim mySavedBricks() As clsBrick
+        Dim i As Byte
+        Dim BDimension As Byte
         Dim x As Byte
         Dim y As Byte
+        Dim cCurColor As System.Drawing.Color
         Dim PfCurPosition As PointF
         Dim rect(,) As RectangleF
 
         ' init
         BDimension = Playground.getDimension
         ReDim rect(BDimension - 1, BDimension)
+        mySavedBricks = Playground.getWalls()
 
         ' horizontal
         For x = 0 To BDimension - 1
@@ -619,277 +655,146 @@ Friend Class frmMainForm
                 ' set empty space
                 PfCurPosition.Y = PfCurPosition.Y + y * PfBricksize.Y
 
-                ' TBD: reimplement correct types/functions for VB.net
-                '			For i = LBound(tSavedBrick) To UBound(tSavedBrick)
+                cCurColor = Me.BackColor
 
-                '				' if brick is not set
-                '				If tSavedBrick(i).Placed = False Or tSavedBrick(i).Position(0) = 255 Or tSavedBrick(i).Position(1) = 255 Then
-                '					Exit For
-                '				End If
+                For i = LBound(mySavedBricks) To UBound(mySavedBricks)
 
-                '				' saved brick
-                '				If Not tSavedBrick(i).Landscape And ((x = tSavedBrick(i).Position(0) And y = tSavedBrick(i).Position(1)) Or (x = tSavedBrick(i).Position(0) And y = tSavedBrick(i).Position(1) + 1)) Then
+                    ' if brick is not set
+                    If mySavedBricks(i).Placed = False Or comparePos(xy2pos(255, 255), mySavedBricks(i).Position) Then
 
-                '					lCurColor = RGB(255, 255, 0)
+                        Exit For
 
-                '				End If
+                    End If
 
-                '			Next i
+                    ' saved brick
+                    If Not mySavedBricks(i).Horizontal And (comparePos(xy2pos(x, y), mySavedBricks(i).Position) Or comparePos(xy2pos(x, y), xy2pos(mySavedBricks(i).Position.X, mySavedBricks(i).Position.Y + 1))) Then
 
-                '			' temp brick
-                '			If tTempBrick.Placed And Not tTempBrick.Landscape And ((x = tTempBrick.Position(0) And y = tTempBrick.Position(1)) Or (x = tTempBrick.Position(0) And y = tTempBrick.Position(1) + 1)) Then
+                        cCurColor = Color.DarkOrange
 
-                '				lCurColor = RGB(0, 192, 0)
+                    End If
 
-                '			End If
+                Next i
+
+                If tTempBrick.Placed And Not tTempBrick.Horizontal And (comparePos(xy2pos(x, y), tTempBrick.Position) Or (comparePos(xy2pos(x, y), xy2pos(tTempBrick.Position.X, tTempBrick.Position.Y + 1)))) Then
+
+                    cCurColor = Color.CornflowerBlue
+
+                End If
 
                 rect(x, y) = New RectangleF(PfCurPosition.X, PfCurPosition.Y, PfBricksize.X, PfFieldsize.Y)
 
                 ' draw bricks
-                Call GBoard.FillRectangle(Brushes.Red, rect(x, y))
+                Call GBoard.FillRectangle(New SolidBrush(cCurColor), rect(x, y))
 
             Next y
 
         Next x
 
     End Sub
-	
-    'Private Sub drawBoard()
-    '	' draws the fields on which a player can move
 
-    '	' dec
-    '	Dim BDimension As Byte
-    '	Dim i As Byte
-    '	Dim x As Byte
-    '	Dim y As Byte
-    '	Dim iCurX As Short
-    '	Dim iCurY As Short
-    '	Dim lCurColor As Integer
-    '	'UPGRADE_WARNING: Arrays in Struktur tDrawPos müssen möglicherweise initialisiert werden, bevor sie verwendet werden können. Klicken Sie hier für weitere Informationen: 'ms-help://MS.VSCC.v90/dv_commoner/local/redirect.htm?keyword="814DF224-76BD-4BB4-BFFB-EA359CB9FC48"'
-    '	Dim tDrawPos As CustomTypes.Position
-    '	'UPGRADE_WARNING: Arrays in Struktur tPlayerPos müssen möglicherweise initialisiert werden, bevor sie verwendet werden können. Klicken Sie hier für weitere Informationen: 'ms-help://MS.VSCC.v90/dv_commoner/local/redirect.htm?keyword="814DF224-76BD-4BB4-BFFB-EA359CB9FC48"'
-    '	Dim tPlayerPos As CustomTypes.Position
+    Private Sub resetBrickMode()
 
-    '	' save dimension
-    '	BDimension = Playground.getDimension
+        ' reset caption
+        Me.cmdSetBrick.Text = "set brick"
 
-    '	For x = 0 To BDimension
-    '		For y = 0 To BDimension
+        ' reset brick options
+        tTempBrick.Horizontal = True
+        tTempBrick.Placed = False
+        tTempBrick.Position.X = 0
+        tTempBrick.Position.Y = 0
 
-    '			' init color
-    '			lCurColor = lBoardcolor
+        ' reset buttons
+        Me.cmdSetBrick.Enabled = True
+        Me.cmdRotateBrick.Enabled = False
+        Me.cmdCancelBrick.Enabled = False
 
-    '			' calc current coords
-    '			iCurX = iDrawStartX + x * iFieldsize
-    '			iCurY = iDrawStartY + y * iFieldsize
+    End Sub
 
-    '			' check current position with the position of all players
-    '			For i = 0 To Playground.getNoOfPlayer
+    Public Sub setLoadingLabel()
 
-    '				'UPGRADE_WARNING: Die Standardeigenschaft des Objekts tDrawPos konnte nicht aufgelöst werden. Klicken Sie hier für weitere Informationen: 'ms-help://MS.VSCC.v90/dv_commoner/local/redirect.htm?keyword="6A50421D-15FE-4896-8A1B-2EC21E9037B2"'
-    '				tDrawPos = xy2pos(x, y)
-    '				'UPGRADE_WARNING: Die Standardeigenschaft des Objekts tPlayerPos konnte nicht aufgelöst werden. Klicken Sie hier für weitere Informationen: 'ms-help://MS.VSCC.v90/dv_commoner/local/redirect.htm?keyword="6A50421D-15FE-4896-8A1B-2EC21E9037B2"'
-    '				tPlayerPos = Playground.getPlayerLocation(i)
+        ' (re-)set loading label
+        If Playground.getPlayerType(Playground.getActivePlayer()) = 1 Then
 
-    '				If Not comparePos(xy2pos(255, 255), tPlayerPos) And comparePos(tDrawPos, tPlayerPos) Then
+            Me.lblLoading.Visible = True
 
-    '					' set playercolor
-    '					lCurColor = Playground.getPlayerColor(i)
+        Else
 
-    '				End If
+            Me.lblLoading.Visible = False
 
-    '			Next i
+        End If
 
-    '			' draw lines
-    '			'UPGRADE_ISSUE: Form Methode frmMainForm.Line wurde nicht aktualisiert. Klicken Sie hier für weitere Informationen: 'ms-help://MS.VSCC.v90/dv_commoner/local/redirect.htm?keyword="CC4C7EC0-C903-48FC-ACCC-81861D12DA4A"'
-    '               'Me.Line (iCurX, iCurY) - (iCurX + iFieldsize - iBricksize, iCurY + iFieldsize - iBricksize), lCurColor, BF
+    End Sub
 
-    '		Next y
-    '	Next x
+    'UPGRADE_ISSUE: Das PictureBox-Ereignis "picFocus.KeyDown" wurde nicht aktualisiert. Klicken Sie hier für weitere Informationen: 'ms-help://MS.VSCC.v90/dv_commoner/local/redirect.htm?keyword="ABD9AF39-7E24-4AFF-AD8D-3675C1AA3054"'
+    Private Sub picFocus_KeyDown(ByRef KeyCode As Short, ByRef Shift As Short)
+        ' select movement keys
 
-    'End Sub
-	
-    'Public Sub drawBricks()
-    '	' draws the bricks between the board
+        If bKeyUp Then
 
-    '	Dim i As Short
-    '	Dim x As Short
-    '	Dim y As Short
-    '	Dim iCurX As Short
-    '	Dim iCurY As Short
-    '	Dim lCurColor As Integer
-    '	Dim tSavedBrick() As CustomTypes.Brick
+            Select Case KeyCode
 
-    '	ReDim tSavedBrick(UBound(Playground.getWalls) - LBound(Playground.getWalls))
-    '	tSavedBrick = VB6.CopyArray(Playground.getWalls)
+                ' move down
+                Case System.Windows.Forms.Keys.Down
+                    Call cmdMove_Click(cmdMove.Item(0), New System.EventArgs())
 
-    '	' horizontal
-    '	For x = 0 To 8
-    '		For y = 0 To 7
+                    ' move right
+                Case System.Windows.Forms.Keys.Right
+                    Call cmdMove_Click(cmdMove.Item(1), New System.EventArgs())
 
-    '			' init color
-    '			lCurColor = System.Drawing.ColorTranslator.ToOle(Me.BackColor)
+                    ' move up
+                Case System.Windows.Forms.Keys.Up
+                    Call cmdMove_Click(cmdMove.Item(2), New System.EventArgs())
 
-    '			' calc current coords
-    '			iCurX = iDrawStartX + x * iFieldsize
-    '			iCurY = iDrawStartY + (y + 1) * iFieldsize - iBricksize
+                    ' move left
+                Case System.Windows.Forms.Keys.Left
+                    Call cmdMove_Click(cmdMove.Item(3), New System.EventArgs())
 
-    '			For i = LBound(tSavedBrick) To UBound(tSavedBrick)
+                    ' set brick
+                Case System.Windows.Forms.Keys.Return
+                    Call cmdSetBrick_Click(cmdSetBrick, New System.EventArgs())
 
-    '				' if brick is not set
-    '				If tSavedBrick(i).Placed = False Or tSavedBrick(i).Position(0) = 255 Or tSavedBrick(i).Position(1) = 255 Then
-    '					Exit For
-    '				End If
+                    ' rotate brick
+                Case System.Windows.Forms.Keys.Space
+                    Call cmdRotateBrick_Click(cmdRotateBrick, New System.EventArgs())
 
-    '				' saved brick
-    '				If tSavedBrick(i).Landscape And ((x = tSavedBrick(i).Position(0) And y = tSavedBrick(i).Position(1)) Or (x = tSavedBrick(i).Position(0) + 1 And y = tSavedBrick(i).Position(1))) Then
+                    ' cancel brick mode
+                Case System.Windows.Forms.Keys.C
+                    Call cmdCancelBrick_Click(cmdCancelBrick, New System.EventArgs())
 
-    '					lCurColor = RGB(255, 255, 0)
+            End Select
 
-    '				End If
+            bKeyUp = False
 
-    '			Next i
+        End If
 
-    '			' temp brick
-    '			If tTempBrick.Placed And tTempBrick.Landscape And ((x = tTempBrick.Position(0) And y = tTempBrick.Position(1)) Or (x = tTempBrick.Position(0) + 1 And y = tTempBrick.Position(1))) Then
+    End Sub
 
-    '				lCurColor = RGB(0, 192, 0)
+    Private Sub paintForm()
+        ' paints all variable graphics on the form
+        ' return values:
+        ' none
 
-    '			End If
+        If bGameEnabled Then
 
-    '			' draw bricks
-    '			'UPGRADE_ISSUE: Form Methode frmMainForm.Line wurde nicht aktualisiert. Klicken Sie hier für weitere Informationen: 'ms-help://MS.VSCC.v90/dv_commoner/local/redirect.htm?keyword="CC4C7EC0-C903-48FC-ACCC-81861D12DA4A"'
-    '               'Me.Line (iCurX, iCurY) - (iCurX + iFieldsize - iBricksize, iCurY + iBricksize), lCurColor, BF
+            Call setCurFigureColor()
+            Call setBricksLeft()
+            Call deactMoveButtons()
+            Call deactSetBrick()
+            Call setLoadingLabel()
+            Call drawBoard()
+            Call drawBricksHori()
+            Call drawBricksVert()
 
-    '		Next y
-    '	Next x
+        End If
 
-    '	' vertical
-    '	For x = 0 To 7
-    '		For y = 0 To 8
+    End Sub
 
-    '			' init color
-    '			lCurColor = System.Drawing.ColorTranslator.ToOle(Me.BackColor)
+    'UPGRADE_ISSUE: Das PictureBox-Ereignis "picFocus.KeyUp" wurde nicht aktualisiert. Klicken Sie hier für weitere Informationen: 'ms-help://MS.VSCC.v90/dv_commoner/local/redirect.htm?keyword="ABD9AF39-7E24-4AFF-AD8D-3675C1AA3054"'
+    Private Sub picFocus_KeyUp(ByRef KeyCode As Short, ByRef Shift As Short)
+        ' on keyUp, set var to true
 
-    '			' calc current coords
-    '			iCurX = iDrawStartX + (x + 1) * iFieldsize - iBricksize
-    '			iCurY = iDrawStartY + y * iFieldsize
+        bKeyUp = True
 
-    '			For i = LBound(tSavedBrick) To UBound(tSavedBrick)
-
-    '				' if brick is not set
-    '				If tSavedBrick(i).Placed = False Or tSavedBrick(i).Position(0) = 255 Or tSavedBrick(i).Position(1) = 255 Then
-    '					Exit For
-    '				End If
-
-    '				' saved brick
-    '				If Not tSavedBrick(i).Landscape And ((x = tSavedBrick(i).Position(0) And y = tSavedBrick(i).Position(1)) Or (x = tSavedBrick(i).Position(0) And y = tSavedBrick(i).Position(1) + 1)) Then
-
-    '					lCurColor = RGB(255, 255, 0)
-
-    '				End If
-
-    '			Next i
-
-    '			' temp brick
-    '			If tTempBrick.Placed And Not tTempBrick.Landscape And ((x = tTempBrick.Position(0) And y = tTempBrick.Position(1)) Or (x = tTempBrick.Position(0) And y = tTempBrick.Position(1) + 1)) Then
-
-    '				lCurColor = RGB(0, 192, 0)
-
-    '			End If
-
-    '			' draw bricks
-    '			'UPGRADE_ISSUE: Form Methode frmMainForm.Line wurde nicht aktualisiert. Klicken Sie hier für weitere Informationen: 'ms-help://MS.VSCC.v90/dv_commoner/local/redirect.htm?keyword="CC4C7EC0-C903-48FC-ACCC-81861D12DA4A"'
-    '               'Me.Line (iCurX, iCurY) - (iCurX + iBricksize, iCurY + iFieldsize - iBricksize), lCurColor, BF
-
-    '		Next y
-    '	Next x
-
-    'End Sub
-	
-	Private Sub resetBrickMode()
-		
-		' reset caption
-		Me.cmdSetBrick.Text = "set brick"
-		
-		' reset brick options
-		tTempBrick.Landscape = True
-		tTempBrick.Placed = False
-		tTempBrick.Position(0) = 0
-		tTempBrick.Position(1) = 0
-		
-		' reset buttons
-		Me.cmdSetBrick.Enabled = True
-		Me.cmdRotateBrick.Enabled = False
-		Me.cmdCancelBrick.Enabled = False
-		
-	End Sub
-	
-	Public Sub setLoadingLabel()
-		
-		' (re-)set loading label
-		If Playground.getPlayerType(Playground.getActivePlayer()) = 1 Then
-			
-			Me.lblLoading.Visible = True
-			
-		Else
-			
-			Me.lblLoading.Visible = False
-			
-		End If
-		
-	End Sub
-	
-	'UPGRADE_ISSUE: Das PictureBox-Ereignis "picFocus.KeyDown" wurde nicht aktualisiert. Klicken Sie hier für weitere Informationen: 'ms-help://MS.VSCC.v90/dv_commoner/local/redirect.htm?keyword="ABD9AF39-7E24-4AFF-AD8D-3675C1AA3054"'
-	Private Sub picFocus_KeyDown(ByRef KeyCode As Short, ByRef Shift As Short)
-		' select movement keys
-		
-		If bKeyUp Then
-			
-			Select Case KeyCode
-				
-				' move down
-				Case System.Windows.Forms.Keys.Down
-					Call cmdMove_Click(cmdMove.Item(0), New System.EventArgs())
-					
-					' move right
-				Case System.Windows.Forms.Keys.Right
-					Call cmdMove_Click(cmdMove.Item(1), New System.EventArgs())
-					
-					' move up
-				Case System.Windows.Forms.Keys.Up
-					Call cmdMove_Click(cmdMove.Item(2), New System.EventArgs())
-					
-					' move left
-				Case System.Windows.Forms.Keys.Left
-					Call cmdMove_Click(cmdMove.Item(3), New System.EventArgs())
-					
-					' set brick
-				Case System.Windows.Forms.Keys.Return
-					Call cmdSetBrick_Click(cmdSetBrick, New System.EventArgs())
-					
-					' rotate brick
-				Case System.Windows.Forms.Keys.Space
-					Call cmdRotateBrick_Click(cmdRotateBrick, New System.EventArgs())
-					
-					' cancel brick mode
-				Case System.Windows.Forms.Keys.C
-					Call cmdCancelBrick_Click(cmdCancelBrick, New System.EventArgs())
-					
-			End Select
-			
-			bKeyUp = False
-			
-		End If
-		
-	End Sub
-	
-	'UPGRADE_ISSUE: Das PictureBox-Ereignis "picFocus.KeyUp" wurde nicht aktualisiert. Klicken Sie hier für weitere Informationen: 'ms-help://MS.VSCC.v90/dv_commoner/local/redirect.htm?keyword="ABD9AF39-7E24-4AFF-AD8D-3675C1AA3054"'
-	Private Sub picFocus_KeyUp(ByRef KeyCode As Short, ByRef Shift As Short)
-		' on keyUp, set var to true
-		
-		bKeyUp = True
-		
-	End Sub
+    End Sub
 
 End Class

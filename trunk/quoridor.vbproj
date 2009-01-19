@@ -114,6 +114,8 @@
     <Import Include="System.Windows.Forms" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="cls\clsMove.vb" />
+    <Compile Include="cls\clsBrick.vb" />
     <Compile Include="frm\frmNewGame.Designer.vb">
       <DependentUpon>frmNewGame.vb</DependentUpon>
     </Compile>
