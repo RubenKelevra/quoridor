@@ -46,23 +46,22 @@ Module modCommonFunctions
 		flipDir = VB.Switch(i = 0, 2, i = 1, 3, i = 2, 0, i = 3, 1, True, 255)
 	End Function
 	
-	Function xy2pos(ByVal x As Byte, ByVal y As Byte) As CustomTypes.Position
-		'convert two values to position-type, saves usualy one line
-		'UPGRADE_WARNING: Arrays in Struktur returnvalue müssen möglicherweise initialisiert werden, bevor sie verwendet werden können. Klicken Sie hier für weitere Informationen: 'ms-help://MS.VSCC.v90/dv_commoner/local/redirect.htm?keyword="814DF224-76BD-4BB4-BFFB-EA359CB9FC48"'
-		Dim returnvalue As CustomTypes.Position
-		returnvalue.Position(0) = x
-		returnvalue.Position(1) = y
-		'UPGRADE_WARNING: Die Standardeigenschaft des Objekts xy2pos konnte nicht aufgelöst werden. Klicken Sie hier für weitere Informationen: 'ms-help://MS.VSCC.v90/dv_commoner/local/redirect.htm?keyword="6A50421D-15FE-4896-8A1B-2EC21E9037B2"'
-		xy2pos = returnvalue
-	End Function
+    Function xy2pos(ByVal x As Byte, ByVal y As Byte) As Point
+        'convert two values to position-type, saves usualy one line
+        Dim returnvalue As Point
+        returnvalue.X = x
+        returnvalue.Y = y
+
+        xy2pos = returnvalue
+    End Function
 	
-	Function comparePos(ByRef pos1 As CustomTypes.Position, ByRef pos2 As CustomTypes.Position) As Boolean
-		If (pos1.Position(0) = pos2.Position(0) And pos1.Position(1) = pos2.Position(1)) Then
-			comparePos = True
-		Else
-			comparePos = False
-		End If
-	End Function
+    Function comparePos(ByRef pos1 As Point, ByRef pos2 As Point) As Boolean
+        If (pos1.X = pos2.X And pos1.Y = pos2.Y) Then
+            comparePos = True
+        Else
+            comparePos = False
+        End If
+    End Function
 	
 	Function shift2dir(ByRef Xshift As Short, ByRef Yshift As Short) As Byte
 		If Xshift = 0 And Yshift = 1 Then 'to bottom

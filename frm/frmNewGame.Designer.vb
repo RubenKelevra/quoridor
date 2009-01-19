@@ -75,7 +75,7 @@ Partial Class frmNewGame
         '
         Me._optNumOfPlayers_1.AutoSize = True
         Me.optNumOfPlayers.SetIndex(Me._optNumOfPlayers_1, CType(1, Short))
-        Me._optNumOfPlayers_1.Location = New System.Drawing.Point(150, 7)
+        Me._optNumOfPlayers_1.Location = New System.Drawing.Point(159, 7)
         Me._optNumOfPlayers_1.Name = "_optNumOfPlayers_1"
         Me._optNumOfPlayers_1.Size = New System.Drawing.Size(31, 17)
         Me._optNumOfPlayers_1.TabIndex = 2
@@ -83,20 +83,25 @@ Partial Class frmNewGame
         Me._optNumOfPlayers_1.Text = "4"
         Me._optNumOfPlayers_1.UseVisualStyleBackColor = True
         '
+        'optNumOfPlayers
+        '
+        '
         'lblAIPlayers
         '
         Me.lblAIPlayers.AutoSize = True
         Me.lblAIPlayers.Location = New System.Drawing.Point(12, 40)
         Me.lblAIPlayers.Name = "lblAIPlayers"
-        Me.lblAIPlayers.Size = New System.Drawing.Size(57, 13)
+        Me.lblAIPlayers.Size = New System.Drawing.Size(56, 13)
         Me.lblAIPlayers.TabIndex = 3
-        Me.lblAIPlayers.Text = "AI Players:"
+        Me.lblAIPlayers.Text = "AI players:"
         '
         '_chkAIPlayers_0
         '
         Me._chkAIPlayers_0.AutoSize = True
+        Me._chkAIPlayers_0.Checked = True
+        Me._chkAIPlayers_0.CheckState = System.Windows.Forms.CheckState.Checked
         Me.chkAIPlayers.SetIndex(Me._chkAIPlayers_0, CType(0, Short))
-        Me._chkAIPlayers_0.Location = New System.Drawing.Point(150, 40)
+        Me._chkAIPlayers_0.Location = New System.Drawing.Point(113, 39)
         Me._chkAIPlayers_0.Name = "_chkAIPlayers_0"
         Me._chkAIPlayers_0.Size = New System.Drawing.Size(32, 17)
         Me._chkAIPlayers_0.TabIndex = 4
@@ -109,7 +114,7 @@ Partial Class frmNewGame
         Me._chkAIPlayers_1.Checked = True
         Me._chkAIPlayers_1.CheckState = System.Windows.Forms.CheckState.Checked
         Me.chkAIPlayers.SetIndex(Me._chkAIPlayers_1, CType(1, Short))
-        Me._chkAIPlayers_1.Location = New System.Drawing.Point(187, 63)
+        Me._chkAIPlayers_1.Location = New System.Drawing.Point(158, 39)
         Me._chkAIPlayers_1.Name = "_chkAIPlayers_1"
         Me._chkAIPlayers_1.Size = New System.Drawing.Size(32, 17)
         Me._chkAIPlayers_1.TabIndex = 5
@@ -123,7 +128,7 @@ Partial Class frmNewGame
         Me._chkAIPlayers_2.CheckState = System.Windows.Forms.CheckState.Checked
         Me._chkAIPlayers_2.Enabled = False
         Me.chkAIPlayers.SetIndex(Me._chkAIPlayers_2, CType(2, Short))
-        Me._chkAIPlayers_2.Location = New System.Drawing.Point(150, 86)
+        Me._chkAIPlayers_2.Location = New System.Drawing.Point(113, 62)
         Me._chkAIPlayers_2.Name = "_chkAIPlayers_2"
         Me._chkAIPlayers_2.Size = New System.Drawing.Size(32, 17)
         Me._chkAIPlayers_2.TabIndex = 6
@@ -137,7 +142,7 @@ Partial Class frmNewGame
         Me._chkAIPlayers_3.CheckState = System.Windows.Forms.CheckState.Checked
         Me._chkAIPlayers_3.Enabled = False
         Me.chkAIPlayers.SetIndex(Me._chkAIPlayers_3, CType(3, Short))
-        Me._chkAIPlayers_3.Location = New System.Drawing.Point(113, 63)
+        Me._chkAIPlayers_3.Location = New System.Drawing.Point(158, 62)
         Me._chkAIPlayers_3.Name = "_chkAIPlayers_3"
         Me._chkAIPlayers_3.Size = New System.Drawing.Size(32, 17)
         Me._chkAIPlayers_3.TabIndex = 7
@@ -146,7 +151,7 @@ Partial Class frmNewGame
         '
         'cmdStart
         '
-        Me.cmdStart.Location = New System.Drawing.Point(150, 255)
+        Me.cmdStart.Location = New System.Drawing.Point(113, 227)
         Me.cmdStart.Name = "cmdStart"
         Me.cmdStart.Size = New System.Drawing.Size(75, 23)
         Me.cmdStart.TabIndex = 8
@@ -155,29 +160,32 @@ Partial Class frmNewGame
         '
         'cmdCancel
         '
-        Me.cmdCancel.Location = New System.Drawing.Point(69, 255)
+        Me.cmdCancel.Location = New System.Drawing.Point(32, 227)
         Me.cmdCancel.Name = "cmdCancel"
         Me.cmdCancel.Size = New System.Drawing.Size(75, 23)
         Me.cmdCancel.TabIndex = 9
         Me.cmdCancel.Text = "Cancel"
         Me.cmdCancel.UseVisualStyleBackColor = True
         '
+        'chkAIPlayers
+        '
+        '
         'lblBoadDimension
         '
         Me.lblBoadDimension.AutoSize = True
-        Me.lblBoadDimension.Location = New System.Drawing.Point(12, 224)
+        Me.lblBoadDimension.Location = New System.Drawing.Point(12, 203)
         Me.lblBoadDimension.Name = "lblBoadDimension"
-        Me.lblBoadDimension.Size = New System.Drawing.Size(115, 13)
+        Me.lblBoadDimension.Size = New System.Drawing.Size(86, 13)
         Me.lblBoadDimension.TabIndex = 10
-        Me.lblBoadDimension.Text = "Gameboard dimension:"
+        Me.lblBoadDimension.Text = "Gameboard size:"
         '
         'numBoardDimension
         '
-        Me.numBoardDimension.Location = New System.Drawing.Point(150, 222)
+        Me.numBoardDimension.Location = New System.Drawing.Point(113, 201)
         Me.numBoardDimension.Maximum = New Decimal(New Integer() {99, 0, 0, 0})
         Me.numBoardDimension.Minimum = New Decimal(New Integer() {5, 0, 0, 0})
         Me.numBoardDimension.Name = "numBoardDimension"
-        Me.numBoardDimension.Size = New System.Drawing.Size(39, 20)
+        Me.numBoardDimension.Size = New System.Drawing.Size(77, 20)
         Me.numBoardDimension.TabIndex = 12
         Me.numBoardDimension.TextAlign = System.Windows.Forms.HorizontalAlignment.Right
         Me.numBoardDimension.Value = New Decimal(New Integer() {9, 0, 0, 0})
@@ -185,7 +193,7 @@ Partial Class frmNewGame
         'lblPlayerNames
         '
         Me.lblPlayerNames.AutoSize = True
-        Me.lblPlayerNames.Location = New System.Drawing.Point(12, 116)
+        Me.lblPlayerNames.Location = New System.Drawing.Point(12, 92)
         Me.lblPlayerNames.Name = "lblPlayerNames"
         Me.lblPlayerNames.Size = New System.Drawing.Size(73, 13)
         Me.lblPlayerNames.TabIndex = 13
@@ -193,20 +201,21 @@ Partial Class frmNewGame
         '
         '_txtPlayerNames_0
         '
+        Me._txtPlayerNames_0.Enabled = False
         Me.txtPlayerNames.SetIndex(Me._txtPlayerNames_0, CType(0, Short))
-        Me._txtPlayerNames_0.Location = New System.Drawing.Point(113, 113)
+        Me._txtPlayerNames_0.Location = New System.Drawing.Point(113, 89)
         Me._txtPlayerNames_0.Name = "_txtPlayerNames_0"
-        Me._txtPlayerNames_0.Size = New System.Drawing.Size(106, 20)
+        Me._txtPlayerNames_0.Size = New System.Drawing.Size(77, 20)
         Me._txtPlayerNames_0.TabIndex = 14
-        Me._txtPlayerNames_0.Text = "Player 1"
+        Me._txtPlayerNames_0.Text = "Klaus (AI)"
         '
         '_txtPlayerNames_1
         '
         Me._txtPlayerNames_1.Enabled = False
         Me.txtPlayerNames.SetIndex(Me._txtPlayerNames_1, CType(1, Short))
-        Me._txtPlayerNames_1.Location = New System.Drawing.Point(113, 139)
+        Me._txtPlayerNames_1.Location = New System.Drawing.Point(113, 115)
         Me._txtPlayerNames_1.Name = "_txtPlayerNames_1"
-        Me._txtPlayerNames_1.Size = New System.Drawing.Size(106, 20)
+        Me._txtPlayerNames_1.Size = New System.Drawing.Size(77, 20)
         Me._txtPlayerNames_1.TabIndex = 15
         Me._txtPlayerNames_1.Text = "Dennis (AI)"
         '
@@ -214,9 +223,9 @@ Partial Class frmNewGame
         '
         Me._txtPlayerNames_2.Enabled = False
         Me.txtPlayerNames.SetIndex(Me._txtPlayerNames_2, CType(2, Short))
-        Me._txtPlayerNames_2.Location = New System.Drawing.Point(113, 165)
+        Me._txtPlayerNames_2.Location = New System.Drawing.Point(113, 141)
         Me._txtPlayerNames_2.Name = "_txtPlayerNames_2"
-        Me._txtPlayerNames_2.Size = New System.Drawing.Size(106, 20)
+        Me._txtPlayerNames_2.Size = New System.Drawing.Size(77, 20)
         Me._txtPlayerNames_2.TabIndex = 16
         Me._txtPlayerNames_2.Text = "Ruben (AI)"
         '
@@ -224,17 +233,18 @@ Partial Class frmNewGame
         '
         Me._txtPlayerNames_3.Enabled = False
         Me.txtPlayerNames.SetIndex(Me._txtPlayerNames_3, CType(3, Short))
-        Me._txtPlayerNames_3.Location = New System.Drawing.Point(113, 191)
+        Me._txtPlayerNames_3.Location = New System.Drawing.Point(113, 167)
         Me._txtPlayerNames_3.Name = "_txtPlayerNames_3"
-        Me._txtPlayerNames_3.Size = New System.Drawing.Size(106, 20)
+        Me._txtPlayerNames_3.Size = New System.Drawing.Size(77, 20)
         Me._txtPlayerNames_3.TabIndex = 17
         Me._txtPlayerNames_3.Text = "Sebastian (AI)"
         '
         'frmNewGame
         '
+        Me.AcceptButton = Me.cmdStart
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(231, 284)
+        Me.ClientSize = New System.Drawing.Size(202, 257)
         Me.Controls.Add(Me._txtPlayerNames_3)
         Me.Controls.Add(Me._txtPlayerNames_2)
         Me.Controls.Add(Me._txtPlayerNames_1)

@@ -20,6 +20,7 @@
     Private Sub cmdCancel_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles cmdCancel.Click
 
         ' cancel new game
+        frmMainForm.setRunGame(False)
         Me.Hide()
 
     End Sub
@@ -62,6 +63,7 @@
         Call frmMainForm.setBoardDimension(Me.numBoardDimension.Value - 1)
 
         ' close formular
+        frmMainForm.setRunGame(True)
         Me.Hide()
 
     End Sub
