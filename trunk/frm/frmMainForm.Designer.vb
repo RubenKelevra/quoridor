@@ -33,8 +33,7 @@
 	Public WithEvents _cmdMove_1 As System.Windows.Forms.Button
 	Public WithEvents _cmdMove_2 As System.Windows.Forms.Button
 	Public WithEvents fraMovement As System.Windows.Forms.GroupBox
-	Public WithEvents picFocus As System.Windows.Forms.PictureBox
-	Public WithEvents lblLoading As System.Windows.Forms.Label
+    Public WithEvents lblLoading As System.Windows.Forms.Label
 	Public WithEvents lblBricksLeftNumber As System.Windows.Forms.Label
 	Public WithEvents lblBricksLeftTxt As System.Windows.Forms.Label
 	Public WithEvents lblCurPlayer As System.Windows.Forms.Label
@@ -67,7 +66,6 @@
         Me._cmdMove_1 = New System.Windows.Forms.Button
         Me._cmdMove_2 = New System.Windows.Forms.Button
         Me.fraInfo = New System.Windows.Forms.GroupBox
-        Me.picFocus = New System.Windows.Forms.PictureBox
         Me.lblLoading = New System.Windows.Forms.Label
         Me.lblBricksLeftNumber = New System.Windows.Forms.Label
         Me.lblBricksLeftTxt = New System.Windows.Forms.Label
@@ -76,7 +74,6 @@
         Me.MainMenu1.SuspendLayout()
         Me.fraMovement.SuspendLayout()
         Me.fraInfo.SuspendLayout()
-        CType(Me.picFocus, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.cmdMove, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
         '
@@ -294,7 +291,6 @@
         'fraInfo
         '
         Me.fraInfo.BackColor = System.Drawing.SystemColors.Control
-        Me.fraInfo.Controls.Add(Me.picFocus)
         Me.fraInfo.Controls.Add(Me.lblLoading)
         Me.fraInfo.Controls.Add(Me.lblBricksLeftNumber)
         Me.fraInfo.Controls.Add(Me.lblBricksLeftTxt)
@@ -309,18 +305,6 @@
         Me.fraInfo.TabIndex = 1
         Me.fraInfo.TabStop = False
         Me.fraInfo.Text = "Information"
-        '
-        'picFocus
-        '
-        Me.picFocus.BackColor = System.Drawing.Color.Black
-        Me.picFocus.Cursor = System.Windows.Forms.Cursors.Default
-        Me.picFocus.ForeColor = System.Drawing.SystemColors.ControlText
-        Me.picFocus.Location = New System.Drawing.Point(224, 72)
-        Me.picFocus.Name = "picFocus"
-        Me.picFocus.RightToLeft = System.Windows.Forms.RightToLeft.No
-        Me.picFocus.Size = New System.Drawing.Size(25, 25)
-        Me.picFocus.TabIndex = 0
-        Me.picFocus.TabStop = False
         '
         'lblLoading
         '
@@ -397,7 +381,6 @@
         Me.MainMenu1.PerformLayout()
         Me.fraMovement.ResumeLayout(False)
         Me.fraInfo.ResumeLayout(False)
-        CType(Me.picFocus, System.ComponentModel.ISupportInitialize).EndInit()
         CType(Me.cmdMove, System.ComponentModel.ISupportInitialize).EndInit()
         Me.ResumeLayout(False)
         Me.PerformLayout()
