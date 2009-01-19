@@ -2,28 +2,30 @@ Option Strict Off
 Option Explicit On
 Imports Microsoft.VisualBasic.PowerPacks
 Friend Class frmMainForm
-	Inherits System.Windows.Forms.Form
-	
-	' frm/frmMainForm.frm - Part of Quoridor http://code.google.com/p/quoridor/
-	'
-	' Copyright (C) 2008 Quoridor VB-Project Team
-	'
-	' This program is free software; you can redistribute it and/or modify it
-	' under the terms of the GNU General Public License as published by the
-	' Free Software Foundation; either version 3 of the License, or (at your
-	' option) any later version.
-	'
-	' This program is distributed in the hope that it will be useful, but
-	' WITHOUT ANY WARRANTY; without even the impliefd warranty of
-	' MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
-	' Public License for more details.
-	'
-	' You should have received a copy of the GNU General Public License along
-	' with this program; if not, see <http://www.gnu.org/licenses/>.
-	
-	'gamedata
-	Private Playground As clsBoard
-	
+
+    Inherits System.Windows.Forms.Form
+
+    ' frm/frmMainForm.frm - Part of Quoridor http://code.google.com/p/quoridor/
+    '
+    ' Copyright (C) 2008 Quoridor VB-Project Team
+    '
+    ' This program is free software; you can redistribute it and/or modify it
+    ' under the terms of the GNU General Public License as published by the
+    ' Free Software Foundation; either version 3 of the License, or (at your
+    ' option) any later version.
+    '
+    ' This program is distributed in the hope that it will be useful, but
+    ' WITHOUT ANY WARRANTY; without even the impliefd warranty of
+    ' MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
+    ' Public License for more details.
+    '
+    ' You should have received a copy of the GNU General Public License along
+    ' with this program; if not, see <http://www.gnu.org/licenses/>.
+
+    'gamedata
+
+    Private Playground As clsBoard
+
     'formdata
     Private bAIPlayers() As Boolean
     Private bRunGame As Boolean
@@ -91,11 +93,10 @@ Friend Class frmMainForm
         ' reset bricks
         Call resetBrickMode()
 
-        ' set focus to picFocus for keyboard control
-        Me.picFocus.Focus()
+        ' set focus to frmMainForm for keyboard control
+        Call Me.Focus()
 
         ' repaint form
-        'Call frmMainForm_Paint(Me, New System.Windows.Forms.PaintEventArgs(Nothing, Nothing))
         Call paintForm()
 
     End Sub
@@ -107,8 +108,8 @@ Friend Class frmMainForm
         Dim x As Single = VB6.PixelsToTwipsX(eventArgs.X)
         Dim y As Single = VB6.PixelsToTwipsY(eventArgs.Y)
 
-        ' set focus to picFocus for keyboard control
-        Me.picFocus.Focus()
+        ' set focus to frmMainForm for keyboard control
+        Call Me.Focus()
 
     End Sub
 
@@ -160,7 +161,7 @@ Friend Class frmMainForm
         End If
 
         ' set focus to picFocus for keyboard control
-        Me.picFocus.Focus()
+        Me.Focus()
 
         If changed Then
             If Not tTempBrick.Placed Then
@@ -188,7 +189,7 @@ Friend Class frmMainForm
         Dim Index As Short = cmdMove.GetIndex(eventSender)
 
         ' set focus to picFocus for keyboard control
-        Me.picFocus.Focus()
+        Me.Focus()
 
     End Sub
 
@@ -200,7 +201,7 @@ Friend Class frmMainForm
             tTempBrick.Horizontal = Not tTempBrick.Horizontal
 
             ' set focus to picFocus for keyboard control
-            Me.picFocus.Focus()
+            Me.Focus()
 
             ' repaint form
             'Call frmMainForm_Paint(Me, New System.Windows.Forms.PaintEventArgs(Nothing, Nothing))
@@ -217,7 +218,7 @@ Friend Class frmMainForm
         Dim y As Single = VB6.PixelsToTwipsY(eventArgs.Y)
 
         ' set focus to picFocus for keyboard control
-        Me.picFocus.Focus()
+        Me.Focus()
 
     End Sub
 
@@ -265,7 +266,7 @@ Friend Class frmMainForm
         End If
 
         ' set focus to picFocus for keyboard control
-        Me.picFocus.Focus()
+        Me.Focus()
 
         If bStoneSaved Then
             If Playground.NextTurn Then
@@ -288,7 +289,7 @@ Friend Class frmMainForm
         Dim y As Single = VB6.PixelsToTwipsY(eventArgs.Y)
 
         ' set focus to picFocus for keyboard control
-        Me.picFocus.Focus()
+        Me.Focus()
 
     End Sub
 
@@ -366,10 +367,57 @@ Friend Class frmMainForm
 
     End Sub
 
-    Private Sub frmMainForm_Load(ByVal eventSender As System.Object, ByVal eventArgs As System.EventArgs) Handles MyBase.Load
+    Private Sub frmMainForm_KeyDown(ByVal sender As Object, ByVal e As System.Windows.Forms.KeyEventArgs) Handles Me.KeyDown
+        ' select movement keys
 
-        ' hide picture box
-        Me.picFocus.BackColor = Me.BackColor
+        If bKeyUp Then
+
+            Select Case e.KeyValue
+
+                ' move down
+                Case System.Windows.Forms.Keys.Down
+                    Call cmdMove_Click(cmdMove.Item(0), New System.EventArgs())
+
+                    ' move right
+                Case System.Windows.Forms.Keys.Right
+                    Call cmdMove_Click(cmdMove.Item(1), New System.EventArgs())
+
+                    ' move up
+                Case System.Windows.Forms.Keys.Up
+                    Call cmdMove_Click(cmdMove.Item(2), New System.EventArgs())
+
+                    ' move left
+                Case System.Windows.Forms.Keys.Left
+                    Call cmdMove_Click(cmdMove.Item(3), New System.EventArgs())
+
+                    ' set brick
+                Case System.Windows.Forms.Keys.Return
+                    Call cmdSetBrick_Click(cmdSetBrick, New System.EventArgs())
+
+                    ' rotate brick
+                Case System.Windows.Forms.Keys.Space
+                    Call cmdRotateBrick_Click(cmdRotateBrick, New System.EventArgs())
+
+                    ' cancel brick mode
+                Case System.Windows.Forms.Keys.C
+                    Call cmdCancelBrick_Click(cmdCancelBrick, New System.EventArgs())
+
+            End Select
+
+            bKeyUp = False
+
+        End If
+
+    End Sub
+
+    Private Sub frmMainForm_KeyUp(ByVal sender As Object, ByVal e As System.Windows.Forms.KeyEventArgs) Handles Me.KeyUp
+        ' on keyUp, set var to true
+
+        bKeyUp = True
+
+    End Sub
+
+    Private Sub frmMainForm_Load(ByVal eventSender As System.Object, ByVal eventArgs As System.EventArgs) Handles MyBase.Load
 
         tTempBrick = New clsBrick
 
@@ -725,50 +773,6 @@ Friend Class frmMainForm
 
     End Sub
 
-    'UPGRADE_ISSUE: Das PictureBox-Ereignis "picFocus.KeyDown" wurde nicht aktualisiert. Klicken Sie hier für weitere Informationen: 'ms-help://MS.VSCC.v90/dv_commoner/local/redirect.htm?keyword="ABD9AF39-7E24-4AFF-AD8D-3675C1AA3054"'
-    Private Sub picFocus_KeyDown(ByRef KeyCode As Short, ByRef Shift As Short)
-        ' select movement keys
-
-        If bKeyUp Then
-
-            Select Case KeyCode
-
-                ' move down
-                Case System.Windows.Forms.Keys.Down
-                    Call cmdMove_Click(cmdMove.Item(0), New System.EventArgs())
-
-                    ' move right
-                Case System.Windows.Forms.Keys.Right
-                    Call cmdMove_Click(cmdMove.Item(1), New System.EventArgs())
-
-                    ' move up
-                Case System.Windows.Forms.Keys.Up
-                    Call cmdMove_Click(cmdMove.Item(2), New System.EventArgs())
-
-                    ' move left
-                Case System.Windows.Forms.Keys.Left
-                    Call cmdMove_Click(cmdMove.Item(3), New System.EventArgs())
-
-                    ' set brick
-                Case System.Windows.Forms.Keys.Return
-                    Call cmdSetBrick_Click(cmdSetBrick, New System.EventArgs())
-
-                    ' rotate brick
-                Case System.Windows.Forms.Keys.Space
-                    Call cmdRotateBrick_Click(cmdRotateBrick, New System.EventArgs())
-
-                    ' cancel brick mode
-                Case System.Windows.Forms.Keys.C
-                    Call cmdCancelBrick_Click(cmdCancelBrick, New System.EventArgs())
-
-            End Select
-
-            bKeyUp = False
-
-        End If
-
-    End Sub
-
     Private Sub paintForm()
         ' paints all variable graphics on the form
         ' return values:
@@ -786,14 +790,6 @@ Friend Class frmMainForm
             Call drawBricksVert()
 
         End If
-
-    End Sub
-
-    'UPGRADE_ISSUE: Das PictureBox-Ereignis "picFocus.KeyUp" wurde nicht aktualisiert. Klicken Sie hier für weitere Informationen: 'ms-help://MS.VSCC.v90/dv_commoner/local/redirect.htm?keyword="ABD9AF39-7E24-4AFF-AD8D-3675C1AA3054"'
-    Private Sub picFocus_KeyUp(ByRef KeyCode As Short, ByRef Shift As Short)
-        ' on keyUp, set var to true
-
-        bKeyUp = True
 
     End Sub
 
