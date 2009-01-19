@@ -23,33 +23,33 @@
 	Public WithEvents ddmLine1 As System.Windows.Forms.ToolStripSeparator
 	Public WithEvents ddmExit As System.Windows.Forms.ToolStripMenuItem
 	Public WithEvents ddmMenuGame As System.Windows.Forms.ToolStripMenuItem
-	Public WithEvents MainMenu1 As System.Windows.Forms.MenuStrip
-	Public WithEvents fraBoard As System.Windows.Forms.Panel
-	Public WithEvents cmdCancelBrick As System.Windows.Forms.Button
-	Public WithEvents _cmdMove_3 As System.Windows.Forms.Button
-	Public WithEvents _cmdMove_0 As System.Windows.Forms.Button
-	Public WithEvents cmdSetBrick As System.Windows.Forms.Button
-	Public WithEvents cmdRotateBrick As System.Windows.Forms.Button
-	Public WithEvents _cmdMove_1 As System.Windows.Forms.Button
-	Public WithEvents _cmdMove_2 As System.Windows.Forms.Button
-	Public WithEvents fraMovement As System.Windows.Forms.GroupBox
+    Public WithEvents mmuMain As System.Windows.Forms.MenuStrip
+    Public WithEvents fraBoard As System.Windows.Forms.Panel
+    Public WithEvents cmdCancelBrick As System.Windows.Forms.Button
+    Public WithEvents _cmdMove_3 As System.Windows.Forms.Button
+    Public WithEvents _cmdMove_0 As System.Windows.Forms.Button
+    Public WithEvents cmdSetBrick As System.Windows.Forms.Button
+    Public WithEvents cmdRotateBrick As System.Windows.Forms.Button
+    Public WithEvents _cmdMove_1 As System.Windows.Forms.Button
+    Public WithEvents _cmdMove_2 As System.Windows.Forms.Button
+    Public WithEvents fraMovement As System.Windows.Forms.GroupBox
     Public WithEvents lblLoading As System.Windows.Forms.Label
-	Public WithEvents lblBricksLeftNumber As System.Windows.Forms.Label
-	Public WithEvents lblBricksLeftTxt As System.Windows.Forms.Label
-	Public WithEvents lblCurPlayer As System.Windows.Forms.Label
-	Public WithEvents shpCurrentPlayer As Microsoft.VisualBasic.PowerPacks.OvalShape
-	Public WithEvents fraInfo As System.Windows.Forms.GroupBox
-	Public WithEvents cmdMove As Microsoft.VisualBasic.Compatibility.VB6.ButtonArray
-	Public WithEvents ShapeContainer1 As Microsoft.VisualBasic.PowerPacks.ShapeContainer
-	'Hinweis: Die folgende Prozedur ist für den Windows Form-Designer erforderlich.
-	'Das Verändern mit dem Windows Form-Designer ist nicht möglich.
-	'Das Bearbeiten mit dem Code-Editor ist nicht möglich.
-	<System.Diagnostics.DebuggerStepThrough()> Private Sub InitializeComponent()
+    Public WithEvents lblBricksLeftNumber As System.Windows.Forms.Label
+    Public WithEvents lblBricksLeftTxt As System.Windows.Forms.Label
+    Public WithEvents lblCurPlayer As System.Windows.Forms.Label
+    Public WithEvents shpCurrentPlayer As Microsoft.VisualBasic.PowerPacks.OvalShape
+    Public WithEvents fraInfo As System.Windows.Forms.GroupBox
+    Public WithEvents cmdMove As Microsoft.VisualBasic.Compatibility.VB6.ButtonArray
+    Public WithEvents ShapeContainer1 As Microsoft.VisualBasic.PowerPacks.ShapeContainer
+    'Hinweis: Die folgende Prozedur ist für den Windows Form-Designer erforderlich.
+    'Das Verändern mit dem Windows Form-Designer ist nicht möglich.
+    'Das Bearbeiten mit dem Code-Editor ist nicht möglich.
+    <System.Diagnostics.DebuggerStepThrough()> Private Sub InitializeComponent()
         Me.components = New System.ComponentModel.Container
         Me.ToolTip1 = New System.Windows.Forms.ToolTip(Me.components)
         Me.ShapeContainer1 = New Microsoft.VisualBasic.PowerPacks.ShapeContainer
         Me.shpCurrentPlayer = New Microsoft.VisualBasic.PowerPacks.OvalShape
-        Me.MainMenu1 = New System.Windows.Forms.MenuStrip
+        Me.mmuMain = New System.Windows.Forms.MenuStrip
         Me.ddmMenuGame = New System.Windows.Forms.ToolStripMenuItem
         Me.ddmNewGame = New System.Windows.Forms.ToolStripMenuItem
         Me.ddmLoadGame = New System.Windows.Forms.ToolStripMenuItem
@@ -71,7 +71,7 @@
         Me.lblBricksLeftTxt = New System.Windows.Forms.Label
         Me.lblCurPlayer = New System.Windows.Forms.Label
         Me.cmdMove = New Microsoft.VisualBasic.Compatibility.VB6.ButtonArray(Me.components)
-        Me.MainMenu1.SuspendLayout()
+        Me.mmuMain.SuspendLayout()
         Me.fraMovement.SuspendLayout()
         Me.fraInfo.SuspendLayout()
         CType(Me.cmdMove, System.ComponentModel.ISupportInitialize).BeginInit()
@@ -98,19 +98,19 @@
         Me.shpCurrentPlayer.Size = New System.Drawing.Size(25, 25)
         Me.shpCurrentPlayer.Visible = False
         '
-        'MainMenu1
+        'mmuMain
         '
-        Me.MainMenu1.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.ddmMenuGame})
-        Me.MainMenu1.Location = New System.Drawing.Point(0, 0)
-        Me.MainMenu1.Name = "MainMenu1"
-        Me.MainMenu1.Size = New System.Drawing.Size(549, 24)
-        Me.MainMenu1.TabIndex = 13
+        Me.mmuMain.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.ddmMenuGame})
+        Me.mmuMain.Location = New System.Drawing.Point(0, 0)
+        Me.mmuMain.Name = "mmuMain"
+        Me.mmuMain.Size = New System.Drawing.Size(549, 24)
+        Me.mmuMain.TabIndex = 13
         '
         'ddmMenuGame
         '
         Me.ddmMenuGame.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.ddmNewGame, Me.ddmLoadGame, Me.ddmSaveGame, Me.ddmLine1, Me.ddmExit})
         Me.ddmMenuGame.Name = "ddmMenuGame"
-        Me.ddmMenuGame.Size = New System.Drawing.Size(46, 20)
+        Me.ddmMenuGame.Size = New System.Drawing.Size(94, 20)
         Me.ddmMenuGame.Text = "Game"
         '
         'ddmNewGame
@@ -369,7 +369,7 @@
         Me.Controls.Add(Me.fraBoard)
         Me.Controls.Add(Me.fraMovement)
         Me.Controls.Add(Me.fraInfo)
-        Me.Controls.Add(Me.MainMenu1)
+        Me.Controls.Add(Me.mmuMain)
         Me.Cursor = System.Windows.Forms.Cursors.Default
         Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle
         Me.Location = New System.Drawing.Point(10, 56)
@@ -377,8 +377,8 @@
         Me.Name = "frmMainForm"
         Me.RightToLeft = System.Windows.Forms.RightToLeft.No
         Me.Text = "Quoridor"
-        Me.MainMenu1.ResumeLayout(False)
-        Me.MainMenu1.PerformLayout()
+        Me.mmuMain.ResumeLayout(False)
+        Me.mmuMain.PerformLayout()
         Me.fraMovement.ResumeLayout(False)
         Me.fraInfo.ResumeLayout(False)
         CType(Me.cmdMove, System.ComponentModel.ISupportInitialize).EndInit()
