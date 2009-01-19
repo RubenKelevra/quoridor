@@ -132,7 +132,7 @@ fEnd:
             Exit Function
         End If
 
-        If Not checkPlaceWall(Br.Position.X, Br.Position.X, (Br.Horizontal)) Then
+        If Not checkPlaceWall(Br.Position.X, Br.Position.Y, (Br.Horizontal)) Then
             saveWall = 2
             Exit Function
         End If

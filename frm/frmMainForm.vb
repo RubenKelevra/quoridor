@@ -271,15 +271,15 @@ Friend Class frmMainForm
         If bStoneSaved Then
             If Playground.NextTurn Then
                 'repaint form after stone is placed
-                'Call frmMainForm_Paint(Me, New System.Windows.Forms.PaintEventArgs(Nothing, Nothing))
                 Call paintForm()
                 'next move
                 Playground.doPlayerMove()
             End If
         End If
+
         'repaint after AI/network move or draw stone after change to set stone mode
-        'Call frmMainForm_Paint(Me, New System.Windows.Forms.PaintEventArgs(Nothing, Nothing))
         Call paintForm()
+
     End Sub
 
     Private Sub cmdSetBrick_MouseUp(ByVal eventSender As System.Object, ByVal eventArgs As System.Windows.Forms.MouseEventArgs) Handles cmdSetBrick.MouseUp

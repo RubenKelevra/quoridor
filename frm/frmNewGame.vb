@@ -21,7 +21,8 @@
 
         ' cancel new game
         frmMainForm.setRunGame(False)
-        Me.Hide()
+
+        Call Me.Close()
 
     End Sub
 
@@ -64,7 +65,7 @@
 
         ' close formular
         frmMainForm.setRunGame(True)
-        Me.Hide()
+        Me.Close()
 
     End Sub
 
