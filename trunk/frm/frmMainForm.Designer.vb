@@ -110,7 +110,7 @@
         '
         Me.ddmMenuGame.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.ddmNewGame, Me.ddmLoadGame, Me.ddmSaveGame, Me.ddmLine1, Me.ddmExit})
         Me.ddmMenuGame.Name = "ddmMenuGame"
-        Me.ddmMenuGame.Size = New System.Drawing.Size(94, 20)
+        Me.ddmMenuGame.Size = New System.Drawing.Size(46, 20)
         Me.ddmMenuGame.Text = "Game"
         '
         'ddmNewGame
@@ -386,5 +386,5 @@
         Me.PerformLayout()
 
     End Sub
-#End Region 
+#End Region
 End Class
