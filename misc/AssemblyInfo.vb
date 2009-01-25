@@ -6,18 +6,6 @@ Imports System.Runtime.InteropServices
 ' Attribute gesteuert. Ändern Sie diese Attributwerte, um die
 ' Assemblyinformationen zu ändern.
 
-
-' TODO: Werte der Assemblyattribute überprüfen
-
-
-<Assembly: AssemblyTitle("")>
-<Assembly: AssemblyDescription("")>
-<Assembly: AssemblyCompany("Privat")>
-<Assembly: AssemblyProduct("")>
-<Assembly: AssemblyCopyright("")>
-<Assembly: AssemblyTrademark("")>
-<Assembly: AssemblyCulture("")>
-
 ' Versionsinformationen für eine Assembly bestehen aus den folgenden vier Werten:
 
 '	Hauptversion
@@ -27,7 +15,5 @@ Imports System.Runtime.InteropServices
 
 ' Sie können alle Werte angeben oder die Build- und Revisionsnummern als Standardwerte festlegen.
 ' Verwenden Sie hierzu wie unten angegeben '*':
-
-<Assembly:  AssemblyVersion("0.1.*")>
 
 
