@@ -49,19 +49,19 @@
         ReDim sPlayerNames(BNumOfPlayers)
 
         ' set AI players
-        For i = Me.chkAIPlayers.LBound To BNumOfPlayers
+        For i = CByte(Me.chkAIPlayers.LBound) To BNumOfPlayers
             bAIPlayers(i) = Me.chkAIPlayers(i).Checked
         Next i
         Call frmMainForm.setPlayers(bAIPlayers)
 
         ' set player names
-        For i = Me.txtPlayerNames.LBound To BNumOfPlayers
+        For i = CByte(Me.txtPlayerNames.LBound) To BNumOfPlayers
             sPlayerNames(i) = Me.txtPlayerNames(i).Text
         Next
         Call frmMainForm.setPlayerNames(sPlayerNames)
 
         ' set board dimension (x=y)
-        Call frmMainForm.setBoardDimension(Me.numBoardDimension.Value - 1)
+        Call frmMainForm.setBoardDimension(CByte(Me.numBoardDimension.Value - 1))
 
         ' close formular
         frmMainForm.setRunGame(True)
@@ -72,14 +72,14 @@
     Private Sub optNumOfPlayers_CheckedChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles optNumOfPlayers.CheckedChanged
 
         ' dec
-        Dim i As Integer
-        Dim j As Integer
+        Dim i As Short
+        Dim j As Short
         Dim iPlayers As Byte
 
         ' disable / enable checkBox for setting human / AI players
         For i = Me.optNumOfPlayers.LBound To Me.optNumOfPlayers.UBound
             If Me.optNumOfPlayers(i).Checked Then
-                iPlayers = CInt(Me.optNumOfPlayers(i).Text)
+                iPlayers = CByte(Me.optNumOfPlayers(i).Text)
                 For j = Me.chkAIPlayers.UBound To iPlayers Step -1
                     Me.chkAIPlayers(j).Enabled = False
                     Me.txtPlayerNames(j).Enabled = False
@@ -95,7 +95,7 @@
     Private Sub chkAIPlayers_CheckedChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles chkAIPlayers.CheckedChanged
 
         ' dec
-        Dim i As Integer
+        Dim i As Short
         Dim sName(3) As String
 
         ' init

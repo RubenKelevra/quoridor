@@ -2,14 +2,14 @@
   <PropertyGroup>
     <ProjectType>Local</ProjectType>
     <MyType>WindowsForms</MyType>
-    <ProductVersion>9.0.21022</ProductVersion>
+    <ProductVersion>9.0.30729</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{26EF7F88-A54B-421D-BE7D-EA66E18E3460}</ProjectGuid>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <AssemblyName>quoridor</AssemblyName>
     <OutputType>WinExe</OutputType>
-    <StartupObject>quoridor.frmMainForm</StartupObject>
+    <StartupObject>quoridor.My.MyApplication</StartupObject>
     <AssemblyMajorVersion>0</AssemblyMajorVersion>
     <AssemblyMinorVersion>1</AssemblyMinorVersion>
     <AssemblyRevisionNumber>0</AssemblyRevisionNumber>
@@ -18,28 +18,42 @@
     <RootNamespace>quoridor</RootNamespace>
     <FileUpgradeFlags>
     </FileUpgradeFlags>
+    <OptionStrict>On</OptionStrict>
+    <OptionCompare>Text</OptionCompare>
+    <TargetFrameworkSubset>
+    </TargetFrameworkSubset>
+    <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
+    <ApplicationManifest>My Project\app.manifest</ApplicationManifest>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <OutputPath>.\bin\</OutputPath>
     <DocumentationFile>quoridor.xml</DocumentationFile>
     <DebugSymbols>True</DebugSymbols>
     <DefineDebug>True</DefineDebug>
-    <DefineTrace>True</DefineTrace>
+    <DefineTrace>false</DefineTrace>
     <DefineConstants>Win32=True</DefineConstants>
     <PlatformTarget>x86</PlatformTarget>
-    <NoWarn>42016,42017,42018,42019,42032</NoWarn>
+    <NoWarn>
+    </NoWarn>
     <DebugType>full</DebugType>
+    <WarningsAsErrors>41999,42016,42017,42018,42019,42020,42021,42022,42032,42036</WarningsAsErrors>
+    <RemoveIntegerChecks>true</RemoveIntegerChecks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <OutputPath>.\bin\</OutputPath>
     <DocumentationFile>quoridor.xml</DocumentationFile>
     <DebugSymbols>False</DebugSymbols>
     <DefineDebug>False</DefineDebug>
-    <DefineTrace>True</DefineTrace>
+    <DefineTrace>false</DefineTrace>
     <DefineConstants>Win32=True</DefineConstants>
     <PlatformTarget>x86</PlatformTarget>
-    <NoWarn>42016,42017,42018,42019,42032</NoWarn>
+    <NoWarn>
+    </NoWarn>
     <DebugType>none</DebugType>
+    <WarningsAsErrors>41999,42016,42017,42018,42019,42020,42021,42022,42032,42036</WarningsAsErrors>
+    <RemoveIntegerChecks>true</RemoveIntegerChecks>
+    <Optimize>true</Optimize>
+    <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Interop.CustomTypes, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL" />
@@ -74,13 +88,6 @@
       <VersionMinor>7</VersionMinor>
       <WrapperTool>primary</WrapperTool>
     </COMReference>
-    <COMReference Include="CustomTypes">
-      <Guid>{53247F67-D98D-4979-A6DD-810C9CE7BA35}</Guid>
-      <Lcid>0</Lcid>
-      <VersionMajor>1</VersionMajor>
-      <VersionMinor>0</VersionMinor>
-      <WrapperTool>tlbimp</WrapperTool>
-    </COMReference>
     <COMReference Include="Microsoft.StdFormat">
       <Guid>{6B263850-900B-11D0-9484-00A0C91110ED}</Guid>
       <Lcid>0</Lcid>
@@ -114,6 +121,7 @@
     <Import Include="System.Windows.Forms" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ApplicationEvents.vb" />
     <Compile Include="cls\clsMove.vb" />
     <Compile Include="cls\clsBrick.vb" />
     <Compile Include="frm\frmNewGame.Designer.vb">
@@ -123,13 +131,10 @@
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="misc\AssemblyInfo.vb" />
-    <Compile Include="cls\clsAI.vb">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="cls\clsBoard.vb">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="cls\clsBotEngine.vb">
+    <Compile Include="cls\clsAI.vb">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="cls\clsFibonacciHeap.vb">
@@ -151,6 +156,11 @@
     <Compile Include="mod\modCommonFunctions.vb">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="My Project\Application.Designer.vb">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Application.myapp</DependentUpon>
+    </Compile>
+    <Compile Include="My Project\AssemblyInfo.vb" />
     <Compile Include="My Project\Settings.Designer.vb">
       <AutoGen>True</AutoGen>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
@@ -171,6 +181,14 @@
       <CustomToolNamespace>My</CustomToolNamespace>
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.vb</LastGenOutput>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
+    <None Include="My Project\app.manifest" />
+    <None Include="My Project\Application.myapp">
+      <Generator>MyApplicationCodeGenerator</Generator>
+      <LastGenOutput>Application.Designer.vb</LastGenOutput>
     </None>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.VisualBasic.targets" />
