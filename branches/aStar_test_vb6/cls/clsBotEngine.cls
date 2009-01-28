@@ -19,7 +19,7 @@ Function Astar(startPoint() As Byte, targetDir As Byte) As Byte()
     Dim currentNode As HeapData
     ' Initialisierung der Open List, die Closed List ist noch leer
     ' (die Priorität bzw. der f Wert des Startknotens ist unerheblich)
-    openlist.insert startPoint, 0
+    Call openlist.insert(startPoint, 0)
     ' diese Schleife wird durchlaufen bis entweder
     ' - die optimale Lösung gefunden wurde oder
     ' - feststeht, dass keine Lösung existiert
@@ -27,13 +27,14 @@ Function Astar(startPoint() As Byte, targetDir As Byte) As Byte()
         ' Knoten mit dem geringsten f Wert aus der Open List entfernen
         currentNode = openlist.removeMin()
         ' wurde das Ziel gefunden?
-        if currentNode == zielknoten then
-            return PathFound
+        If currentNode = zielknoten Then
+            Astar = PathFound
+        End If
         ' Nachfolgeknoten auf die Open List setzen
         expandNode (currentNode)
         ' der aktuelle Knoten ist nun abschließend untersucht
-        closedlist.Add (currentNode)
-    While Not openlist.IsEmpty()
+        Call closedlist.Add(currentNode)
+    While Not openlist.isEmpty()
     ' die Open List ist leer, es existiert kein Pfad zum Ziel
     MsgBox "AI has occoured an unexpected error", vbCritical, "AI unexpected error"
 End Function
@@ -45,21 +46,25 @@ Function expandNode(currentNode)
     For Each successor In currentNode
         ' wenn der Nachfolgeknoten bereits auf der Closed List ist - tue nichts
         If closedlist.contains(successor) Then
-            continue
+            GoTo next_successor
+        End If
         ' f Wert für den neuen Weg berechnen: g Wert des Vorgängers plus die Kosten der
         ' gerade benutzten Kante plus die geschätzten Kosten von Nachfolger bis Ziel
-        f := g(currentNode) + c(currentNode, successor) + h(successor)
+        f = g(currentNode) + c(currentNode, successor) + h(successor)
         ' wenn der Nachfolgeknoten bereits auf der Open List ist,
         ' aber der neue Weg länger ist als der alte - tue nichts
         If openlist.contains(successor) And f > openlist.find(successor).f Then
-            continue
+            GoTo next_successor
+        End If
         ' Vorgängerzeiger setzen
-        successor.predecessor := currentNode
+        successor.predecessor = currentNode
         ' f Wert des Knotens in der Open List aktualisieren
         ' bzw. Knoten mit f Wert in die Open List einfügen
         If openlist.contains(successor) Then
-            openlist.decreaseKey(successor, f)
+            Call openlist.decreaseKey(successor, f)
         Else
-            openlist.enqueue(successor, f)
+            Call openlist.enqueue(successor, f)
+        End If
+next_successor:
     End
 End
