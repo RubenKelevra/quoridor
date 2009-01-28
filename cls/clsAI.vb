@@ -18,7 +18,8 @@ Friend Class clsAI
 	'
 	' You should have received a copy of the GNU General Public License along
 	' with this program; if not, see <http://www.gnu.org/licenses/>.
-	
+
+    Private board As clsBoard
     Private Blocker() As clsBrick
     Private PlayerPos() As Point
 	Private SelfPlayerNo As Byte
