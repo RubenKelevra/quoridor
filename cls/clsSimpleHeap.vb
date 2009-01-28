@@ -4,7 +4,7 @@ Imports VB = Microsoft.VisualBasic
 Friend Class clsSimpleHeap
 	
 	'this is the very basic heap implementation with dynamical allocation and
-	'emulated pointer for using in clsFibonacciHeap with Datatypes for DStar-Algorithm
+    'emulated pointer for using in clsFibonacciHeap with Datatypes for AStar-Algorithm
 	
 	' cls/clsSimpleHeap.cls - Part of Quoridor http://code.google.com/p/quoridor/
 	'
@@ -45,23 +45,14 @@ Friend Class clsSimpleHeap
 		'costs to get to this position
 		Dim BValue As Byte
 		'position
-		<VBFixedArray(1)> Dim BPos() As Byte
-		
-		'UPGRADE_TODO: Zum Initialisieren der Instanzen dieser Struktur muss "Initialize" aufgerufen werden. Klicken Sie hier für weitere Informationen: 'ms-help://MS.VSCC.v90/dv_commoner/local/redirect.htm?keyword="B4BFF9E0-8631-45CF-910E-62AB3970F27B"'
-		Public Sub Initialize()
-			ReDim BPos(1)
-		End Sub
+        Dim BPosX As Byte
+        Dim BPosY As Byte
 	End Structure
 	
 	Private Structure List
 		Dim Used As Boolean
 		Dim Handle As Boolean
 		Dim Data As ListData
-		
-		'UPGRADE_TODO: Zum Initialisieren der Instanzen dieser Struktur muss "Initialize" aufgerufen werden. Klicken Sie hier für weitere Informationen: 'ms-help://MS.VSCC.v90/dv_commoner/local/redirect.htm?keyword="B4BFF9E0-8631-45CF-910E-62AB3970F27B"'
-		Public Sub Initialize()
-			Data.Initialize()
-		End Sub
 	End Structure
 	
 	' our heap of dataentries
@@ -83,31 +74,24 @@ Friend Class clsSimpleHeap
 	'only works probably with defrag() but this require an unmapping of all handles to defrag all entries
 	Private bAutoDecrease As Boolean
 	'temporary value to save the last entry of used entries while defraging
-	Private DefragTempIndex As Short
+    Private DefragTempIndex As Short
+    'sets 
+    Private ElementsInList As Short
 	Private i As Short
 	
 	Public Sub clear()
-		Dim Heap As Object
-		Dim ListSize As Object
-		Dim i As Object
-		' clear
-		' set all used values to false
-		'UPGRADE_WARNING: Die Standardeigenschaft des Objekts ListSize konnte nicht aufgelöst werden. Klicken Sie hier für weitere Informationen: 'ms-help://MS.VSCC.v90/dv_commoner/local/redirect.htm?keyword="6A50421D-15FE-4896-8A1B-2EC21E9037B2"'
-		For i = 1 To ListSize
-			'UPGRADE_WARNING: Die Standardeigenschaft des Objekts Heap().Used konnte nicht aufgelöst werden. Klicken Sie hier für weitere Informationen: 'ms-help://MS.VSCC.v90/dv_commoner/local/redirect.htm?keyword="6A50421D-15FE-4896-8A1B-2EC21E9037B2"'
-			Heap(i).Used = False
-            'ElementsInList =
-			'UPGRADE_ISSUE: Die vorherige Zeile konnte nicht analysiert werden. Klicken Sie hier für weitere Informationen: 'ms-help://MS.VSCC.v90/dv_commoner/local/redirect.htm?keyword="82EBB1AE-1FCB-4FEF-9E6C-8736A316F8A7"'
-			'UPGRADE_WARNING: Die Standardeigenschaft des Objekts Heap().Handle konnte nicht aufgelöst werden. Klicken Sie hier für weitere Informationen: 'ms-help://MS.VSCC.v90/dv_commoner/local/redirect.htm?keyword="6A50421D-15FE-4896-8A1B-2EC21E9037B2"'
-			Heap(i).Handle = False
-		Next i
-	End Sub
+        ' clear
+        ' set all used values to false
+        For i = 0 To ListSize
+            Heap(i).Used = False
+            Heap(i).Handle = False
+        Next i
+    End Sub
 	
 	Public Function getNoOfItems() As Short
 		Dim ElementsInList As Object
 		' getNoOfItems
 		' - returns the number of currently inserted items
-		'UPGRADE_WARNING: Die Standardeigenschaft des Objekts ElementsInList konnte nicht aufgelöst werden. Klicken Sie hier für weitere Informationen: 'ms-help://MS.VSCC.v90/dv_commoner/local/redirect.htm?keyword="6A50421D-15FE-4896-8A1B-2EC21E9037B2"'
 		getNoOfItems = ElementsInList
 	End Function
 	
