@@ -184,6 +184,7 @@
         '
         Me.cmdCancelBrick.BackColor = System.Drawing.SystemColors.Control
         Me.cmdCancelBrick.Cursor = System.Windows.Forms.Cursors.Default
+        Me.cmdCancelBrick.Enabled = False
         Me.cmdCancelBrick.ForeColor = System.Drawing.SystemColors.ControlText
         Me.cmdCancelBrick.Location = New System.Drawing.Point(8, 96)
         Me.cmdCancelBrick.Name = "cmdCancelBrick"
