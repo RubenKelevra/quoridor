@@ -1,4 +1,4 @@
-Option Strict On
+Option Strict Off
 Option Explicit On
 Imports VB = Microsoft.VisualBasic
 Friend Class clsBoard
@@ -42,7 +42,7 @@ Friend Class clsBoard
         ' - returns the player number if a player is on the position, else 255
         Dim i As Byte
         getPlayerForLocation = 255 'if no player found return 255
-        For i = LBound(Players) To UBound(Players)
+        For i = CByte(LBound(Players)) To CByte(UBound(Players))
             If comparePos(pos, Players(i).getLocation) Then
                 getPlayerForLocation = i
                 Exit Function

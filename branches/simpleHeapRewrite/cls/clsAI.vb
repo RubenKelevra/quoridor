@@ -1,5 +1,7 @@
-Option Strict On
+Option Strict Off
 Option Explicit On
+Imports VB = Microsoft.VisualBasic
+
 Friend Class clsAI
 	
 	' cls/clsAI.cls - Part of Quoridor http://code.google.com/p/quoridor/
