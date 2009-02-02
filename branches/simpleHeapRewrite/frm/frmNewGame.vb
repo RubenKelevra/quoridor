@@ -1,4 +1,7 @@
-﻿Public Class frmNewGame
+﻿Option Strict On
+Option Explicit On
+
+Public Class frmNewGame
 
     ' frm/frmMainForm.frm - Part of Quoridor http://code.google.com/p/quoridor/
     '

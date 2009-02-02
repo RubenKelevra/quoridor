@@ -1,4 +1,4 @@
-Option Strict Off
+Option Strict On
 Option Explicit On
 Imports Microsoft.VisualBasic.PowerPacks
 Friend Class frmMainForm
