@@ -33,7 +33,7 @@ Module modCommonFunctions
 		End If
 	End Function
 
-    Public Function isDim(ByRef Arr As VariantType) As Boolean
+    Public Function isDim(ByRef Arr As Object) As Boolean
         On Error GoTo isdim_error
         If LBound(Arr) <> -1 Then
             Return True
