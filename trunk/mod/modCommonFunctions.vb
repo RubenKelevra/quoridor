@@ -32,7 +32,17 @@ Module modCommonFunctions
 			checkPos = True
 		End If
 	End Function
-	
+
+    Public Function isDim(ByRef Arr As VariantType) As Boolean
+        On Error GoTo isdim_error
+        If LBound(Arr) <> -1 Then
+            Return True
+        End If
+isdim_error:
+        On Error GoTo 0
+        Return False
+
+    End Function
 	
 	Function getNextPlayer(ByRef activePlayer As Object, ByRef PlayerNo As Object) As Byte
 		'UPGRADE_WARNING: Die Standardeigenschaft des Objekts activePlayer konnte nicht aufgelöst werden. Klicken Sie hier für weitere Informationen: 'ms-help://MS.VSCC.v90/dv_commoner/local/redirect.htm?keyword="6A50421D-15FE-4896-8A1B-2EC21E9037B2"'
