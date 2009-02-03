@@ -1,4 +1,4 @@
-Option Strict Off
+Option Strict On
 Option Explicit On
 Imports VB = Microsoft.VisualBasic
 Friend Class clsPlayer
@@ -20,7 +20,7 @@ Friend Class clsPlayer
 	' You should have received a copy of the GNU General Public License along
 	' with this program; if not, see <http://www.gnu.org/licenses/>.
 	
-    Private Location As Point
+    Private Location As Position
 	Private Name As String
 	Private Playtime As Integer 'per round
 	Private GlobalPlaytime As Integer 'per round playtime added at the end of a round
@@ -45,12 +45,12 @@ Friend Class clsPlayer
         '1 = is already under AI control
         '2 = is a network player which may have open network
         '    connections, stop networking  first
-        If getType_Renamed() = 0 Then
+        If getPlayerType() = 0 Then
             setType(1)
             startAI = 0
-        ElseIf getType_Renamed() = 1 Then
+        ElseIf getPlayerType() = 1 Then
             startAI = 1
-        ElseIf getType_Renamed() >= 2 Then
+        ElseIf getPlayerType() >= 2 Then
             startAI = 2
         End If
 
@@ -80,33 +80,25 @@ Friend Class clsPlayer
         getTarget = TargetWall
     End Function
 
-    'UPGRADE_NOTE: getType wurde aktualisiert auf getType_Renamed. Klicken Sie hier für weitere Informationen: 'ms-help://MS.VSCC.v90/dv_commoner/local/redirect.htm?keyword="A9E4979A-37FA-4718-9994-97DD76ED70A7"'
-    Function getType_Renamed() As Byte
-        getType_Renamed = TypeOfPlayer
+    Function getPlayerType() As Byte
+        getPlayerType = TypeOfPlayer
     End Function
 
-
-    'UPGRADE_NOTE: dir wurde aktualisiert auf dir_Renamed. Klicken Sie hier für weitere Informationen: 'ms-help://MS.VSCC.v90/dv_commoner/local/redirect.htm?keyword="A9E4979A-37FA-4718-9994-97DD76ED70A7"'
-    Function Move(ByRef dir_Renamed As Byte) As Boolean
-        Select Case dir_Renamed
+    Function Move(ByRef direction As Byte) As Boolean
+        Select Case direction
             Case 0 'to bottom
-                'UPGRADE_WARNING: Die Standardeigenschaft des Objekts Switch() konnte nicht aufgelöst werden. Klicken Sie hier für weitere Informationen: 'ms-help://MS.VSCC.v90/dv_commoner/local/redirect.htm?keyword="6A50421D-15FE-4896-8A1B-2EC21E9037B2"'
-                Location.Y = VB.Switch(Location.Y + 1 <= 255, Location.Y + 1, True, 255)
+                Location.Y = CByte(VB.Switch(Location.Y + 1 <= 255, Location.Y + 1, True, 255))
             Case 1 'to right
-                'UPGRADE_WARNING: Die Standardeigenschaft des Objekts Switch() konnte nicht aufgelöst werden. Klicken Sie hier für weitere Informationen: 'ms-help://MS.VSCC.v90/dv_commoner/local/redirect.htm?keyword="6A50421D-15FE-4896-8A1B-2EC21E9037B2"'
-                Location.X = VB.Switch(Location.X + 1 <= 255, Location.X + 1, True, 255)
+                Location.X = CByte(VB.Switch(Location.X + 1 <= 255, Location.X + 1, True, 255))
             Case 2
-                'UPGRADE_WARNING: Die Standardeigenschaft des Objekts Switch() konnte nicht aufgelöst werden. Klicken Sie hier für weitere Informationen: 'ms-help://MS.VSCC.v90/dv_commoner/local/redirect.htm?keyword="6A50421D-15FE-4896-8A1B-2EC21E9037B2"'
-                Location.Y = VB.Switch(Location.Y - 1 >= 0, Location.Y - 1, True, 0)
+                Location.Y = CByte(VB.Switch(Location.Y - 1 >= 0, Location.Y - 1, True, 0))
             Case 3
-                'UPGRADE_WARNING: Die Standardeigenschaft des Objekts Switch() konnte nicht aufgelöst werden. Klicken Sie hier für weitere Informationen: 'ms-help://MS.VSCC.v90/dv_commoner/local/redirect.htm?keyword="6A50421D-15FE-4896-8A1B-2EC21E9037B2"'
-                Location.X = VB.Switch(Location.X - 1 >= 0, Location.X - 1, True, 0)
+                Location.X = CByte(VB.Switch(Location.X - 1 >= 0, Location.X - 1, True, 0))
         End Select
-        'UPGRADE_WARNING: Die Standardeigenschaft des Objekts Switch() konnte nicht aufgelöst werden. Klicken Sie hier für weitere Informationen: 'ms-help://MS.VSCC.v90/dv_commoner/local/redirect.htm?keyword="6A50421D-15FE-4896-8A1B-2EC21E9037B2"'
-        Move = VB.Switch(0 <= dir_Renamed And dir_Renamed <= 3, True, True, False)
+        Move = CBool(VB.Switch(0 <= direction And direction <= 3, True, True, False))
     End Function
 
-    Function getLocation() As Point
+    Function getLocation() As Position
         getLocation = Location
     End Function
 
@@ -131,7 +123,7 @@ Friend Class clsPlayer
 
     Function subtractStone() As Boolean
         If RemainingStones > 0 Then
-            RemainingStones = RemainingStones - 1
+            RemainingStones = CByte(RemainingStones - 1)
             subtractStone = True
         Else
             subtractStone = False
@@ -145,7 +137,7 @@ Friend Class clsPlayer
         Location.Y = y
 
         TypeOfPlayer = 0
-        RemainingStones = Stones + 1
+        RemainingStones = CByte(Stones + 1)
         Playtime = 0
         TargetWall = target
     End Sub
