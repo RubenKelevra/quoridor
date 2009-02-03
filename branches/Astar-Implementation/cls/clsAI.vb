@@ -21,10 +21,78 @@ Friend Class clsAI
 	' You should have received a copy of the GNU General Public License along
 	' with this program; if not, see <http://www.gnu.org/licenses/>.
 
-    Private GameBoard As clsBoard
-    Private SelfPlayerNo As Byte
+    Protected Friend mBoard As clsBoard
+    Private mBSelfPlayerNo As Byte
+    Private mbFullPlayer As Boolean
+    Private mNodeList() As clsSimpleHeap
+    Private mBrickMatrix(,,) As Byte
+    Private mBNoOfMatrices As Byte
 
-    Public Sub New(ByRef Board As clsBoard)
-        GameBoard = Board
+    Private B As Byte
+    Private B1 As Byte
+    Private ui As UInteger
+    Private ui1 As UInteger
+
+    Private Sub updateBrickInformation(Optional ByVal bFirstRun As Boolean = False)
+        Static BNextBrickIndex As Byte 'next index which may be used, on last run
+
+        If Not isDim(mNodeList) Then
+            Exit Sub
+        End If
+
+        If bFirstRun Then
+            If mbFullPlayer Then
+                mBNoOfMatrices = mBoard.getNoOfPlayer
+            Else
+                mBNoOfMatrices = 0
+            End If
+            ReDim mBrickMatrix(mBNoOfMatrices, mBoard.getDimension, mBoard.getDimension)
+        Else
+
+        End If
+
+        If Not mbFullPlayer Then
+            'this KI is only for testing if any path is possible to reach target
+            'so we don't need to add a complex raiting to our matrix
+            For ui = 0 To mBoard.getDimension
+                For ui1 = 0 To mBoard.getDimension
+                    mBrickMatrix(0, ui, ui1) = 10
+                Next
+            Next
+            Exit Sub
+        End If
+
+        For B = BNextBrickIndex To UBound(mBoard.Blocker) - LBound(mBoard.Blocker)
+            With mBoard.Blocker(B)
+                If Not .Placed Then
+                    BNextBrickIndex = B
+                    Exit For
+                End If
+                'write raitings in the matrices
+                For B1 = 0 To mBNoOfMatrices
+
+                Next
+            End With
+        Next
+
+    End Sub
+
+    Public Sub New(ByRef Board As clsBoard, ByVal bFullPlayer As Boolean)
+        mBoard = Board
+        mbFullPlayer = bFullPlayer
+
+        'do init space for our open and close list
+        If bFullPlayer Then
+            ReDim mNodeList(Board.getNoOfPlayer)
+        Else
+            ReDim mNodeList(0)
+        End If
+        'init nodelist
+        For B = 0 To UBound(mNodeList) - LBound(mNodeList)
+            mNodeList(B) = New clsSimpleHeap
+            mNodeList(B).init()
+        Next
+
+        updateBrickInformation(True)
     End Sub
 End Class

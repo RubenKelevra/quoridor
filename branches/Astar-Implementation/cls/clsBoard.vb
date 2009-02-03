@@ -21,22 +21,22 @@ Friend Class clsBoard
 	' with this program; if not, see <http://www.gnu.org/licenses/>.
 	
 	'figures
-	Private NoOfPlayer As Byte
-	Private NoOfBricks As Byte 'per player
-	Private Players() As clsPlayer
-    Private Blocker() As clsBrick
-	Private Dimensions As Byte
-	Private activePlayer As Byte
+    Protected Friend NoOfPlayer As Byte
+    Protected Friend NoOfBricks As Byte 'per player
+    Protected Friend Players() As clsPlayer
+    Protected Friend Blocker() As clsBrick
+    Protected Friend Dimensions As Byte
+    Protected Friend activePlayer As Byte
 	
-	Function getPlayerType(ByRef Player As Byte) As Byte
-		' getPlayerType As Byte
-		' get the type of player
-		' - [IN] Player As Byte: player number which should be asked
-		' - returns the type of player, see clsPlayer.setType()
-		getPlayerType = Players(Player).getType_Renamed()
-	End Function
+    Public Function getPlayerType(ByRef Player As Byte) As Byte
+        ' getPlayerType As Byte
+        ' get the type of player
+        ' - [IN] Player As Byte: player number which should be asked
+        ' - returns the type of player, see clsPlayer.setType()
+        getPlayerType = Players(Player).getType_Renamed()
+    End Function
 	
-    Function getPlayerForLocation(ByRef pos As Point) As Byte
+    Public Function getPlayerForLocation(ByRef pos As Point) As Byte
         ' getPlayerForLocation As Byte
         ' - [IN] pos as Position: defines the position which should be checked
         ' - returns the player number if a player is on the position, else 255
@@ -50,7 +50,7 @@ Friend Class clsBoard
         Next i
     End Function
 	
-    Function checkMove(ByRef pos As Point, ByVal dir_Renamed As Byte) As Boolean
+    Public Function checkMove(ByRef pos As Point, ByVal dir_Renamed As Byte) As Boolean
         ' checkMove As Boolean
         ' checks for possibility to move to given direction
         ' - [IN] ByRef pos As Position: defines position
@@ -100,19 +100,19 @@ fEnd:
     End Function
 	
 	'UPGRADE_NOTE: dir wurde aktualisiert auf dir_Renamed. Klicken Sie hier für weitere Informationen: 'ms-help://MS.VSCC.v90/dv_commoner/local/redirect.htm?keyword="A9E4979A-37FA-4718-9994-97DD76ED70A7"'
-	Function movePlayer(ByRef i As Byte, ByRef dir_Renamed As Byte) As Boolean
-		If checkMove(Players(i).getLocation, dir_Renamed) Then
-			movePlayer = Players(i).Move(dir_Renamed)
-		Else
-			movePlayer = False
-		End If
-	End Function
+    Public Function movePlayer(ByRef i As Byte, ByRef dir_Renamed As Byte) As Boolean
+        If checkMove(Players(i).getLocation, dir_Renamed) Then
+            movePlayer = Players(i).Move(dir_Renamed)
+        Else
+            movePlayer = False
+        End If
+    End Function
 	
-    Function getWalls() As clsBrick()
+    Public Function getWalls() As clsBrick()
         getWalls = VB6.CopyArray(Blocker)
     End Function
 	
-    Function saveWall(ByRef Br As clsBrick, ByRef Player As Byte) As Short
+    Public Function saveWall(ByRef Br As clsBrick, ByRef Player As Byte) As Short
         'returnvalues
         '0 = ok
         '1 = player have no blockers left
@@ -153,26 +153,7 @@ fEnd:
     End Function
 	
     '    Function getPlayerColor(ByRef i As Byte) As Integer
-    Function getPlayerColor(ByRef i As Byte) As System.Drawing.Color
-        'Select Case i
-        '    Case 0
-        '        getPlayerColor = System.Drawing.ColorTranslator.ToOle(System.Drawing.Color.Blue)
-        '    Case 1
-        '        If NoOfPlayer = 3 Then '4 player game
-        '            getPlayerColor = System.Drawing.ColorTranslator.ToOle(System.Drawing.Color.Lime)
-        '        Else
-        '            getPlayerColor = System.Drawing.ColorTranslator.ToOle(System.Drawing.Color.Red)
-        '        End If
-        '    Case 2
-        '        If NoOfPlayer = 3 Then '4 player game
-        '            getPlayerColor = System.Drawing.ColorTranslator.ToOle(System.Drawing.Color.Red)
-        '        Else
-        '            getPlayerColor = System.Drawing.ColorTranslator.ToOle(System.Drawing.Color.Lime)
-        '        End If
-        '    Case 3
-        '        getPlayerColor = System.Drawing.ColorTranslator.ToOle(System.Drawing.Color.Yellow)
-        'End Select
-
+    Public Function getPlayerColor(ByRef i As Byte) As System.Drawing.Color
         Select Case i
             Case 0
                 getPlayerColor = System.Drawing.Color.Blue
@@ -194,11 +175,11 @@ fEnd:
 
     End Function
 
-    Function getDimension() As Byte
+    Public Function getDimension() As Byte
         getDimension = Dimensions
     End Function
 
-    Function getPlayerLocation(ByRef i As Byte) As Point
+    Public Function getPlayerLocation(ByRef i As Byte) As Point
         On Error GoTo OutOfIndex
         getPlayerLocation = Players(i).getLocation
         Exit Function
@@ -206,34 +187,35 @@ OutOfIndex:
         getPlayerLocation = xy2pos(255, 255)
     End Function
 
-    Function getActivePlayer() As Byte
+    Public Function getActivePlayer() As Byte
         getActivePlayer = activePlayer
     End Function
 
-    Private Function getPlayerMove() As clsMove
-        'function will ask networkhandler or AI for move direction
-        getPlayerMove = Players(activePlayer).getMove
-    End Function
+    'FIXME: was written for old ki implementation, maybe usefull for network handler
+    'Private Function getPlayerMove() As clsMove
+    'function will ask networkhandler or AI for move direction
+    '    getPlayerMove = Players(activePlayer).getMove
+    'End Function
 
-    Sub doPlayerMove()
-        Dim PlayerMove As clsMove
+    Public Sub doPlayerMove()
+        'Dim PlayerMove As clsMove
         If getPlayerType(activePlayer) = 1 Then 'player is AI controlled
-            PlayerMove = getPlayerMove() 'start calculations
+            'PlayerMove = getPlayerMove() 'start calculations
 
-            If PlayerMove.ErrorCode <> 0 Then
-                Exit Sub
-            End If
-            If PlayerMove.FigureMove = True Then
-                movePlayer(activePlayer, (PlayerMove.MoveDirection))
-            Else
-                'saveWall
-            End If
+            'If PlayerMove.ErrorCode <> 0 Then
+            '    Exit Sub
+            'End If
+            'If PlayerMove.FigureMove = True Then
+            '    movePlayer(activePlayer, (PlayerMove.MoveDirection))
+            'Else
+            '    'saveWall
+            'End If
         ElseIf getPlayerType(activePlayer) < 1 Then
             'networkhandler
         End If
     End Sub
 
-    Function NextTurn() As Boolean
+    Public Function NextTurn() As Boolean
         activePlayer = getNextPlayer(activePlayer, NoOfPlayer)
         If getPlayerType(activePlayer) > 0 Then 'player is AI or network controlled
             NextTurn = True
@@ -242,8 +224,7 @@ OutOfIndex:
         End If
     End Function
 
-    Function checkFrontWall(ByRef pos As Point, ByRef direction As Byte) As Boolean
-        'rev 86
+    Public Function checkFrontWall(ByRef pos As Point, ByRef direction As Byte) As Boolean
         'if true there are a wall in front of the position and with this direction
         Dim stone As clsBrick
         Dim i As Byte
