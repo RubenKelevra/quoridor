@@ -536,8 +536,8 @@ Friend Class frmMainForm
         Dim x As Byte
         Dim y As Byte
         Dim colorPen As System.Drawing.Color 'System.Drawing.Brush
-        Dim curLocation As Point
-        Dim playerLocation() As Point
+        Dim curLocation As Position
+        Dim playerLocation() As Position
         Dim PfCurPosition As PointF
         Dim rect(,) As RectangleF
 
@@ -567,7 +567,7 @@ Friend Class frmMainForm
                 ' check current position with the position of all players
                 For i = LBound(playerLocation) To UBound(playerLocation)
 
-                    curLocation = xy2pos(x, y)
+                    curLocation = xy2position(x, y)
 
                     If comparePos(curLocation, playerLocation(i)) Then
 
@@ -633,14 +633,14 @@ Friend Class frmMainForm
                 For i = LBound(mySavedBricks) To UBound(mySavedBricks)
 
                     ' if brick is not set
-                    If mySavedBricks(i).Placed = False Or comparePos(xy2pos(255, 255), mySavedBricks(i).Position) Then
+                    If mySavedBricks(i).Placed = False Or comparePos(xy2position(255, 255), mySavedBricks(i).Position) Then
 
                         Exit For
 
                     End If
 
                     ' saved brick
-                    If mySavedBricks(i).Horizontal And (comparePos(xy2pos(x, y), mySavedBricks(i).Position) Or comparePos(xy2pos(x, y), xy2pos(mySavedBricks(i).Position.X + 1, mySavedBricks(i).Position.Y))) Then
+                    If mySavedBricks(i).Horizontal And (comparePos(xy2position(x, y), mySavedBricks(i).Position) Or comparePos(xy2position(x, y), xy2position(mySavedBricks(i).Position.X + 1, mySavedBricks(i).Position.Y))) Then
 
                         cCurColor = Color.DarkOrange
 
@@ -648,7 +648,7 @@ Friend Class frmMainForm
 
                 Next i
 
-                If tTempBrick.Placed And tTempBrick.Horizontal And (comparePos(xy2pos(x, y), tTempBrick.Position) Or (comparePos(xy2pos(x, y), xy2pos(tTempBrick.Position.X + 1, tTempBrick.Position.Y)))) Then
+                If tTempBrick.Placed And tTempBrick.Horizontal And (comparePos(xy2position(x, y), tTempBrick.Position) Or (comparePos(xy2position(x, y), xy2position(tTempBrick.Position.X + 1, tTempBrick.Position.Y)))) Then
 
                     cCurColor = Color.CornflowerBlue
 
@@ -708,14 +708,14 @@ Friend Class frmMainForm
                 For i = LBound(mySavedBricks) To UBound(mySavedBricks)
 
                     ' if brick is not set
-                    If mySavedBricks(i).Placed = False Or comparePos(xy2pos(255, 255), mySavedBricks(i).Position) Then
+                    If mySavedBricks(i).Placed = False Or comparePos(xy2position(255, 255), mySavedBricks(i).Position) Then
 
                         Exit For
 
                     End If
 
                     ' saved brick
-                    If Not mySavedBricks(i).Horizontal And (comparePos(xy2pos(x, y), mySavedBricks(i).Position) Or comparePos(xy2pos(x, y), xy2pos(mySavedBricks(i).Position.X, mySavedBricks(i).Position.Y + 1))) Then
+                    If Not mySavedBricks(i).Horizontal And (comparePos(xy2position(x, y), mySavedBricks(i).Position) Or comparePos(xy2position(x, y), xy2position(mySavedBricks(i).Position.X, mySavedBricks(i).Position.Y + 1))) Then
 
                         cCurColor = Color.DarkOrange
 
@@ -723,7 +723,7 @@ Friend Class frmMainForm
 
                 Next i
 
-                If tTempBrick.Placed And Not tTempBrick.Horizontal And (comparePos(xy2pos(x, y), tTempBrick.Position) Or (comparePos(xy2pos(x, y), xy2pos(tTempBrick.Position.X, tTempBrick.Position.Y + 1)))) Then
+                If tTempBrick.Placed And Not tTempBrick.Horizontal And (comparePos(xy2position(x, y), tTempBrick.Position) Or (comparePos(xy2position(x, y), xy2position(tTempBrick.Position.X, tTempBrick.Position.Y + 1)))) Then
 
                     cCurColor = Color.CornflowerBlue
 

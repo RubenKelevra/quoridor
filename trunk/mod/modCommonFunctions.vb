@@ -1,4 +1,4 @@
-Option Strict Off
+Option Strict Off 'FIXME: can't be switched on cause of a bug in isDim()
 Option Explicit On
 Imports VB = Microsoft.VisualBasic
 Module modCommonFunctions
@@ -21,9 +21,8 @@ Module modCommonFunctions
 	' with this program; if not, see <http://www.gnu.org/licenses/>.
 	
 	Function getNoOfWalls(ByRef NoOfPlayer As Byte) As Byte
-		'UPGRADE_WARNING: Die Standardeigenschaft des Objekts Switch() konnte nicht aufgelöst werden. Klicken Sie hier für weitere Informationen: 'ms-help://MS.VSCC.v90/dv_commoner/local/redirect.htm?keyword="6A50421D-15FE-4896-8A1B-2EC21E9037B2"'
-		getNoOfWalls = VB.Switch(NoOfPlayer > 0, 20 / (NoOfPlayer + 1) - 1, True, 0)
-	End Function
+        getNoOfWalls = CByte(VB.Switch(NoOfPlayer > 0, 20 / (NoOfPlayer + 1) - 1, True, 0))
+    End Function
 	
 	Function checkPos(ByRef newX As Short, ByRef newY As Short, ByRef maxXY As Byte) As Boolean
 		If newX < 0 Or newY < 0 Or newX > maxXY Or newY > maxXY Then
@@ -44,28 +43,21 @@ isdim_error:
 
     End Function
 	
-	Function getNextPlayer(ByRef activePlayer As Object, ByRef PlayerNo As Object) As Byte
-		'UPGRADE_WARNING: Die Standardeigenschaft des Objekts activePlayer konnte nicht aufgelöst werden. Klicken Sie hier für weitere Informationen: 'ms-help://MS.VSCC.v90/dv_commoner/local/redirect.htm?keyword="6A50421D-15FE-4896-8A1B-2EC21E9037B2"'
-		'UPGRADE_WARNING: Die Standardeigenschaft des Objekts PlayerNo konnte nicht aufgelöst werden. Klicken Sie hier für weitere Informationen: 'ms-help://MS.VSCC.v90/dv_commoner/local/redirect.htm?keyword="6A50421D-15FE-4896-8A1B-2EC21E9037B2"'
-		'UPGRADE_WARNING: Die Standardeigenschaft des Objekts Switch() konnte nicht aufgelöst werden. Klicken Sie hier für weitere Informationen: 'ms-help://MS.VSCC.v90/dv_commoner/local/redirect.htm?keyword="6A50421D-15FE-4896-8A1B-2EC21E9037B2"'
-		getNextPlayer = VB.Switch(activePlayer < PlayerNo, activePlayer + 1, True, 0)
-	End Function
-	
-	Function flipDir(ByRef i As Byte) As Byte
-		'UPGRADE_WARNING: Die Standardeigenschaft des Objekts Switch() konnte nicht aufgelöst werden. Klicken Sie hier für weitere Informationen: 'ms-help://MS.VSCC.v90/dv_commoner/local/redirect.htm?keyword="6A50421D-15FE-4896-8A1B-2EC21E9037B2"'
-		flipDir = VB.Switch(i = 0, 2, i = 1, 3, i = 2, 0, i = 3, 1, True, 255)
-	End Function
-	
-    Function xy2pos(ByVal x As Byte, ByVal y As Byte) As Point
-        'convert two values to position-type, saves usualy one line
-        Dim returnvalue As Point
-        returnvalue.X = x
-        returnvalue.Y = y
-
-        xy2pos = returnvalue
+    Function getNextPlayer(ByVal activePlayer As Byte, ByVal PlayerNo As Byte) As Byte
+        getNextPlayer = CByte(VB.Switch(activePlayer < PlayerNo, activePlayer + 1, True, 0))
     End Function
 	
-    Function comparePos(ByRef pos1 As Point, ByRef pos2 As Point) As Boolean
+	Function flipDir(ByRef i As Byte) As Byte
+        flipDir = CByte(VB.Switch(i = 0, 2, i = 1, 3, i = 2, 0, i = 3, 1, True, 255))
+    End Function
+	
+    Function xy2position(ByVal x As Byte, ByVal y As Byte) As Position
+        'convert two values to position-type, saves usualy one lin
+        xy2position.X = x
+        xy2position.Y = y
+    End Function
+	
+    Function comparePos(ByRef pos1 As Position, ByRef pos2 As Position) As Boolean
         If (pos1.X = pos2.X And pos1.Y = pos2.Y) Then
             comparePos = True
         Else
@@ -86,50 +78,46 @@ isdim_error:
 			shift2dir = 255
 		End If
 	End Function
-	
-	'UPGRADE_NOTE: dir wurde aktualisiert auf dir_Renamed. Klicken Sie hier für weitere Informationen: 'ms-help://MS.VSCC.v90/dv_commoner/local/redirect.htm?keyword="A9E4979A-37FA-4718-9994-97DD76ED70A7"'
-	Function dirXshift(ByRef dir_Renamed As Object) As Short
-		Select Case dir_Renamed
-			Case 0 'to bottom
-				dirXshift = 0
-			Case 1 'to right
-				dirXshift = 1
-			Case 2 'to top
-				dirXshift = 0
-			Case 3 'to left
-				dirXshift = -1
-		End Select
-		'UPGRADE_WARNING: Die Standardeigenschaft des Objekts dir_Renamed konnte nicht aufgelöst werden. Klicken Sie hier für weitere Informationen: 'ms-help://MS.VSCC.v90/dv_commoner/local/redirect.htm?keyword="6A50421D-15FE-4896-8A1B-2EC21E9037B2"'
-		If Not (0 <= dir_Renamed And dir_Renamed <= 3) Then
-			dirXshift = 255
-		End If
-	End Function
+
+    Function dirXshift(ByRef direction As Byte) As Short
+        Select Case direction
+            Case 0 'to bottom
+                dirXshift = 0
+            Case 1 'to right
+                dirXshift = 1
+            Case 2 'to top
+                dirXshift = 0
+            Case 3 'to left
+                dirXshift = -1
+        End Select
+        If Not (0 <= direction And direction <= 3) Then
+            dirXshift = 255
+        End If
+    End Function
 	
 	Function Player2Target(ByRef i As Byte, ByRef NoOfPlayer As Byte) As Byte
 		If NoOfPlayer = 3 Then
-			'UPGRADE_WARNING: Die Standardeigenschaft des Objekts Switch() konnte nicht aufgelöst werden. Klicken Sie hier für weitere Informationen: 'ms-help://MS.VSCC.v90/dv_commoner/local/redirect.htm?keyword="6A50421D-15FE-4896-8A1B-2EC21E9037B2"'
-			Player2Target = VB.Switch(i = 0, 0, i = 1, 3, i = 2, 2, i = 3, 1, True, 255)
-		Else
-			'UPGRADE_WARNING: Die Standardeigenschaft des Objekts Switch() konnte nicht aufgelöst werden. Klicken Sie hier für weitere Informationen: 'ms-help://MS.VSCC.v90/dv_commoner/local/redirect.htm?keyword="6A50421D-15FE-4896-8A1B-2EC21E9037B2"'
-			Player2Target = VB.Switch(i = 0, 0, i = 1, 2, True, 255)
-		End If
+            Player2Target = CByte(VB.Switch(i = 0, 0, i = 1, 3, i = 2, 2, i = 3, 1, True, 255))
+        Else
+            Player2Target = CByte(VB.Switch(i = 0, 0, i = 1, 2, True, 255))
+        End If
 	End Function
 	
-	'UPGRADE_NOTE: dir wurde aktualisiert auf dir_Renamed. Klicken Sie hier für weitere Informationen: 'ms-help://MS.VSCC.v90/dv_commoner/local/redirect.htm?keyword="A9E4979A-37FA-4718-9994-97DD76ED70A7"'
-	Function dirYshift(ByRef dir_Renamed As Object) As Short
-		Select Case dir_Renamed
-			Case 0 'to bottom
-				dirYshift = 1
-			Case 1 'to right
-				dirYshift = 0
-			Case 2 'to top
-				dirYshift = -1
-			Case 3 'to left
-				dirYshift = 0
-		End Select
-		'UPGRADE_WARNING: Die Standardeigenschaft des Objekts dir_Renamed konnte nicht aufgelöst werden. Klicken Sie hier für weitere Informationen: 'ms-help://MS.VSCC.v90/dv_commoner/local/redirect.htm?keyword="6A50421D-15FE-4896-8A1B-2EC21E9037B2"'
-		If Not (0 <= dir_Renamed And dir_Renamed <= 3) Then
-			dirYshift = 255
-		End If
-	End Function
+    Function dirYshift(ByRef direction As Byte) As Short
+        Select Case direction
+            Case 0 'to bottom
+                dirYshift = 1
+            Case 1 'to right
+                dirYshift = 0
+            Case 2 'to top
+                dirYshift = -1
+            Case 3 'to left
+                dirYshift = 0
+        End Select
+
+        If Not (0 <= direction And direction <= 3) Then
+            dirYshift = 255
+        End If
+
+    End Function
 End Module
