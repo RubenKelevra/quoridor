@@ -1,4 +1,4 @@
-Option Strict Off
+Option Strict On
 Option Explicit On
 Imports VB = Microsoft.VisualBasic
 Friend Class clsPlayer
@@ -20,7 +20,7 @@ Friend Class clsPlayer
 	' You should have received a copy of the GNU General Public License along
 	' with this program; if not, see <http://www.gnu.org/licenses/>.
 	
-    Private Location As Point
+    Private Location As Position
 	Private Name As String
 	Private Playtime As Integer 'per round
 	Private GlobalPlaytime As Integer 'per round playtime added at the end of a round
@@ -34,118 +34,111 @@ Friend Class clsPlayer
 	Function getBricks() As Byte
 		getBricks = RemainingStones
 	End Function
-	
-    Function getMove() As clsMove
-        getMove = AI.genMove
-    End Function
-	
+
+    'FIXME: was written for old ki implementation, maybe usefull for network handler
+    'Function getMove() As clsMove
+    '    getMove = AI.genMove
+    'End Function
+
     Function startAI(ByRef Bricks() As clsBrick, ByRef PlayerPos() As Point, ByRef PlayerIndex As Byte, ByRef Dimensions As Byte) As Byte
         '0 = ok
         '1 = is already under AI control
         '2 = is a network player which may have open network
         '    connections, stop networking  first
-        If getType_Renamed() = 0 Then
+        If getPlayerType() = 0 Then
             setType(1)
             startAI = 0
-        ElseIf getType_Renamed() = 1 Then
+        ElseIf getPlayerType() = 1 Then
             startAI = 1
-        ElseIf getType_Renamed() >= 2 Then
+        ElseIf getPlayerType() >= 2 Then
             startAI = 2
         End If
 
         'start AI
-        AI = New clsAI
-        AI.create(Bricks, PlayerPos, PlayerIndex, Dimensions, 6)
+        'FIXME: here we need a reference to board to start the KI
+        'AI = New clsAI
 
     End Function
-	
-	Private Function setType(ByRef i As Byte) As Byte
-		'i:
-		'0 = user controlled local player
-		'1 = AI controlled local player
-		'2... reserved for networkgames
-		'returnvalue
-		'0 = ok
-		'1 = out of range
-		If i <= 1 Then
-			TypeOfPlayer = i
-			setType = 0
-		Else
-			setType = 1
-		End If
-	End Function
-	
-	Function getTarget() As Byte
-		getTarget = TargetWall
-	End Function
-	
-	'UPGRADE_NOTE: getType wurde aktualisiert auf getType_Renamed. Klicken Sie hier für weitere Informationen: 'ms-help://MS.VSCC.v90/dv_commoner/local/redirect.htm?keyword="A9E4979A-37FA-4718-9994-97DD76ED70A7"'
-	Function getType_Renamed() As Byte
-		getType_Renamed = TypeOfPlayer
-	End Function
-	
-	
-	'UPGRADE_NOTE: dir wurde aktualisiert auf dir_Renamed. Klicken Sie hier für weitere Informationen: 'ms-help://MS.VSCC.v90/dv_commoner/local/redirect.htm?keyword="A9E4979A-37FA-4718-9994-97DD76ED70A7"'
-	Function Move(ByRef dir_Renamed As Byte) As Boolean
-		Select Case dir_Renamed
-			Case 0 'to bottom
-				'UPGRADE_WARNING: Die Standardeigenschaft des Objekts Switch() konnte nicht aufgelöst werden. Klicken Sie hier für weitere Informationen: 'ms-help://MS.VSCC.v90/dv_commoner/local/redirect.htm?keyword="6A50421D-15FE-4896-8A1B-2EC21E9037B2"'
-                Location.Y = VB.Switch(Location.Y + 1 <= 255, Location.Y + 1, True, 255)
-			Case 1 'to right
-				'UPGRADE_WARNING: Die Standardeigenschaft des Objekts Switch() konnte nicht aufgelöst werden. Klicken Sie hier für weitere Informationen: 'ms-help://MS.VSCC.v90/dv_commoner/local/redirect.htm?keyword="6A50421D-15FE-4896-8A1B-2EC21E9037B2"'
-                Location.X = VB.Switch(Location.X + 1 <= 255, Location.X + 1, True, 255)
-			Case 2
-				'UPGRADE_WARNING: Die Standardeigenschaft des Objekts Switch() konnte nicht aufgelöst werden. Klicken Sie hier für weitere Informationen: 'ms-help://MS.VSCC.v90/dv_commoner/local/redirect.htm?keyword="6A50421D-15FE-4896-8A1B-2EC21E9037B2"'
-                Location.Y = VB.Switch(Location.Y - 1 >= 0, Location.Y - 1, True, 0)
-			Case 3
-				'UPGRADE_WARNING: Die Standardeigenschaft des Objekts Switch() konnte nicht aufgelöst werden. Klicken Sie hier für weitere Informationen: 'ms-help://MS.VSCC.v90/dv_commoner/local/redirect.htm?keyword="6A50421D-15FE-4896-8A1B-2EC21E9037B2"'
-                Location.X = VB.Switch(Location.X - 1 >= 0, Location.X - 1, True, 0)
-		End Select
-		'UPGRADE_WARNING: Die Standardeigenschaft des Objekts Switch() konnte nicht aufgelöst werden. Klicken Sie hier für weitere Informationen: 'ms-help://MS.VSCC.v90/dv_commoner/local/redirect.htm?keyword="6A50421D-15FE-4896-8A1B-2EC21E9037B2"'
-		Move = VB.Switch(0 <= dir_Renamed And dir_Renamed <= 3, True, True, False)
-	End Function
-	
-    Function getLocation() As Point
+
+    Private Function setType(ByRef i As Byte) As Byte
+        'i:
+        '0 = user controlled local player
+        '1 = AI controlled local player
+        '2... reserved for networkgames
+        'returnvalue
+        '0 = ok
+        '1 = out of range
+        If i <= 1 Then
+            TypeOfPlayer = i
+            setType = 0
+        Else
+            setType = 1
+        End If
+    End Function
+
+    Function getTarget() As Byte
+        getTarget = TargetWall
+    End Function
+
+    Function getPlayerType() As Byte
+        getPlayerType = TypeOfPlayer
+    End Function
+
+    Function Move(ByRef direction As Byte) As Boolean
+        Select Case direction
+            Case 0 'to bottom
+                Location.Y = CByte(VB.Switch(Location.Y + 1 <= 255, Location.Y + 1, True, 255))
+            Case 1 'to right
+                Location.X = CByte(VB.Switch(Location.X + 1 <= 255, Location.X + 1, True, 255))
+            Case 2
+                Location.Y = CByte(VB.Switch(Location.Y - 1 >= 0, Location.Y - 1, True, 0))
+            Case 3
+                Location.X = CByte(VB.Switch(Location.X - 1 >= 0, Location.X - 1, True, 0))
+        End Select
+        Move = CBool(VB.Switch(0 <= direction And direction <= 3, True, True, False))
+    End Function
+
+    Function getLocation() As Position
         getLocation = Location
     End Function
-	
-	Sub newRound(ByRef x As Byte, ByRef y As Byte, ByRef Stones As Byte, ByRef target As Byte)
-		GlobalPlaytime = GlobalPlaytime + Playtime
-		
+
+    Sub newRound(ByRef x As Byte, ByRef y As Byte, ByRef Stones As Byte, ByRef target As Byte)
+        GlobalPlaytime = GlobalPlaytime + Playtime
+
         Location.X = x
         Location.Y = y
-		
-		RemainingStones = Stones
-		Playtime = 0
-		TargetWall = target
-	End Sub
-	
-	Function getPlayerName() As String
-		getPlayerName = Name
-	End Function
-	
-	Sub setPlayerName(ByRef s As String)
-		Name = s
-	End Sub
-	
-	Function subtractStone() As Boolean
-		If RemainingStones > 0 Then
-			RemainingStones = RemainingStones - 1
-			subtractStone = True
-		Else
-			subtractStone = False
-		End If
-	End Function
-	
-	Sub create(ByRef x As Byte, ByRef y As Byte, ByRef Stones As Byte, ByRef target As Byte)
-		
-		'set the first position of the player
+
+        RemainingStones = Stones
+        Playtime = 0
+        TargetWall = target
+    End Sub
+
+    Function getPlayerName() As String
+        getPlayerName = Name
+    End Function
+
+    Sub setPlayerName(ByRef s As String)
+        Name = s
+    End Sub
+
+    Function subtractStone() As Boolean
+        If RemainingStones > 0 Then
+            RemainingStones = CByte(RemainingStones - 1)
+            subtractStone = True
+        Else
+            subtractStone = False
+        End If
+    End Function
+
+    Sub create(ByRef x As Byte, ByRef y As Byte, ByRef Stones As Byte, ByRef target As Byte)
+
+        'set the first position of the player
         Location.X = x
         Location.Y = y
-		
-		TypeOfPlayer = 0
-		RemainingStones = Stones + 1
-		Playtime = 0
-		TargetWall = target
-	End Sub
+
+        TypeOfPlayer = 0
+        RemainingStones = CByte(Stones + 1)
+        Playtime = 0
+        TargetWall = target
+    End Sub
 End Class
