@@ -1,4 +1,4 @@
-Option Strict Off
+Option Strict On
 Option Explicit On
 Imports VB = Microsoft.VisualBasic
 Friend Class clsBoard
@@ -21,22 +21,22 @@ Friend Class clsBoard
 	' with this program; if not, see <http://www.gnu.org/licenses/>.
 	
 	'figures
-	Private NoOfPlayer As Byte
-	Private NoOfBricks As Byte 'per player
-	Private Players() As clsPlayer
-    Private Blocker() As clsBrick
-	Private Dimensions As Byte
-	Private activePlayer As Byte
+    Protected Friend NoOfPlayer As Byte
+    Protected Friend NoOfBricks As Byte 'per player
+    Protected Friend Players() As clsPlayer
+    Protected Friend Blocker() As clsBrick
+    Protected Friend Dimensions As Byte
+    Protected Friend activePlayer As Byte
 	
-	Function getPlayerType(ByRef Player As Byte) As Byte
-		' getPlayerType As Byte
-		' get the type of player
-		' - [IN] Player As Byte: player number which should be asked
-		' - returns the type of player, see clsPlayer.setType()
-		getPlayerType = Players(Player).getType_Renamed()
-	End Function
+    Public Function getPlayerType(ByRef Player As Byte) As Byte
+        ' getPlayerType As Byte
+        ' get the type of player
+        ' - [IN] Player As Byte: player number which should be asked
+        ' - returns the type of player, see clsPlayer.setType()
+        getPlayerType = Players(Player).getPlayerType()
+    End Function
 	
-    Function getPlayerForLocation(ByRef pos As Point) As Byte
+    Public Function getPlayerForLocation(ByRef pos As Position) As Byte
         ' getPlayerForLocation As Byte
         ' - [IN] pos as Position: defines the position which should be checked
         ' - returns the player number if a player is on the position, else 255
@@ -50,40 +50,40 @@ Friend Class clsBoard
         Next i
     End Function
 	
-    Function checkMove(ByRef pos As Point, ByVal dir_Renamed As Byte) As Boolean
+    Public Function checkMove(ByRef pos As Position, ByVal direction As Byte) As Boolean
         ' checkMove As Boolean
         ' checks for possibility to move to given direction
         ' - [IN] ByRef pos As Position: defines position
         ' - [IN] ByVal dir As Byte: defines direction
         ' - returns True if move is possible
-        Dim newPos As Point
-        If Not checkFrontWall(pos, dir_Renamed) Then
+        Dim newPos As Position
+        If Not checkFrontWall(pos, direction) Then
 
             'there is a border
-            Select Case dir_Renamed
+            Select Case direction
                 Case 0 'bottom
                     If pos.Y = Dimensions Then
                         GoTo fEnd
                     End If
                     newPos.X = pos.X
-                    newPos.Y = pos.Y + 1
+                    newPos.Y = CByte(pos.Y + 1)
                 Case 1 'right
                     If pos.X = Dimensions Then
                         GoTo fEnd
                     End If
-                    newPos.X = pos.X + 1
+                    newPos.X = CByte(pos.X + 1)
                     newPos.Y = pos.Y
                 Case 2 'top
                     If pos.Y = 0 Then
                         GoTo fEnd
                     End If
                     newPos.X = pos.X
-                    newPos.Y = pos.Y - 1
+                    newPos.Y = CByte(pos.Y - 1)
                 Case 3 'left
                     If pos.X = 0 Then
                         GoTo fEnd
                     End If
-                    newPos.X = pos.X - 1
+                    newPos.X = CByte(pos.X - 1)
                     newPos.Y = pos.Y
             End Select
 
@@ -99,26 +99,25 @@ fEnd:
         Exit Function ' NOTICE: Not needed at this place
     End Function
 	
-	'UPGRADE_NOTE: dir wurde aktualisiert auf dir_Renamed. Klicken Sie hier für weitere Informationen: 'ms-help://MS.VSCC.v90/dv_commoner/local/redirect.htm?keyword="A9E4979A-37FA-4718-9994-97DD76ED70A7"'
-	Function movePlayer(ByRef i As Byte, ByRef dir_Renamed As Byte) As Boolean
-		If checkMove(Players(i).getLocation, dir_Renamed) Then
-			movePlayer = Players(i).Move(dir_Renamed)
-		Else
-			movePlayer = False
-		End If
-	End Function
-	
-    Function getWalls() As clsBrick()
-        getWalls = VB6.CopyArray(Blocker)
+    Public Function movePlayer(ByRef i As Byte, ByRef direction As Byte) As Boolean
+        If checkMove(Players(i).getLocation, direction) Then
+            movePlayer = Players(i).Move(direction)
+        Else
+            movePlayer = False
+        End If
     End Function
 	
-    Function saveWall(ByRef Br As clsBrick, ByRef Player As Byte) As Short
+    Public Function getWalls() As clsBrick()
+        getWalls = CType(VB6.CopyArray(Blocker), clsBrick())
+    End Function
+	
+    Public Function saveWall(ByRef Br As clsBrick, ByRef Player As Byte) As Short
         'returnvalues
         '0 = ok
         '1 = player have no blockers left
         '2 = cannot be used cause you would envelop a figure or position is used by another blocker
         '3 = player index out of range
-        Dim i As Byte
+        Dim B As Byte
         Dim saved As Boolean
 
         'check for valid player index
@@ -140,39 +139,20 @@ fEnd:
         saved = False
 
         'running thru setted Blockers to get last index of the placed ones
-        For i = LBound(Blocker) To UBound(Blocker)
-            If Not Blocker(i).Placed Then
+        For B = CByte(LBound(Blocker)) To CByte(UBound(Blocker))
+            If Not Blocker(B).Placed Then
                 Exit For
             End If
-        Next i
-        Blocker(i).Placed = True
-        Blocker(i).Horizontal = Br.Horizontal
-        Blocker(i).Position.X = Br.Position.X
-        Blocker(i).Position.Y = Br.Position.Y
+        Next B
+        Blocker(B).Placed = True
+        Blocker(B).Horizontal = Br.Horizontal
+        Blocker(B).Position.X = Br.Position.X
+        Blocker(B).Position.Y = Br.Position.Y
         Players(Player).subtractStone()
     End Function
 	
     '    Function getPlayerColor(ByRef i As Byte) As Integer
-    Function getPlayerColor(ByRef i As Byte) As System.Drawing.Color
-        'Select Case i
-        '    Case 0
-        '        getPlayerColor = System.Drawing.ColorTranslator.ToOle(System.Drawing.Color.Blue)
-        '    Case 1
-        '        If NoOfPlayer = 3 Then '4 player game
-        '            getPlayerColor = System.Drawing.ColorTranslator.ToOle(System.Drawing.Color.Lime)
-        '        Else
-        '            getPlayerColor = System.Drawing.ColorTranslator.ToOle(System.Drawing.Color.Red)
-        '        End If
-        '    Case 2
-        '        If NoOfPlayer = 3 Then '4 player game
-        '            getPlayerColor = System.Drawing.ColorTranslator.ToOle(System.Drawing.Color.Red)
-        '        Else
-        '            getPlayerColor = System.Drawing.ColorTranslator.ToOle(System.Drawing.Color.Lime)
-        '        End If
-        '    Case 3
-        '        getPlayerColor = System.Drawing.ColorTranslator.ToOle(System.Drawing.Color.Yellow)
-        'End Select
-
+    Public Function getPlayerColor(ByRef i As Byte) As System.Drawing.Color
         Select Case i
             Case 0
                 getPlayerColor = System.Drawing.Color.Blue
@@ -194,46 +174,47 @@ fEnd:
 
     End Function
 
-    Function getDimension() As Byte
+    Public Function getDimension() As Byte
         getDimension = Dimensions
     End Function
 
-    Function getPlayerLocation(ByRef i As Byte) As Point
+    Public Function getPlayerLocation(ByRef i As Byte) As Position
         On Error GoTo OutOfIndex
         getPlayerLocation = Players(i).getLocation
         Exit Function
 OutOfIndex:
-        getPlayerLocation = xy2pos(255, 255)
+        getPlayerLocation = xy2position(255, 255)
     End Function
 
-    Function getActivePlayer() As Byte
+    Public Function getActivePlayer() As Byte
         getActivePlayer = activePlayer
     End Function
 
-    Private Function getPlayerMove() As clsMove
-        'function will ask networkhandler or AI for move direction
-        getPlayerMove = Players(activePlayer).getMove
-    End Function
+    'FIXME: was written for old ki implementation, maybe usefull for network handler
+    'Private Function getPlayerMove() As clsMove
+    'function will ask networkhandler or AI for move direction
+    '    getPlayerMove = Players(activePlayer).getMove
+    'End Function
 
-    Sub doPlayerMove()
-        Dim PlayerMove As clsMove
+    Public Sub doPlayerMove()
+        'Dim PlayerMove As clsMove
         If getPlayerType(activePlayer) = 1 Then 'player is AI controlled
-            PlayerMove = getPlayerMove() 'start calculations
+            'PlayerMove = getPlayerMove() 'start calculations
 
-            If PlayerMove.ErrorCode <> 0 Then
-                Exit Sub
-            End If
-            If PlayerMove.FigureMove = True Then
-                movePlayer(activePlayer, (PlayerMove.MoveDirection))
-            Else
-                'saveWall
-            End If
+            'If PlayerMove.ErrorCode <> 0 Then
+            '    Exit Sub
+            'End If
+            'If PlayerMove.FigureMove = True Then
+            '    movePlayer(activePlayer, (PlayerMove.MoveDirection))
+            'Else
+            '    'saveWall
+            'End If
         ElseIf getPlayerType(activePlayer) < 1 Then
             'networkhandler
         End If
     End Sub
 
-    Function NextTurn() As Boolean
+    Public Function NextTurn() As Boolean
         activePlayer = getNextPlayer(activePlayer, NoOfPlayer)
         If getPlayerType(activePlayer) > 0 Then 'player is AI or network controlled
             NextTurn = True
@@ -242,14 +223,13 @@ OutOfIndex:
         End If
     End Function
 
-    Function checkFrontWall(ByRef pos As Point, ByRef direction As Byte) As Boolean
-        'rev 86
+    Public Function checkFrontWall(ByRef pos As Position, ByRef direction As Byte) As Boolean
         'if true there are a wall in front of the position and with this direction
         Dim stone As clsBrick
-        Dim i As Byte
+        Dim B As Byte
 
-        For i = LBound(Blocker) To UBound(Blocker)
-            stone = Blocker(i)
+        For B = CByte(LBound(Blocker)) To CByte(UBound(Blocker))
+            stone = Blocker(B)
             'if we found the first stone which is not placed or which have a default value as position we exiting
             If stone.Placed = False Or stone.Position.X = 255 Or stone.Position.X = 255 Then
                 Exit For
@@ -284,7 +264,7 @@ OutOfIndex:
                         If stone.Position.Y = pos.Y Then GoTo returnFalse
                     End If
             End Select
-        Next i
+        Next B
         'no stone have been found which blocks our way
         checkFrontWall = False
         Exit Function
@@ -295,14 +275,12 @@ returnFalse:
 
     Private Function NoToDir(ByRef i As Byte) As Byte
         'part of checkPlaceWall
-        'UPGRADE_WARNING: Die Standardeigenschaft des Objekts Switch() konnte nicht aufgelöst werden. Klicken Sie hier für weitere Informationen: 'ms-help://MS.VSCC.v90/dv_commoner/local/redirect.htm?keyword="6A50421D-15FE-4896-8A1B-2EC21E9037B2"'
-        NoToDir = VB.Switch(0 < i - 3, i - 3, True, i)
+        NoToDir = CByte(VB.Switch(0 < i - 3, i - 3, True, i))
     End Function
 
     Private Function NoToField(ByRef i As Byte) As Byte
         'part of checkPlaceWall
-        'UPGRADE_WARNING: Die Standardeigenschaft des Objekts Switch() konnte nicht aufgelöst werden. Klicken Sie hier für weitere Informationen: 'ms-help://MS.VSCC.v90/dv_commoner/local/redirect.htm?keyword="6A50421D-15FE-4896-8A1B-2EC21E9037B2"'
-        NoToField = VB.Switch(0 < i - 3, 0, True, 1)
+        NoToField = CByte(VB.Switch(0 < i - 3, 0, True, 1))
     End Function
 
     Function checkPlaceWall(ByRef x As Byte, ByRef y As Byte, ByRef Horizontal As Boolean) As Boolean
@@ -310,7 +288,7 @@ returnFalse:
         Dim stone As clsBrick
         Dim i As Byte
 
-        For i = LBound(Blocker) To UBound(Blocker)
+        For i = CByte(LBound(Blocker)) To CByte(UBound(Blocker))
             stone = Blocker(i)
             'if we found the first stone which is not placed or which have a default value as position we exiting
             If stone.Placed = False Or stone.Position.X = 255 Or stone.Position.Y = 255 Then
@@ -354,14 +332,14 @@ returnFalse_checkPlaceWall:
         '255 = no run have been done jet
         Dim RunningResults(7) As Byte
         'currently startpoint
-        Dim startPoint As Point
+        Dim startPoint As Position
         'saves the right and left turns while running, so we can determine if we run ccw or cw
         Dim rightLeftCount(7) As Byte
         'holds the actual running direction
         Dim direction As Byte
 
         'saves points were we turned around
-        Dim turned(,) As Point
+        Dim turned(,) As Position
         ReDim turned(7, 20) '20 to get a default space, will be redim if we need more
 
         For i = 0 To 7
@@ -390,12 +368,12 @@ returnFalse_checkPlaceWall:
                     startPoint.Y = newPos.Position.Y
                 Case 1
                     startPoint.X = newPos.Position.X
-                    startPoint.Y = newPos.Position.Y + 1
+                    startPoint.Y = CByte(newPos.Position.Y + 1)
                 Case 2
-                    startPoint.X = newPos.Position.X + 1
-                    startPoint.Y = newPos.Position.Y + 1
+                    startPoint.X = CByte(newPos.Position.X + 1)
+                    startPoint.Y = CByte(newPos.Position.Y + 1)
                 Case 3
-                    startPoint.X = newPos.Position.X + 1
+                    startPoint.X = CByte(newPos.Position.X + 1)
                     startPoint.Y = newPos.Position.Y
             End Select
         Next i
@@ -441,17 +419,13 @@ returnFalse_checkPlaceWall:
 
     Function activateAI(ByRef PlayerIndex As Byte) As Byte
         'load a AI instance for given Player
+        'FIXME: Warning is not up to date
         'WARNING: load of four AIs will use 30MB RAM at minimum
         '0 = ok
         '1 = is already under AI control
         '2 = is a network player which may have open network
         '    connections, stop networking  first
         ' 255  = out of playerindex range
-        If PlayerIndex > UBound(Players) - LBound(Players) Then
-            activateAI = 255
-        Else
-            activateAI = Players(PlayerIndex).startAI(Blocker, getPlayerPositions, PlayerIndex, Dimensions)
-        End If
     End Function
 
     Function getNameOfPlayer(ByRef i As Byte) As String
@@ -472,9 +446,9 @@ OutOfIndex:
         getRemainingPlayerBricks = Players(i).getBricks 'we want a number not an index
     End Function
 
-    Private Function getPlayerPositions() As Point()
+    Private Function getPlayerPositions() As Position()
         Dim i As Byte
-        Dim returnvalue() As Point
+        Dim returnvalue() As Position
         ReDim returnvalue(NoOfPlayer)
         For i = 0 To NoOfPlayer
             returnvalue(i).X = getPlayerLocation(i).X
@@ -484,39 +458,25 @@ OutOfIndex:
     End Function
 
     Sub create(ByRef NoOfPl As Byte, ByRef Dimension As Byte)
-        Dim pStarts(3) As Point
-        Dim i As Byte
-        Dim i2 As Byte
-
-        'Testing
-
-
-        '    Dim Heap As clsSimpleHeap
-        '    Dim integ As Integer
-        '    Call Heap.setHeapSize(5)
-
-
-        '/testing
+        Dim pStarts(3) As Position
+        Dim B As Byte
+        Dim B2 As Byte
 
         'check input value of NoOfPl if not 4 set to 2 - started with 0
-        'UPGRADE_WARNING: Die Standardeigenschaft des Objekts Switch() konnte nicht aufgelöst werden. Klicken Sie hier für weitere Informationen: 'ms-help://MS.VSCC.v90/dv_commoner/local/redirect.htm?keyword="6A50421D-15FE-4896-8A1B-2EC21E9037B2"'
-        NoOfPlayer = VB.Switch(NoOfPl = 3, 3, True, 1)
+        NoOfPlayer = CByte(VB.Switch(NoOfPl = 3, 3, True, 1))
         NoOfBricks = getNoOfWalls(NoOfPlayer)
         'if the dimension is smaller than the NoOfPlayer the field will be made bigger
         'if dimension = 255 it'll set to 254 otherwise we may get unexpected results of some functions
         ' because we use 255 as defaultvalue in some functions
-        'UPGRADE_WARNING: Die Standardeigenschaft des Objekts Switch() konnte nicht aufgelöst werden. Klicken Sie hier für weitere Informationen: 'ms-help://MS.VSCC.v90/dv_commoner/local/redirect.htm?keyword="6A50421D-15FE-4896-8A1B-2EC21E9037B2"'
-        Dimensions = VB.Switch(Dimension < NoOfPlayer, NoOfPlayer, Dimension < 255, Dimension, Dimension = 255, 254)
+        Dimensions = CByte(VB.Switch(Dimension < NoOfPlayer, NoOfPlayer, Dimension < 255, Dimension, Dimension = 255, 254))
 
         ReDim Players(NoOfPlayer)
-        For i = 0 To NoOfPlayer
-            Players(i) = New clsPlayer
-        Next i
-
-
+        For B = 0 To NoOfPlayer
+            Players(B) = New clsPlayer
+        Next B
 
         'calc player starts - players counted ccw
-        pStarts(0).X = Dimensions / 2
+        pStarts(0).X = CByte(Dimensions / 2)
         pStarts(1).Y = pStarts(0).X
         pStarts(0).Y = 0
         pStarts(3).X = pStarts(0).Y
@@ -525,50 +485,31 @@ OutOfIndex:
         'subtract to get the other line near the center for the mirrored player
         pStarts(2).X = Dimensions - CByte(Dimensions / 2)
         pStarts(3).Y = pStarts(2).X
-        'player blocked case
-        'pStarts(0).Position(0) = 0
-        'pStarts(0).Position(1) = 0
-        'pStarts(1).Position(0) = 0
-        'pStarts(1).Position(1) = 1
-        'pStarts(2).Position(0) = 1
-        'pStarts(2).Position(1) = 0
-        'pStarts(3).Position(0) = 1
-        'pStarts(3).Position(1) = 1
-
-        'player will be blocked by move
-        'pStarts(0).Position(0) = 2
-        'pStarts(0).Position(1) = 0
-        'pStarts(1).Position(0) = 0
-        'pStarts(1).Position(1) = 1
-        'pStarts(2).Position(0) = 0
-        'pStarts(2).Position(1) = 0
-        'pStarts(3).Position(0) = 1
-        'pStarts(3).Position(1) = 1
 
         'set player starts
-        For i = LBound(Players) To UBound(Players)
-            If NoOfPlayer = 1 And i = 1 Then
-                i2 = i + 1
+        For B = CByte(LBound(Players)) To CByte(UBound(Players))
+            If NoOfPlayer = 1 And B = 1 Then
+                B2 = CByte(B + 1)
                 'change 2th player's startposition to 3rd players's
                 'if two players playing
             Else
-                i2 = i
+                B2 = B
             End If
             'running create routine
-            Players(i).create(pStarts(i2).X, pStarts(i2).Y, NoOfBricks, Player2Target(i, NoOfPlayer))
-        Next i
+            Players(B).create(pStarts(B2).X, pStarts(B2).Y, NoOfBricks, Player2Target(B, NoOfPlayer))
+        Next B
 
         'reserve space for blockers
         '+1-1 cause we need to move one right and left because of 0 starting values
         ReDim Blocker((NoOfPlayer + 1) * (NoOfBricks + 1) - 1)
 
         'set blockers start values
-        For i = 0 To UBound(Blocker)
-            Blocker(i) = New clsBrick
-            Blocker(i).Horizontal = False
-            Blocker(i).Position.X = 255
-            Blocker(i).Position.Y = 255
-        Next i
+        For B = 0 To CByte(UBound(Blocker))
+            Blocker(B) = New clsBrick
+            Blocker(B).Horizontal = False
+            Blocker(B).Position.X = 255
+            Blocker(B).Position.Y = 255
+        Next B
         'Players(1).startAI Blocker, pStarts, 1, Dimensions
     End Sub
 End Class

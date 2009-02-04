@@ -1,4 +1,4 @@
-Option Strict Off
+Option Strict On
 Option Explicit On
 Imports VB = Microsoft.VisualBasic
 
@@ -41,53 +41,53 @@ Friend Class clsSimpleHeap
     Private Heap() As AstarData
 
     ' the steps we increase our Heap()
-    Private uiAllocationStep As UInteger
+    Private iAllocationStep As Integer
     'defines the minimal Heap() size, so if we clear it this size will be reached
-    Private uiMinListSize As UInteger
+    Private iMinListSize As Integer
     ' the last index of used elements in list
-    Private uiFirstEmptyIndex As UInteger
+    Private iFirstEmptyIndex As Integer
     ' Number of Elements which are on the Open List
-    Private uiRemainingOpenElements As UInteger
+    Private iRemainingOpenElements As Integer
 
-    Private uiTemp As UInteger
-	
-    Public Sub init(Optional ByVal AllocationStep As UInteger = 0, Optional ByVal MinListSize As UInteger = 0)
+    Private iTemp As Integer
+
+    Public Sub init(Optional ByVal AllocationStep As Integer = 0, Optional ByVal MinListSize As Integer = 0)
         If Not AllocationStep = 0 Then
-            uiAllocationStep = AllocationStep
+            iAllocationStep = AllocationStep
         Else
-            If uiAllocationStep < 20 Then
+            If iAllocationStep < 20 Then
                 'we going to set default values for allocationStep
-                uiAllocationStep = 20
+                iAllocationStep = 20
             End If
         End If
         If Not MinListSize = 0 Then
-            uiMinListSize = AllocationStep
+            iMinListSize = AllocationStep
         Else
-            If uiMinListSize < 40 Then
+            If iMinListSize < 40 Then
                 'we going to set default values for allocationStep
-                uiMinListSize = 40
+                iMinListSize = 40
             End If
         End If
 
-        ReDim Heap(uiMinListSize)
-        uiFirstEmptyIndex = 0
-        uiRemainingOpenElements = 0
+        ReDim Heap(iMinListSize)
+        iFirstEmptyIndex = 0
+        iRemainingOpenElements = 0
     End Sub
 
-    Public Function getMin(ByVal id As UInteger) As AstarData
-        Static ui As UInteger
-        Static minCosts As UInteger
-        Static index As UInteger
+    Public Function getMin(ByVal id As Integer) As AstarData
+        Static i As Integer
+        Static minCosts As Integer
+        Static index As Integer
 
-        minCosts = UInteger.MaxValue
-        index = UInteger.MaxValue
+        minCosts = Integer.MaxValue
+        index = Integer.MaxValue
 
 
-        For ui = 0 To uiFirstEmptyIndex - 1
-            With Heap(ui)
+        For i = 0 To iFirstEmptyIndex - 1
+            With Heap(i)
                 If Not .bClosed Then
                     If .uiCosts < minCosts Then
-                        index = ui
+                        index = i
                     End If
                 End If
             End With
@@ -97,8 +97,8 @@ Friend Class clsSimpleHeap
         End If
     End Function
 
-    Public Function setClosed(ByVal id As UInteger) As Boolean
-        If id < uiFirstEmptyIndex Then
+    Public Function setClosed(ByVal id As Integer) As Boolean
+        If id < iFirstEmptyIndex Then
             Heap(id).bClosed = True
             Return True
         Else
@@ -107,29 +107,31 @@ Friend Class clsSimpleHeap
     End Function
 
     Public Function addOpen(ByVal X As Byte, ByVal Y As Byte, ByVal ParentFieldIndex As UInteger, _
-                            ByVal Costs As UInteger, ByVal Heuristic As Short) As Boolean
+                            ByVal Costs As UInteger, ByVal Heuristic As UShort) As Boolean
 
         ' --- memory allocation ---
 
         'if we going to ran out of arrayspace we going to allocate new memory
-        If uiFirstEmptyIndex > UBound(Heap) - LBound(Heap) Then
-            If uiFirstEmptyIndex - 1 + uiAllocationStep > 64515 Then 'if we would exceed this limit
-                If Not uiFirstEmptyIndex - 1 = 64515 Then 'we use this ultimate limit of memory which is valid, its a fieldsize of 254 x 254 - the internal limit
+        If iFirstEmptyIndex > UBound(Heap) - LBound(Heap) Then
+            'FIXME: this function really should get known how much memory is the limit to limit this to a
+            'real world limit to ran against memoryleaks
+            If iFirstEmptyIndex - 1 + iAllocationStep > 64515 Then 'if we would exceed this limit
+                If Not iFirstEmptyIndex - 1 = 64515 Then 'we use this ultimate limit of memory which is valid, its a fieldsize of 254 x 254 - the internal limit
                     ReDim Preserve Heap(64515)
                 Else 'if this is already set we going to raise an error 
                     Call Err.Raise(vbObjectError, "GC::Alloc", "Heap overflow")
                     Return False
                 End If
             Else
-                ReDim Preserve Heap(uiFirstEmptyIndex - 1 + uiAllocationStep)
+                ReDim Preserve Heap(iFirstEmptyIndex - 1 + iAllocationStep)
             End If
         End If
 
         ' --- add value to array ---
 
-        uiFirstEmptyIndex = uiFirstEmptyIndex + 1
+        iFirstEmptyIndex = iFirstEmptyIndex + 1
 
-        With Heap(uiFirstEmptyIndex - 1)
+        With Heap(iFirstEmptyIndex - 1)
             .B_X = X
             .B_Y = Y
             .bClosed = False
