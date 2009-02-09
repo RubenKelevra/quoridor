@@ -33,12 +33,17 @@ Friend Class frmMainForm
     Private bKeyUp As Boolean
     Private BBoardDimension As Byte
     Private BNumOfPlayers As Byte
+    Private BDirection As Byte
     Private tTempBrick As clsBrick
-    Private GBoard As Graphics
+    'Private GBoard As Graphics
     Private PiStartCoords As Point
     Private PfFieldsize As PointF
     Private PfBricksize As PointF
     Private sPlayerNames() As String
+
+    Public Sub setDirection(ByVal B As Byte)
+        BDirection = B
+    End Sub
 
     Public Sub setRunGame(ByVal b As Boolean)
 
@@ -117,12 +122,28 @@ Friend Class frmMainForm
         Dim Index As Short = cmdMove.GetIndex(eventSender)
 
         ' dec
+        Static bGotError As Boolean
         Dim changed As Boolean
+        Dim BDirection As Byte
         changed = False
+        bGotError = False
+        'If bGotError Then
+        '    'cmdMove_Click(New System.Object, New System.EventArgs)
+        '    changed = Playground.movePlayer(Playground.getActivePlayer(), CByte(Index))
+        'End If
 
         If Not tTempBrick.Placed Then 'move figure
 
+            On Error GoTo jump
             changed = Playground.movePlayer(Playground.getActivePlayer, CByte(Index))
+            GoTo doNext
+
+jump:
+            On Error GoTo 0
+            Call frmJump.ShowDialog(Me)
+            changed = Playground.movePlayer(Playground.getActivePlayer, BDirection)
+
+doNext:
 
         Else
 
@@ -161,7 +182,7 @@ Friend Class frmMainForm
         End If
 
         ' set focus to picFocus for keyboard control
-        Me.Focus()
+        Call Me.Focus()
 
         If changed Then
             If Not tTempBrick.Placed Then
@@ -189,7 +210,7 @@ Friend Class frmMainForm
         Dim Index As Short = cmdMove.GetIndex(eventSender)
 
         ' set focus to picFocus for keyboard control
-        Me.Focus()
+        Call Me.Focus()
 
     End Sub
 
@@ -201,10 +222,9 @@ Friend Class frmMainForm
             tTempBrick.Horizontal = Not tTempBrick.Horizontal
 
             ' set focus to picFocus for keyboard control
-            Me.Focus()
+            Call Me.Focus()
 
             ' repaint form
-            'Call frmMainForm_Paint(Me, New System.Windows.Forms.PaintEventArgs(Nothing, Nothing))
             Call paintForm()
 
         End If
@@ -218,7 +238,7 @@ Friend Class frmMainForm
         Dim y As Single = VB6.PixelsToTwipsY(eventArgs.Y)
 
         ' set focus to picFocus for keyboard control
-        Me.Focus()
+        Call Me.Focus()
 
     End Sub
 
@@ -266,7 +286,7 @@ Friend Class frmMainForm
         End If
 
         ' set focus to picFocus for keyboard control
-        Me.Focus()
+        Call Me.Focus()
 
         If bStoneSaved Then
             If Playground.NextTurn Then
@@ -289,7 +309,7 @@ Friend Class frmMainForm
         Dim y As Single = VB6.PixelsToTwipsY(eventArgs.Y)
 
         ' set focus to picFocus for keyboard control
-        Me.Focus()
+        Call Me.Focus()
 
     End Sub
 
@@ -301,6 +321,8 @@ Friend Class frmMainForm
     End Sub
 
     Public Sub ddmNewGame_Click(ByVal eventSender As System.Object, ByVal eventArgs As System.EventArgs) Handles ddmNewGame.Click
+
+        Dim i As Integer
 
         ' open setting window for new games
         Call frmNewGame.ShowDialog()
@@ -315,28 +337,18 @@ Friend Class frmMainForm
         Call Playground.create(BNumOfPlayers, BBoardDimension) ' player, number of fields (x=y)
         Me.shpCurrentPlayer.FillColor = Playground.getPlayerColor(0) 'init current player marker
 
-        ' max. fieldsize
-        PfFieldsize.X = Me.fraBoard.Width / (BBoardDimension + 1)
-        PfFieldsize.Y = Me.fraBoard.Height / (BBoardDimension + 1)
+        Call sizeBoard()
 
-        ' max. bricksize
-        PfBricksize.X = PfFieldsize.X / BBoardDimension
-        PfBricksize.Y = PfFieldsize.Y / BBoardDimension
-
-        ' real fieldsize ( minus bricks )
-        PfFieldsize.X = PfFieldsize.X - PfBricksize.X
-        PfFieldsize.Y = PfFieldsize.Y - PfBricksize.Y
-
-        ' real bricksize ( fit to "screen" )
-        PfBricksize.X = PfBricksize.X * (1 + 1 / BBoardDimension)
-        PfBricksize.Y = PfBricksize.Y * (1 + 1 / BBoardDimension)
+        ' init jumping buttons
+        'For i = cmdChooseDir.LBound() To cmdChooseDir.UBound()
+        'Next
 
         ' starting positions
         PiStartCoords.X = Me.fraBoard.Left
         PiStartCoords.Y = Me.fraBoard.Top
 
         ' init graphic
-        GBoard = Me.CreateGraphics
+        'GBoard = Me.CreateGraphics
         'GBoard.Clear(Me.BackColor)
 
         ' init brick
@@ -361,8 +373,23 @@ Friend Class frmMainForm
 
         ' draw
         bGameEnabled = True
-        'Call frmMainForm_Paint(Me, New System.Windows.Forms.PaintEventArgs(Nothing, Nothing))
-        'Call frmMainForm_Paint(Me, New System.Windows.Forms.PaintEventArgs(GBoard, New System.Drawing.Rectangle))
+        Call paintForm()
+
+    End Sub
+
+    Private Sub frmMainForm_ClientSizeChanged(ByVal sender As Object, ByVal e As System.EventArgs) Handles Me.ClientSizeChanged
+
+        Me.fraInfo.Left = Me.Width - Me.fraInfo.Width - 18
+
+        Me.fraMovement.Left = Me.Width - Me.fraMovement.Width - 18
+        Me.fraMovement.Top = Me.fraInfo.Top + Me.fraInfo.Height + 10
+
+        Me.fraBoard.Width = Me.fraInfo.Left - Me.fraBoard.Left - 6
+        Me.fraBoard.Height = Me.Height - Me.fraBoard.Top - 45
+
+        'GBoard.Clear(Me.BackColor)
+
+        Call sizeBoard()
         Call paintForm()
 
     End Sub
@@ -419,6 +446,7 @@ Friend Class frmMainForm
 
     Private Sub frmMainForm_Load(ByVal eventSender As System.Object, ByVal eventArgs As System.EventArgs) Handles MyBase.Load
 
+        'GBoard = Me.CreateGraphics
         tTempBrick = New clsBrick
 
     End Sub
@@ -426,7 +454,14 @@ Friend Class frmMainForm
     Private Sub frmMainForm_Paint(ByVal eventSender As System.Object, ByVal eventArgs As System.Windows.Forms.PaintEventArgs) Handles MyBase.Paint
 
         ' sets current color of the active figure
-        Call paintForm()
+        'Call paintForm()
+        If bGameEnabled Then
+
+            Call drawBoard()
+            Call drawBricksHori()
+            Call drawBricksVert()
+
+        End If
 
     End Sub
 
@@ -535,6 +570,7 @@ Friend Class frmMainForm
         Dim i As Byte
         Dim x As Byte
         Dim y As Byte
+        Dim GBoard As Graphics
         Dim colorPen As System.Drawing.Color 'System.Drawing.Brush
         Dim curLocation As Position
         Dim playerLocation() As Position
@@ -545,12 +581,12 @@ Friend Class frmMainForm
         BDimension = Playground.getDimension
         ReDim rect(BDimension, BDimension)
         ReDim playerLocation(Playground.getNoOfPlayer)
+        GBoard = Me.CreateGraphics()
         For i = LBound(playerLocation) To UBound(playerLocation)
 
             playerLocation(i) = Playground.getPlayerLocation(i)
 
         Next i
-
 
         For x = 0 To BDimension
 
@@ -586,6 +622,50 @@ Friend Class frmMainForm
 
     End Sub
 
+    'Private Sub drawBoard()
+
+    '    ' dec
+    '    Dim BDimension As Byte
+    '    Dim x As Byte
+    '    Dim y As Byte
+    '    Dim PfCurPosition As PointF
+    '    Dim rect(,) As RectangleF
+
+    '    Dim b As Boolean
+
+    '    BDimension = Playground.getDimension()
+    '    ReDim rect(BDimension, BDimension)
+
+    '    ' init
+    '    'Call init(BMaxX, BMaxY)
+    '    Dim graph As Graphics
+    '    graph = Me.CreateGraphics()
+
+    '    For x = 0 To BDimension
+
+    '        PfCurPosition.X = PiStartCoords.X + x * PfFieldsize.X + x * PfBricksize.X
+
+    '        For y = 0 To BDimension
+
+    '            PfCurPosition.Y = PiStartCoords.Y + y * PfFieldsize.Y + y * PfBricksize.Y
+
+    '            rect(x, y) = New RectangleF(PfCurPosition.X, PfCurPosition.Y, PfFieldsize.X, PfFieldsize.Y)
+
+    '            If b Then
+    '                Call graph.FillRectangle(Brushes.Black, rect(x, y))
+    '            Else
+    '                Call graph.FillRectangle(Brushes.White, rect(x, y))
+    '            End If
+
+    '            b = Not b
+
+    '        Next y
+
+    '    Next x
+
+    'End Sub
+
+
     Public Sub drawBricksHori()
         ' draws the bricks between the board
         ' return values:
@@ -597,6 +677,7 @@ Friend Class frmMainForm
         Dim x As Byte
         Dim y As Byte
         Dim cCurColor As System.Drawing.Color
+        Dim GBoard As Graphics
         Dim PfCurPosition As PointF
         Dim rect(,) As RectangleF
         Dim mySavedBricks() As clsBrick
@@ -606,6 +687,7 @@ Friend Class frmMainForm
         ReDim rect(BDimension, BDimension - 1)
         'ReDim mySavedBricks(UBound(Playground.getWalls))
         mySavedBricks = Playground.getWalls
+        GBoard = Me.CreateGraphics()
 
         ' horizontal
         For x = 0 To BDimension
@@ -674,6 +756,7 @@ Friend Class frmMainForm
         Dim BDimension As Byte
         Dim x As Byte
         Dim y As Byte
+        Dim GBoard As Graphics
         Dim cCurColor As System.Drawing.Color
         Dim PfCurPosition As PointF
         Dim rect(,) As RectangleF
@@ -682,6 +765,7 @@ Friend Class frmMainForm
         BDimension = Playground.getDimension
         ReDim rect(BDimension - 1, BDimension)
         mySavedBricks = Playground.getWalls()
+        GBoard = Me.CreateGraphics()
 
         ' horizontal
         For x = 0 To BDimension - 1
@@ -790,6 +874,26 @@ Friend Class frmMainForm
             Call drawBricksVert()
 
         End If
+
+    End Sub
+
+    Public Sub sizeBoard()
+
+        ' max. fieldsize
+        PfFieldsize.X = Me.fraBoard.Width / (BBoardDimension + 1)
+        PfFieldsize.Y = Me.fraBoard.Height / (BBoardDimension + 1)
+
+        ' max. bricksize
+        PfBricksize.X = PfFieldsize.X / BBoardDimension
+        PfBricksize.Y = PfFieldsize.Y / BBoardDimension
+
+        ' real fieldsize ( minus bricks )
+        PfFieldsize.X = PfFieldsize.X - PfBricksize.X
+        PfFieldsize.Y = PfFieldsize.Y - PfBricksize.Y
+
+        ' real bricksize ( fit to "screen" )
+        PfBricksize.X = PfBricksize.X * (1 + 1 / BBoardDimension)
+        PfBricksize.Y = PfBricksize.Y * (1 + 1 / BBoardDimension)
 
     End Sub
 

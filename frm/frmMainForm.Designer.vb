@@ -26,12 +26,12 @@
     Public WithEvents mmuMain As System.Windows.Forms.MenuStrip
     Public WithEvents fraBoard As System.Windows.Forms.Panel
     Public WithEvents cmdCancelBrick As System.Windows.Forms.Button
-    Public WithEvents _cmdMove_3 As System.Windows.Forms.Button
     Public WithEvents _cmdMove_0 As System.Windows.Forms.Button
-    Public WithEvents cmdSetBrick As System.Windows.Forms.Button
-    Public WithEvents cmdRotateBrick As System.Windows.Forms.Button
     Public WithEvents _cmdMove_1 As System.Windows.Forms.Button
     Public WithEvents _cmdMove_2 As System.Windows.Forms.Button
+    Public WithEvents _cmdMove_3 As System.Windows.Forms.Button
+    Public WithEvents cmdSetBrick As System.Windows.Forms.Button
+    Public WithEvents cmdRotateBrick As System.Windows.Forms.Button
     Public WithEvents fraMovement As System.Windows.Forms.GroupBox
     Public WithEvents lblLoading As System.Windows.Forms.Label
     Public WithEvents lblBricksLeftNumber As System.Windows.Forms.Label
@@ -103,7 +103,7 @@
         Me.mmuMain.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.ddmMenuGame})
         Me.mmuMain.Location = New System.Drawing.Point(0, 0)
         Me.mmuMain.Name = "mmuMain"
-        Me.mmuMain.Size = New System.Drawing.Size(549, 24)
+        Me.mmuMain.Size = New System.Drawing.Size(534, 24)
         Me.mmuMain.TabIndex = 13
         '
         'ddmMenuGame
@@ -149,10 +149,10 @@
         '
         'fraBoard
         '
-        Me.fraBoard.BackColor = System.Drawing.SystemColors.Control
+        Me.fraBoard.BackColor = System.Drawing.SystemColors.HotTrack
         Me.fraBoard.Cursor = System.Windows.Forms.Cursors.Default
         Me.fraBoard.ForeColor = System.Drawing.SystemColors.ControlText
-        Me.fraBoard.Location = New System.Drawing.Point(12, 36)
+        Me.fraBoard.Location = New System.Drawing.Point(12, 27)
         Me.fraBoard.Name = "fraBoard"
         Me.fraBoard.RightToLeft = System.Windows.Forms.RightToLeft.No
         Me.fraBoard.Size = New System.Drawing.Size(249, 249)
@@ -171,7 +171,7 @@
         Me.fraMovement.Controls.Add(Me._cmdMove_1)
         Me.fraMovement.Controls.Add(Me._cmdMove_2)
         Me.fraMovement.ForeColor = System.Drawing.SystemColors.ControlText
-        Me.fraMovement.Location = New System.Drawing.Point(280, 147)
+        Me.fraMovement.Location = New System.Drawing.Point(267, 139)
         Me.fraMovement.Name = "fraMovement"
         Me.fraMovement.Padding = New System.Windows.Forms.Padding(0)
         Me.fraMovement.RightToLeft = System.Windows.Forms.RightToLeft.No
@@ -298,7 +298,7 @@
         Me.fraInfo.Controls.Add(Me.lblCurPlayer)
         Me.fraInfo.Controls.Add(Me.ShapeContainer1)
         Me.fraInfo.ForeColor = System.Drawing.SystemColors.ControlText
-        Me.fraInfo.Location = New System.Drawing.Point(280, 32)
+        Me.fraInfo.Location = New System.Drawing.Point(267, 24)
         Me.fraInfo.Name = "fraInfo"
         Me.fraInfo.Padding = New System.Windows.Forms.Padding(0)
         Me.fraInfo.RightToLeft = System.Windows.Forms.RightToLeft.No
@@ -366,15 +366,14 @@
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.BackColor = System.Drawing.SystemColors.Control
-        Me.ClientSize = New System.Drawing.Size(549, 296)
-        Me.Controls.Add(Me.fraBoard)
+        Me.ClientSize = New System.Drawing.Size(534, 287)
         Me.Controls.Add(Me.fraMovement)
+        Me.Controls.Add(Me.fraBoard)
         Me.Controls.Add(Me.fraInfo)
         Me.Controls.Add(Me.mmuMain)
         Me.Cursor = System.Windows.Forms.Cursors.Default
-        Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle
         Me.Location = New System.Drawing.Point(10, 56)
-        Me.MaximizeBox = False
+        Me.MinimumSize = New System.Drawing.Size(542, 321)
         Me.Name = "frmMainForm"
         Me.RightToLeft = System.Windows.Forms.RightToLeft.No
         Me.Text = "Quoridor"
