@@ -57,6 +57,7 @@ Friend Class clsBoard
         ' - [IN] ByVal dir As Byte: defines direction
         ' - returns True if move is possible
         Dim newPos As Position
+        newPos = New Position
         If Not checkFrontWall(pos, direction) Then
 
             'there is a border
@@ -333,6 +334,7 @@ returnFalse_checkPlaceWall:
         Dim RunningResults(7) As Byte
         'currently startpoint
         Dim startPoint As Position
+        startPoint = New Position
         'saves the right and left turns while running, so we can determine if we run ccw or cw
         Dim rightLeftCount(7) As Byte
         'holds the actual running direction
@@ -473,6 +475,10 @@ OutOfIndex:
         ReDim Players(NoOfPlayer)
         For B = 0 To NoOfPlayer
             Players(B) = New clsPlayer
+        Next B
+
+        For B = 0 To 3
+            pStarts(B) = New Position
         Next B
 
         'calc player starts - players counted ccw

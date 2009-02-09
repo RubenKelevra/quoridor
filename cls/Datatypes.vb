@@ -7,6 +7,10 @@ Public Class clsBrick
     Public Placed As Boolean
     Public Position As Position
     Public Horizontal As Boolean
+
+    Public Sub New()
+        Position = New Position
+    End Sub
 End Class
 
 Public Class clsMove

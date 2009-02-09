@@ -52,9 +52,14 @@ isdim_error:
     End Function
 	
     Function xy2position(ByVal x As Byte, ByVal y As Byte) As Position
-        'convert two values to position-type, saves usualy one lin
-        xy2position.X = x
-        xy2position.Y = y
+        'convert two values to position-type, saves usualy one line
+        Dim tmp As Position
+        tmp = New Position
+
+        tmp.X = x
+        tmp.Y = y
+
+        xy2position = tmp
     End Function
 	
     Function comparePos(ByRef pos1 As Position, ByRef pos2 As Position) As Boolean
@@ -120,4 +125,5 @@ isdim_error:
         End If
 
     End Function
+
 End Module

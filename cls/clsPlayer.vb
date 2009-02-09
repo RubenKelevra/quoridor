@@ -133,6 +133,7 @@ Friend Class clsPlayer
     Sub create(ByRef x As Byte, ByRef y As Byte, ByRef Stones As Byte, ByRef target As Byte)
 
         'set the first position of the player
+        Location = New Position
         Location.X = x
         Location.Y = y
 
@@ -140,5 +141,6 @@ Friend Class clsPlayer
         RemainingStones = CByte(Stones + 1)
         Playtime = 0
         TargetWall = target
+
     End Sub
 End Class
