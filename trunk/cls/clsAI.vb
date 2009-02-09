@@ -28,54 +28,76 @@ Friend Class clsAI
     Private mBrickMatrix(,,) As Byte
     Private mBNoOfMatrices As Byte
 
-    Enum BrickRating
-        firstNearField = 12
-        firstField = 10
-        firstFarField = 8
+    Enum Rating
+        firstNearField = 16
+        firstField = 20
+        firstFarField = 24
 
         secondNearField = 6
-        secondField = 5
-        secondFarField = 4
+        secondField = 10
+        secondFarField = 14
     End Enum
 
     Private B As Byte
     Private B1 As Byte
     Private B2 As Byte
-    Private i As Integer
-    Private i1 As Integer
 
+    Public Function move() As Integer
+
+
+
+    End Function
     Private Sub updateBrickInformation(Optional ByVal bFirstRun As Boolean = False)
-        Static BNextBrickIndex As Byte 'next index which may be used, on last run
+        Static BNextBrickIndex As Byte = 0 'next index which may be used, on last run
 
         If Not isDim(mNodeList) Then
             Exit Sub
         End If
 
         If bFirstRun Then
+
+            'allocate memory
             If mbFullPlayer Then
                 mBNoOfMatrices = mBoard.getNoOfPlayer
             Else
                 mBNoOfMatrices = 0
             End If
             ReDim mBrickMatrix(mBNoOfMatrices, mBoard.getDimension, mBoard.getDimension)
-        Else
 
-        End If
+            'plain 10 points values to all fields
+            For B = 0 To mBNoOfMatrices
+                For B1 = 0 To mBoard.getDimension
+                    For B2 = 0 To mBoard.getDimension
+                        mBrickMatrix(B, B1, B2) = 10
+                    Next B2
+                Next B1
+            Next B
 
-        If Not mbFullPlayer Then
-            'this KI is only for testing if any path is possible to reach target
-            'so we don't need to add a complex raiting to our matrix
-            For i = 0 To mBoard.getDimension
-                For i1 = 0 To mBoard.getDimension
-                    mBrickMatrix(0, i, i1) = 10
-                Next
-            Next
-            Exit Sub
+            If Not mbFullPlayer Then
+                'this KI is only for testing if any path is possible to reach target
+                'so we don't need to add a complex raiting to our matrix
+                Exit Sub
+            Else
+                'we need to add outlining walls to our rating matrices
+                For B = 0 To mBNoOfMatrices
+                    For B1 = 0 To mBoard.getDimension
+                        For B2 = 0 To mBoard.getDimension
+                            If B1 = 0 Or B1 = mBoard.getDimension Then
+                                mBrickMatrix(B, B1, B2) += Rating.firstField
+                                mBrickMatrix(B, B2, B1) += Rating.firstField
+                            ElseIf B1 = 1 Or B1 = mBoard.getDimension - 1 Then
+                                mBrickMatrix(B, B1, B2) += Rating.secondField
+                                mBrickMatrix(B, B2, B1) += Rating.secondField
+                            End If
+                        Next B2
+                    Next B1
+                Next B
+            End If
         End If
 
         For B = BNextBrickIndex To CByte(UBound(mBoard.Blocker) - LBound(mBoard.Blocker))
             With mBoard.Blocker(B)
-                If Not .Placed Then
+                If Not .Placed Then 'this first unused item
                     BNextBrickIndex = B
                     Exit For
                 End If
@@ -85,27 +107,157 @@ Friend Class clsAI
 
                     If .Horizontal Then
                         If B2 Mod 2 = 0 Then 'to bottom or top
-
+                            mBrickMatrix(B1, .Position.X, .Position.Y) += Rating.firstField
+                            'FIXME: correct if left top field is 0,0
+                            If checkPos(.Position.X + 1, .Position.Y, mBoard.getDimension) Then
+                                mBrickMatrix(B1, .Position.X + 1, .Position.Y) += Rating.firstField
+                            End If
+                            If checkPos(.Position.X, .Position.Y + 1, mBoard.getDimension) Then
+                                mBrickMatrix(B1, .Position.X, .Position.Y + 1) += Rating.secondField
+                            End If
+                            If checkPos(.Position.X + 1, .Position.Y + 1, mBoard.getDimension) Then
+                                mBrickMatrix(B1, .Position.X + 1, .Position.Y + 1) += Rating.secondField
+                            End If
+                            If checkPos(.Position.X, .Position.Y - 1, mBoard.getDimension) Then
+                                mBrickMatrix(B1, .Position.X, .Position.Y - 1) += Rating.firstField
+                            End If
+                            If checkPos(.Position.X + 1, .Position.Y - 1, mBoard.getDimension) Then
+                                mBrickMatrix(B1, .Position.X + 1, .Position.Y - 1) += Rating.firstField
+                            End If
+                            If checkPos(.Position.X, .Position.Y - 2, mBoard.getDimension) Then
+                                mBrickMatrix(B1, .Position.X, .Position.Y - 2) += Rating.secondField
+                            End If
+                            If checkPos(.Position.X + 1, .Position.Y - 2, mBoard.getDimension) Then
+                                mBrickMatrix(B1, .Position.X + 1, .Position.Y - 2) += Rating.secondField
+                            End If
                         ElseIf B2 = 1 Then 'to right
-
+                            mBrickMatrix(B1, .Position.X, .Position.Y) += Rating.firstNearField
+                            'FIXME: correct if left top field is 0,0
+                            If checkPos(.Position.X + 1, .Position.Y, mBoard.getDimension) Then
+                                mBrickMatrix(B1, .Position.X + 1, .Position.Y) += Rating.firstFarField
+                            End If
+                            If checkPos(.Position.X, .Position.Y + 1, mBoard.getDimension) Then
+                                mBrickMatrix(B1, .Position.X, .Position.Y + 1) += Rating.secondNearField
+                            End If
+                            If checkPos(.Position.X + 1, .Position.Y + 1, mBoard.getDimension) Then
+                                mBrickMatrix(B1, .Position.X + 1, .Position.Y + 1) += Rating.secondFarField
+                            End If
+                            If checkPos(.Position.X, .Position.Y - 1, mBoard.getDimension) Then
+                                mBrickMatrix(B1, .Position.X, .Position.Y - 1) += Rating.firstNearField
+                            End If
+                            If checkPos(.Position.X + 1, .Position.Y - 1, mBoard.getDimension) Then
+                                mBrickMatrix(B1, .Position.X + 1, .Position.Y - 1) += Rating.firstFarField
+                            End If
+                            If checkPos(.Position.X, .Position.Y - 2, mBoard.getDimension) Then
+                                mBrickMatrix(B1, .Position.X, .Position.Y - 2) += Rating.secondNearField
+                            End If
+                            If checkPos(.Position.X + 1, .Position.Y - 2, mBoard.getDimension) Then
+                                mBrickMatrix(B1, .Position.X + 1, .Position.Y - 2) += Rating.secondFarField
+                            End If
                         Else 'b2 = 3 to left
-
+                            mBrickMatrix(B1, .Position.X, .Position.Y) += Rating.firstFarField
+                            'FIXME: correct if left top field is 0,0
+                            If checkPos(.Position.X + 1, .Position.Y, mBoard.getDimension) Then
+                                mBrickMatrix(B1, .Position.X + 1, .Position.Y) += Rating.firstNearField
+                            End If
+                            If checkPos(.Position.X + 1, .Position.Y + 1, mBoard.getDimension) Then
+                                mBrickMatrix(B1, .Position.X + 1, .Position.Y + 1) += Rating.secondNearField
+                            End If
+                            If checkPos(.Position.X, .Position.Y + 1, mBoard.getDimension) Then
+                                mBrickMatrix(B1, .Position.X, .Position.Y + 1) += Rating.secondFarField
+                            End If
+                            If checkPos(.Position.X, .Position.Y - 1, mBoard.getDimension) Then
+                                mBrickMatrix(B1, .Position.X, .Position.Y - 1) += Rating.firstFarField
+                            End If
+                            If checkPos(.Position.X, .Position.Y - 2, mBoard.getDimension) Then
+                                mBrickMatrix(B1, .Position.X, .Position.Y - 2) += Rating.secondFarField
+                            End If
+                            If checkPos(.Position.X + 1, .Position.Y - 1, mBoard.getDimension) Then
+                                mBrickMatrix(B1, .Position.X + 1, .Position.Y - 1) += Rating.firstNearField
+                            End If
+                            If checkPos(.Position.X + 1, .Position.Y - 2, mBoard.getDimension) Then
+                                mBrickMatrix(B1, .Position.X + 1, .Position.Y - 2) += Rating.secondNearField
+                            End If
                         End If
-                    Else
+                    Else 'not .Horizontal
                         If B2 Mod 2 = 1 Then 'to right or left
-
+                            mBrickMatrix(B1, .Position.X, .Position.Y) += Rating.firstField
+                            'FIXME: correct if left top field is 0,0
+                            If checkPos(.Position.X + 1, .Position.Y, mBoard.getDimension) Then
+                                mBrickMatrix(B1, .Position.X + 1, .Position.Y) += Rating.firstField
+                            End If
+                            If checkPos(.Position.X + 1, .Position.Y - 1, mBoard.getDimension) Then
+                                mBrickMatrix(B1, .Position.X + 1, .Position.Y - 1) += Rating.firstField
+                            End If
+                            If checkPos(.Position.X, .Position.Y - 1, mBoard.getDimension) Then
+                                mBrickMatrix(B1, .Position.X, .Position.Y - 1) += Rating.firstField
+                            End If
+                            If checkPos(.Position.X - 1, .Position.Y, mBoard.getDimension) Then
+                                mBrickMatrix(B1, .Position.X - 1, .Position.Y) += Rating.secondField
+                            End If
+                            If checkPos(.Position.X - 1, .Position.Y - 1, mBoard.getDimension) Then
+                                mBrickMatrix(B1, .Position.X - 1, .Position.Y - 1) += Rating.secondField
+                            End If
+                            If checkPos(.Position.X + 2, .Position.Y, mBoard.getDimension) Then
+                                mBrickMatrix(B1, .Position.X + 2, .Position.Y) += Rating.secondField
+                            End If
+                            If checkPos(.Position.X + 2, .Position.Y - 1, mBoard.getDimension) Then
+                                mBrickMatrix(B1, .Position.X + 2, .Position.Y - 1) += Rating.secondField
+                            End If
                         ElseIf B2 = 0 Then 'to bottom
-
+                            mBrickMatrix(B1, .Position.X, .Position.Y) += Rating.firstFarField
+                            'FIXME: correct if left top field is 0,0
+                            If checkPos(.Position.X, .Position.Y - 1, mBoard.getDimension) Then
+                                mBrickMatrix(B1, .Position.X, .Position.Y - 1) += Rating.firstNearField
+                            End If
+                            If checkPos(.Position.X - 1, .Position.Y, mBoard.getDimension) Then
+                                mBrickMatrix(B1, .Position.X - 1, .Position.Y) += Rating.secondFarField
+                            End If
+                            If checkPos(.Position.X - 1, .Position.Y - 1, mBoard.getDimension) Then
+                                mBrickMatrix(B1, .Position.X - 1, .Position.Y - 1) += Rating.secondNearField
+                            End If
+                            If checkPos(.Position.X + 1, .Position.Y, mBoard.getDimension) Then
+                                mBrickMatrix(B1, .Position.X + 1, .Position.Y) += Rating.firstFarField
+                            End If
+                            If checkPos(.Position.X + 1, .Position.Y - 1, mBoard.getDimension) Then
+                                mBrickMatrix(B1, .Position.X + 1, .Position.Y - 1) += Rating.firstNearField
+                            End If
+                            If checkPos(.Position.X + 2, .Position.Y, mBoard.getDimension) Then
+                                mBrickMatrix(B1, .Position.X + 2, .Position.Y) += Rating.secondFarField
+                            End If
+                            If checkPos(.Position.X + 2, .Position.Y - 1, mBoard.getDimension) Then
+                                mBrickMatrix(B1, .Position.X + 2, .Position.Y - 1) += Rating.secondNearField
+                            End If
                         Else 'to top
-
+                            mBrickMatrix(B1, .Position.X, .Position.Y) += Rating.firstNearField
+                            'FIXME: correct if left top field is 0,0
+                            If checkPos(.Position.X, .Position.Y - 1, mBoard.getDimension) Then
+                                mBrickMatrix(B1, .Position.X, .Position.Y - 1) += Rating.firstFarField
+                            End If
+                            If checkPos(.Position.X + 1, .Position.Y, mBoard.getDimension) Then
+                                mBrickMatrix(B1, .Position.X + 1, .Position.Y) += Rating.firstNearField
+                            End If
+                            If checkPos(.Position.X + 1, .Position.Y - 1, mBoard.getDimension) Then
+                                mBrickMatrix(B1, .Position.X + 1, .Position.Y - 1) += Rating.firstFarField
+                            End If
+                            If checkPos(.Position.X - 1, .Position.Y, mBoard.getDimension) Then
+                                mBrickMatrix(B1, .Position.X - 1, .Position.Y) += Rating.secondNearField
+                            End If
+                            If checkPos(.Position.X - 1, .Position.Y - 1, mBoard.getDimension) Then
+                                mBrickMatrix(B1, .Position.X - 1, .Position.Y - 1) += Rating.secondFarField
+                            End If
+                            If checkPos(.Position.X + 2, .Position.Y, mBoard.getDimension) Then
+                                mBrickMatrix(B1, .Position.X + 2, .Position.Y) += Rating.secondNearField
+                            End If
+                            If checkPos(.Position.X + 2, .Position.Y - 1, mBoard.getDimension) Then
+                                mBrickMatrix(B1, .Position.X + 2, .Position.Y - 1) += Rating.secondFarField
+                            End If
                         End If
                     End If
-                Next
+                Next B1
             End With
-        Next
-
+        Next B
     End Sub
-
     Public Sub New(ByRef Board As clsBoard, ByVal bFullPlayer As Boolean)
         mBoard = Board
         mbFullPlayer = bFullPlayer
