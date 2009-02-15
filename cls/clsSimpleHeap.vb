@@ -38,7 +38,7 @@ Friend Class clsSimpleHeap
     End Structure
 
 	' our heap of dataentries
-    Private Heap() As AstarData
+    Public Heap() As AstarData
 
     ' the steps we increase our Heap()
     Private iAllocationStep As Integer
@@ -49,7 +49,33 @@ Friend Class clsSimpleHeap
     ' Number of Elements which are on the Open List
     Private iRemainingOpenElements As Integer
 
-    Private iTemp As Integer
+    Private i As Integer
+
+    Private B As Byte
+    Private B2 As Byte
+
+    Public Function FindNode(ByVal x As Byte, ByVal y As Byte) As Integer
+        For i = 0 To iFirstEmptyIndex - 1
+            If Heap(i).B_X = x Then
+                If Heap(i).B_Y = y Then
+                    Return i
+                End If
+            End If
+        Next
+        Return -1
+    End Function
+
+    Public Function isClosed(ByVal id As Integer) As Boolean
+        Return Heap(id).bClosed
+    End Function
+
+    Public Function OpenNodeRemaning() As Boolean
+        If iRemainingOpenElements = 0 Then
+            Return False
+        Else
+            Return True
+        End If
+    End Function
 
     Public Sub init(Optional ByVal AllocationStep As Integer = 0, Optional ByVal MinListSize As Integer = 0)
         If Not AllocationStep = 0 Then
@@ -74,14 +100,12 @@ Friend Class clsSimpleHeap
         iRemainingOpenElements = 0
     End Sub
 
-    Public Function getMin(ByVal id As Integer) As AstarData
-        Static i As Integer
+    Public Function getMin() As Integer
         Static minCosts As Integer
         Static index As Integer
 
         minCosts = Integer.MaxValue
         index = Integer.MaxValue
-
 
         For i = 0 To iFirstEmptyIndex - 1
             With Heap(i)
@@ -91,9 +115,9 @@ Friend Class clsSimpleHeap
                     End If
                 End If
             End With
-        Next
+        Next i
         If Not index = UInteger.MaxValue Then
-            getMin = Heap(index)
+            Return index
         End If
     End Function
 
@@ -104,6 +128,7 @@ Friend Class clsSimpleHeap
         Else
             Return False
         End If
+        iRemainingOpenElements -= 1
     End Function
 
     Public Function addOpen(ByVal X As Byte, ByVal Y As Byte, ByVal ParentFieldIndex As UInteger, _
@@ -140,8 +165,9 @@ Friend Class clsSimpleHeap
             .uiParentFieldI = ParentFieldIndex
         End With
 
-        Return True
+        iRemainingOpenElements += 1
 
+        Return True
     End Function
 
     Public Sub New()

@@ -711,18 +711,13 @@ doNext:
                 ' set empty space
                 PfCurPosition.Y = PfCurPosition.Y + y * PfBricksize.Y
 
-
                 For i = LBound(mySavedBricks) To UBound(mySavedBricks)
 
-                    ' if brick is not set
-                    If mySavedBricks(i).Placed = False Or comparePos(xy2position(255, 255), mySavedBricks(i).Position) Then
-
+                    If mySavedBricks(i).Placed = False Then 'brick is not set
                         Exit For
-
                     End If
 
-                    ' saved brick
-                    If mySavedBricks(i).Horizontal And (comparePos(xy2position(x, y), mySavedBricks(i).Position) Or comparePos(xy2position(x, y), xy2position(mySavedBricks(i).Position.X + 1, mySavedBricks(i).Position.Y))) Then
+                    If mySavedBricks(i).Horizontal And (comparePos(xy2position(x, y), mySavedBricks(i).Position) Or comparePos(xy2position(x, y), xy2position(mySavedBricks(i).Position.X + 1, mySavedBricks(i).Position.Y))) Then 'saved brick
 
                         cCurColor = Color.DarkOrange
 
