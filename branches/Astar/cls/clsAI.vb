@@ -27,6 +27,7 @@ Friend Class clsAI
     Private mNodeList() As clsSimpleHeap
     Private mBrickMatrix(,,) As Byte
     Private mBNoOfMatrices As Byte
+    Private tempBrickRating(3, 3) As Byte 'used in move
 
     Enum Rating
         firstNearField = 16
@@ -42,11 +43,67 @@ Friend Class clsAI
     Private B1 As Byte
     Private B2 As Byte
 
-    Public Function move() As Integer
+    Private BlockedPositionsBricks(,) As Boolean 'true is blocked
 
+    Private Sub resetTempBrickRating()
+        For B = 0 To 3
+            For B1 = 0 To 3
+                tempBrickRating(B, B1) = 0
+            Next B1
+        Next B
+    End Sub
+
+    Private Function astar(ByVal PlayerNo As Byte, ByVal BrickTestRun As Boolean) As Integer
+
+        If PlayerNo >= mBNoOfMatrices And mbFullPlayer Then 'there are invalid runparametres
+            Return 2 'FIXME: There should be a general errorcode
+        End If
 
 
     End Function
+
+    Public Function move() As Integer
+        'update intern brick information if some bricks were setted
+        updateBrickInformation()
+
+        ' --- we need to ran astar to get the best way to target ---
+
+
+        ' --- now we have to check all free brick positions ---
+
+        'setting a list of used bricks to an boolean array for faster skipping
+        For B = LBound(mBoard.Blocker) To UBound(mBoard.Blocker) - LBound(mBoard.Blocker)
+            With mBoard.Blocker(B)
+                If Not .Placed Then
+                    Exit For
+                Else
+                    BlockedPositionsBricks(.Position.X, .Position.Y) = True
+                End If
+            End With
+        Next B
+
+        'running thru all fields of board - ignoring the fields with a true in BlockedPositions
+        For B = 0 To mBoard.getDimension - 1 'X
+            For B1 = 0 To mBoard.getDimension - 1 'Y
+                If Not BlockedPositionsBricks(B, B1) Then
+                    For B2 = 0 To 1 '1 = horizontal
+                        If mBoard.checkPlaceWall(B, B1, CBool(B2)) Then
+                            'FIXME: do stuff
+                        End If
+                    Next B2
+                End If
+            Next B1
+        Next B
+    End Function
+
+    Private Sub addBrickRating(ByRef Field() As Byte)
+        'fixme: add a cut out from updatebrickinformation
+    End Sub
+
+    Private Function calcHeuristic(ByVal startX As Byte, ByVal startY As Byte, ByVal endX As Byte, ByVal endY As Byte) As Integer
+
+    End Function
+
     Private Sub updateBrickInformation(Optional ByVal bFirstRun As Boolean = False)
         Static BNextBrickIndex As Byte = 0 'next index which may be used, on last run
 
@@ -75,7 +132,7 @@ Friend Class clsAI
 
             If Not mbFullPlayer Then
                 'this KI is only for testing if any path is possible to reach target
-                'so we don't need to add a complex raiting to our matrix
+                'so we don't need to add a complex rating to our matrix
                 Exit Sub
             Else
                 'we need to add outlining walls to our rating matrices
@@ -97,8 +154,8 @@ Friend Class clsAI
 
         For B = BNextBrickIndex To CByte(UBound(mBoard.Blocker) - LBound(mBoard.Blocker))
             With mBoard.Blocker(B)
+                BNextBrickIndex = B + 1
                 If Not .Placed Then 'this first unused item
-                    BNextBrickIndex = B
                     Exit For
                 End If
                 'write ratings in the matrices
@@ -258,6 +315,7 @@ Friend Class clsAI
             End With
         Next B
     End Sub
+
     Public Sub New(ByRef Board As clsBoard, ByVal bFullPlayer As Boolean)
         mBoard = Board
         mbFullPlayer = bFullPlayer

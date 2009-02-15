@@ -108,48 +108,47 @@ fEnd:
         End If
     End Function
 	
-    Public Function getWalls() As clsBrick()
-        getWalls = CType(VB6.CopyArray(Blocker), clsBrick())
-    End Function
-	
     Public Function saveWall(ByRef Br As clsBrick, ByRef Player As Byte) As Short
         'returnvalues
         '0 = ok
         '1 = player have no blockers left
         '2 = cannot be used cause you would envelop a figure or position is used by another blocker
         '3 = player index out of range
-        Dim B As Byte
-        Dim saved As Boolean
+        '4 = no space in Bricks() left
+        Static B As Byte
+        Static foundEmptyPosition As Boolean
 
         'check for valid player index
         If Player > UBound(Players) - LBound(Players) Then
-            saveWall = 3
-            Exit Function
+            Return 3
         End If
 
         If Players(Player).getBricks = 0 Then
-            saveWall = 1
-            Exit Function
+            Return 1
         End If
 
         If Not checkPlaceWall(Br.Position.X, Br.Position.Y, (Br.Horizontal)) Then
-            saveWall = 2
-            Exit Function
+            Return 2
         End If
 
-        saved = False
+        foundEmptyPosition = False
 
         'running thru setted Blockers to get last index of the placed ones
         For B = CByte(LBound(Blocker)) To CByte(UBound(Blocker))
             If Not Blocker(B).Placed Then
+                foundEmptyPosition = True
                 Exit For
             End If
         Next B
+        If Not foundEmptyPosition Then
+            Return 4
+        End If
         Blocker(B).Placed = True
         Blocker(B).Horizontal = Br.Horizontal
         Blocker(B).Position.X = Br.Position.X
         Blocker(B).Position.Y = Br.Position.Y
         Players(Player).subtractStone()
+        Return 0
     End Function
 	
     '    Function getPlayerColor(ByRef i As Byte) As Integer
@@ -226,52 +225,50 @@ OutOfIndex:
 
     Public Function checkFrontWall(ByRef pos As Position, ByRef direction As Byte) As Boolean
         'if true there are a wall in front of the position and with this direction
-        Dim stone As clsBrick
-        Dim B As Byte
+        Static stone As clsBrick
+        Static B As Byte
 
         For B = CByte(LBound(Blocker)) To CByte(UBound(Blocker))
             stone = Blocker(B)
             'if we found the first stone which is not placed or which have a default value as position we exiting
-            If stone.Placed = False Or stone.Position.X = 255 Or stone.Position.X = 255 Then
+            If stone.Placed = False Then
                 Exit For
             End If
             Select Case direction
                 Case 0 'bottom
                     If stone.Horizontal = True And stone.Position.Y = pos.Y Then
                         'stone is bottom on right
-                        If stone.Position.X = pos.X Then GoTo returnFalse
+                        If stone.Position.X = pos.X Then GoTo returnTrue
                         'stone is bottom on left
-                        If stone.Position.X + 1 = pos.X Then GoTo returnFalse
+                        If stone.Position.X + 1 = pos.X Then GoTo returnTrue
                     End If
                 Case 1 'right
                     If stone.Horizontal = False And stone.Position.X = pos.X Then
                         'stone is upper on right
-                        If stone.Position.Y + 1 = pos.Y Then GoTo returnFalse
+                        If stone.Position.Y + 1 = pos.Y Then GoTo returnTrue
                         'stone is lower on right
-                        If stone.Position.Y = pos.Y Then GoTo returnFalse
+                        If stone.Position.Y = pos.Y Then GoTo returnTrue
                     End If
                 Case 2 'top
                     If stone.Horizontal = True And stone.Position.Y + 1 = pos.Y Then
                         'stone is top on right
-                        If stone.Position.X = pos.X Then GoTo returnFalse
+                        If stone.Position.X = pos.X Then GoTo returnTrue
                         'stone is top on left
-                        If stone.Position.X + 1 = pos.X Then GoTo returnFalse
+                        If stone.Position.X + 1 = pos.X Then GoTo returnTrue
                     End If
                 Case 3 'left
                     If stone.Horizontal = False And stone.Position.X + 1 = pos.X Then
                         'stone is upper on left
-                        If stone.Position.Y + 1 = pos.Y Then GoTo returnFalse
+                        If stone.Position.Y + 1 = pos.Y Then GoTo returnTrue
                         'stone is lower on left
-                        If stone.Position.Y = pos.Y Then GoTo returnFalse
+                        If stone.Position.Y = pos.Y Then GoTo returnTrue
                     End If
             End Select
         Next B
         'no stone have been found which blocks our way
-        checkFrontWall = False
-        Exit Function
-returnFalse:
-        checkFrontWall = True
-        Exit Function
+        Return False
+returnTrue:
+        Return True
     End Function
 
     Private Function NoToDir(ByRef i As Byte) As Byte
@@ -286,8 +283,8 @@ returnFalse:
 
     Function checkPlaceWall(ByRef x As Byte, ByRef y As Byte, ByRef Horizontal As Boolean) As Boolean
         'if true a wall can be placed on this position
-        Dim stone As clsBrick
-        Dim i As Byte
+        Static stone As clsBrick
+        Static i As Byte
 
         For i = CByte(LBound(Blocker)) To CByte(UBound(Blocker))
             stone = Blocker(i)
@@ -446,6 +443,10 @@ OutOfIndex:
 
     Function getRemainingPlayerBricks(ByRef i As Byte) As Byte
         getRemainingPlayerBricks = Players(i).getBricks 'we want a number not an index
+    End Function
+
+    Public Function getWalls() As clsBrick()
+        getWalls = CType(VB6.CopyArray(Blocker), clsBrick())
     End Function
 
     Private Function getPlayerPositions() As Position()
