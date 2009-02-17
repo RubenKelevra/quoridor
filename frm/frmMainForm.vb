@@ -458,8 +458,7 @@ doNext:
         If bGameEnabled Then
 
             Call drawBoard()
-            Call drawBricksHori()
-            Call drawBricksVert()
+            Call drawBricks()
 
         End If
 
@@ -564,259 +563,143 @@ doNext:
     End Sub
 
     Private Sub drawBoard()
+        'Private drawBoard
+        'draws board
 
-        ' dec
-        Dim BDimension As Byte
-        Dim i As Byte
-        Dim x As Byte
-        Dim y As Byte
-        Dim GBoard As Graphics
-        Dim colorPen As System.Drawing.Color 'System.Drawing.Brush
-        Dim curLocation As Position
-        Dim playerLocation() As Position
-        Dim PfCurPosition As PointF
-        Dim rect(,) As RectangleF
+        ' declaration
+        Static BDimension As Byte
+        Static i As Byte
+        Static x As Byte
+        Static y As Byte
+        Static GBoard As Graphics
+        Static colorPen As System.Drawing.Color = Color.Black ' default board color
+        Static playerLocation() As Position
+        Static PfCurPosition As PointF
+        Static rect(,) As RectangleF
+
+        Static BlastDimensions As Byte = Byte.MaxValue
+        Static BlastPlayerNo As Byte = Byte.MaxValue
 
         ' init
+
+        'check if we need to change dimension-values from field
         BDimension = Playground.getDimension
-        ReDim rect(BDimension, BDimension)
-        ReDim playerLocation(Playground.getNoOfPlayer)
+        If Not BlastDimensions = BDimension Then
+            ReDim rect(BDimension, BDimension)
+            BlastDimensions = BDimension
+        End If
+
+        x = Playground.getNoOfPlayer
+        If Not BlastPlayerNo = x Then
+            ReDim playerLocation(x)
+            BlastPlayerNo = x
+        End If
+
         GBoard = Me.CreateGraphics()
-        For i = LBound(playerLocation) To UBound(playerLocation)
-
+        For i = LBound(playerLocation) To UBound(playerLocation) - LBound(playerLocation)
             playerLocation(i) = Playground.getPlayerLocation(i)
-
         Next i
 
         For x = 0 To BDimension
-
             PfCurPosition.X = PiStartCoords.X + x * PfFieldsize.X + x * PfBricksize.X
 
             For y = 0 To BDimension
-
                 PfCurPosition.Y = PiStartCoords.Y + y * PfFieldsize.Y + y * PfBricksize.Y
 
                 rect(x, y) = New RectangleF(PfCurPosition.X, PfCurPosition.Y, PfFieldsize.X, PfFieldsize.Y)
 
-                colorPen = Color.Black ' default board color
-
                 ' check current position with the position of all players
-                For i = LBound(playerLocation) To UBound(playerLocation)
-
-                    curLocation = xy2position(x, y)
-
-                    If comparePos(curLocation, playerLocation(i)) Then
-
-                        ' set playercolor
+                For i = LBound(playerLocation) To UBound(playerLocation) - LBound(playerLocation)
+                    If comparePos(xy2position(x, y), playerLocation(i)) Then ' set playercolor
                         colorPen = Playground.getPlayerColor(i)
-
+                        Exit For
+                    Else
+                        colorPen = Color.Black ' default board color
                     End If
-
                 Next i
-
                 Call GBoard.FillRectangle(New SolidBrush(colorPen), rect(x, y))
-
             Next y
-
         Next x
-
     End Sub
 
-    'Private Sub drawBoard()
-
-    '    ' dec
-    '    Dim BDimension As Byte
-    '    Dim x As Byte
-    '    Dim y As Byte
-    '    Dim PfCurPosition As PointF
-    '    Dim rect(,) As RectangleF
-
-    '    Dim b As Boolean
-
-    '    BDimension = Playground.getDimension()
-    '    ReDim rect(BDimension, BDimension)
-
-    '    ' init
-    '    'Call init(BMaxX, BMaxY)
-    '    Dim graph As Graphics
-    '    graph = Me.CreateGraphics()
-
-    '    For x = 0 To BDimension
-
-    '        PfCurPosition.X = PiStartCoords.X + x * PfFieldsize.X + x * PfBricksize.X
-
-    '        For y = 0 To BDimension
-
-    '            PfCurPosition.Y = PiStartCoords.Y + y * PfFieldsize.Y + y * PfBricksize.Y
-
-    '            rect(x, y) = New RectangleF(PfCurPosition.X, PfCurPosition.Y, PfFieldsize.X, PfFieldsize.Y)
-
-    '            If b Then
-    '                Call graph.FillRectangle(Brushes.Black, rect(x, y))
-    '            Else
-    '                Call graph.FillRectangle(Brushes.White, rect(x, y))
-    '            End If
-
-    '            b = Not b
-
-    '        Next y
-
-    '    Next x
-
-    'End Sub
-
-
-    Public Sub drawBricksHori()
+    Public Sub drawBricks()
         ' draws the bricks between the board
-        ' return values:
-        ' none
 
-        ' dec
-        Dim BDimension As Byte 'boolean
-        Dim i As Byte
-        Dim x As Byte
-        Dim y As Byte
-        Dim cCurColor As System.Drawing.Color
-        Dim GBoard As Graphics
-        Dim PfCurPosition As PointF
-        Dim rect(,) As RectangleF
-        Dim mySavedBricks() As clsBrick
+        Static BDimension As Byte
+        Static i As Byte
+        Static x As Byte
+        Static y As Byte
+        Static cCurColor As System.Drawing.Color
+        Static GBoard As Graphics
+        Static PfCurPosition As PointF
+        Static rect(,) As RectangleF
+        Static mySavedBricks() As clsBrick
+        Static horz As Byte
+
+        Static BlastDimension As Byte
 
         ' init
         BDimension = Playground.getDimension
-        ReDim rect(BDimension, BDimension - 1)
-        'ReDim mySavedBricks(UBound(Playground.getWalls))
+        If Not BlastDimension = BDimension Then
+            ReDim rect(BDimension, BDimension - 1)
+        End If
         mySavedBricks = Playground.getWalls
         GBoard = Me.CreateGraphics()
 
         ' horizontal
-        For x = 0 To BDimension
-            For y = 0 To BDimension - 1
-
-                cCurColor = Me.BackColor 'default brick color
-
-                ' calc current coords
-
-                ' set x frame position
-                PfCurPosition.X = PiStartCoords.X
-                ' set next position
-                PfCurPosition.X = PfCurPosition.X + x * PfFieldsize.X
-                ' set empty space
-                PfCurPosition.X = PfCurPosition.X + x * PfBricksize.X
-
-                ' set y frame position
-                PfCurPosition.Y = PiStartCoords.Y
-                ' set next position
-                PfCurPosition.Y = PfCurPosition.Y + (y + 1) * PfFieldsize.Y
-                ' set empty space
-                PfCurPosition.Y = PfCurPosition.Y + y * PfBricksize.Y
-
-                For i = LBound(mySavedBricks) To UBound(mySavedBricks)
-
-                    If mySavedBricks(i).Placed = False Then 'brick is not set
+        For horz = 0 To 1
+            For x = 0 To BDimension
+                For y = 0 To BDimension
+                    If (horz And x = BDimension) Or (Not horz And y = BDimension) Then
                         Exit For
                     End If
+                    ' --- calc current coords ---
 
-                    If mySavedBricks(i).Horizontal And (comparePos(xy2position(x, y), mySavedBricks(i).Position) Or comparePos(xy2position(x, y), xy2position(mySavedBricks(i).Position.X + 1, mySavedBricks(i).Position.Y))) Then 'saved brick
+                    ' set x frame position
+                    PfCurPosition.X = PiStartCoords.X
+                    ' set next position
+                    'If horz Then
+                    'PfCurPosition.X = PfCurPosition.X + x * PfFieldsize.X
+                    'Else
+                    PfCurPosition.X = PfCurPosition.X + (x + 1) * PfFieldsize.X
+                    'End If
+                    ' set empty space
+                    PfCurPosition.X = PfCurPosition.X + x * PfBricksize.X
 
-                        cCurColor = Color.DarkOrange
+                    ' set y frame position
+                    PfCurPosition.Y = PiStartCoords.Y
+                    ' set next position
+                    'If horz Then
+                    PfCurPosition.Y = PfCurPosition.Y + (y + 1) * PfFieldsize.Y
+                    'Else
+                    'PfCurPosition.Y = PfCurPosition.Y + y * PfFieldsize.Y
+                    'End If
+                    ' set empty space
+                    PfCurPosition.Y = PfCurPosition.Y + y * PfBricksize.Y
 
+                    cCurColor = Me.BackColor
+
+                    For i = LBound(mySavedBricks) To UBound(mySavedBricks) - LBound(mySavedBricks)
+                        ' if brick is not set
+                        If mySavedBricks(i).Placed = False Or comparePos(xy2position(255, 255), mySavedBricks(i).Position) Then
+                            Exit For
+                        End If
+                        ' saved brick
+                        If horz = mySavedBricks(i).Horizontal And (comparePos(xy2position(x, y), mySavedBricks(i).Position) Or comparePos(xy2position(x, y), xy2position(mySavedBricks(i).Position.X, mySavedBricks(i).Position.Y + 1))) Then
+                            cCurColor = Color.DarkOrange
+                        End If
+                    Next i
+
+                    If horz = tTempBrick.Horizontal And tTempBrick.Placed And (comparePos(xy2position(x, y), tTempBrick.Position) Or (comparePos(xy2position(x, y), xy2position(tTempBrick.Position.X, tTempBrick.Position.Y + 1)))) Then
+                        cCurColor = Color.CornflowerBlue
                     End If
 
-                Next i
-
-                If tTempBrick.Placed And tTempBrick.Horizontal And (comparePos(xy2position(x, y), tTempBrick.Position) Or (comparePos(xy2position(x, y), xy2position(tTempBrick.Position.X + 1, tTempBrick.Position.Y)))) Then
-
-                    cCurColor = Color.CornflowerBlue
-
-                End If
-
-
-                rect(x, y) = New RectangleF(PfCurPosition.X, PfCurPosition.Y, PfFieldsize.X, PfBricksize.Y)
-
-                ' draw bricks
-                Call GBoard.FillRectangle(New SolidBrush(cCurColor), rect(x, y))
-
-            Next y
-
-        Next x
-
-    End Sub
-
-    Public Sub drawBricksVert()
-        ' draws the bricks between the board
-
-        Dim mySavedBricks() As clsBrick
-        Dim i As Byte
-        Dim BDimension As Byte
-        Dim x As Byte
-        Dim y As Byte
-        Dim GBoard As Graphics
-        Dim cCurColor As System.Drawing.Color
-        Dim PfCurPosition As PointF
-        Dim rect(,) As RectangleF
-
-        ' init
-        BDimension = Playground.getDimension
-        ReDim rect(BDimension - 1, BDimension)
-        mySavedBricks = Playground.getWalls()
-        GBoard = Me.CreateGraphics()
-
-        ' horizontal
-        For x = 0 To BDimension - 1
-            For y = 0 To BDimension
-
-                ' calc current coords
-
-                ' set x frame position
-                PfCurPosition.X = PiStartCoords.X
-                ' set next position
-                PfCurPosition.X = PfCurPosition.X + (x + 1) * PfFieldsize.X
-                ' set empty space
-                PfCurPosition.X = PfCurPosition.X + x * PfBricksize.X
-
-                ' set y frame position
-                PfCurPosition.Y = PiStartCoords.Y
-                ' set next position
-                PfCurPosition.Y = PfCurPosition.Y + y * PfFieldsize.Y
-                ' set empty space
-                PfCurPosition.Y = PfCurPosition.Y + y * PfBricksize.Y
-
-                cCurColor = Me.BackColor
-
-                For i = LBound(mySavedBricks) To UBound(mySavedBricks)
-
-                    ' if brick is not set
-                    If mySavedBricks(i).Placed = False Or comparePos(xy2position(255, 255), mySavedBricks(i).Position) Then
-
-                        Exit For
-
-                    End If
-
-                    ' saved brick
-                    If Not mySavedBricks(i).Horizontal And (comparePos(xy2position(x, y), mySavedBricks(i).Position) Or comparePos(xy2position(x, y), xy2position(mySavedBricks(i).Position.X, mySavedBricks(i).Position.Y + 1))) Then
-
-                        cCurColor = Color.DarkOrange
-
-                    End If
-
-                Next i
-
-                If tTempBrick.Placed And Not tTempBrick.Horizontal And (comparePos(xy2position(x, y), tTempBrick.Position) Or (comparePos(xy2position(x, y), xy2position(tTempBrick.Position.X, tTempBrick.Position.Y + 1)))) Then
-
-                    cCurColor = Color.CornflowerBlue
-
-                End If
-
-                rect(x, y) = New RectangleF(PfCurPosition.X, PfCurPosition.Y, PfBricksize.X, PfFieldsize.Y)
-
-                ' draw bricks
-                Call GBoard.FillRectangle(New SolidBrush(cCurColor), rect(x, y))
-
-            Next y
-
-        Next x
-
+                    rect(x, y) = New RectangleF(PfCurPosition.X, PfCurPosition.Y, PfBricksize.X, PfFieldsize.Y)
+                    'draw brick
+                    Call GBoard.FillRectangle(New SolidBrush(cCurColor), rect(x, y))
+                Next y
+            Next x
+        Next horz
     End Sub
 
     Private Sub resetBrickMode()
@@ -865,14 +748,16 @@ doNext:
             Call deactSetBrick()
             Call setLoadingLabel()
             Call drawBoard()
-            Call drawBricksHori()
-            Call drawBricksVert()
+            Call drawBricks()
 
         End If
 
     End Sub
 
     Public Sub sizeBoard()
+        Static GBoard As Graphics = Me.CreateGraphics()
+        'clean old board
+        Call GBoard.FillRectangle(New SolidBrush(Color.FromArgb(226, 226, 226)), New Rectangle(0, 0, Me.Width, Me.Height))
 
         ' max. fieldsize
         PfFieldsize.X = Me.fraBoard.Width / (BBoardDimension + 1)
@@ -889,7 +774,6 @@ doNext:
         ' real bricksize ( fit to "screen" )
         PfBricksize.X = PfBricksize.X * (1 + 1 / BBoardDimension)
         PfBricksize.Y = PfBricksize.Y * (1 + 1 / BBoardDimension)
-
     End Sub
 
 End Class

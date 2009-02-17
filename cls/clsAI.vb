@@ -28,8 +28,24 @@ Friend Class clsAI
     Private mBrickMatrix(,,) As Byte
     Private mBNoOfMatrices As Byte
     Private tempBrickRating(3, 3) As Byte 'used in move
+    Private BNodeLocationCache(,) As UShort
 
     Enum Rating
+        'rating for fields around a brick
+        'if plane
+        ' y x | x y
+        ' y x | x y
+        'where y is second field and x is first field
+
+        'if direction to bottom
+        ' w y | y w
+        ' x z | z y
+        'where:
+        ' w is second near
+        ' y is first near
+        ' x is second far
+        ' z is first far
+
         firstNearField = 16
         firstField = 20
         firstFarField = 24
@@ -43,9 +59,12 @@ Friend Class clsAI
     Private B1 As Byte
     Private B2 As Byte
 
-    Private BlockedPositionsBricks(,) As Boolean 'true is blocked
+    Private BlockedVerticalBricks(,) As Boolean 'true is blocked
+    Private BlockedHorizontalBricks(,) As Boolean 'true if blocked
 
     Private Sub resetTempBrickRating()
+        'Private resetTempBrickRating
+        'resets the brick-blocking-position-cache
         For B = 0 To 3
             For B1 = 0 To 3
                 tempBrickRating(B, B1) = 0
@@ -53,16 +72,21 @@ Friend Class clsAI
         Next B
     End Sub
 
-    Private Function astar(ByVal PlayerNo As Byte, ByVal BrickTestRun As Boolean) As Integer
+    Private Function astar(ByRef pStartPositionX As Byte, ByRef pStartPositionY As Byte, ByVal bBrickTestRun As Boolean) As Integer
 
-        If PlayerNo >= mBNoOfMatrices And mbFullPlayer Then 'there are invalid runparametres
-            Return 2 'FIXME: There should be a general errorcode
-        End If
+        'If PlayerNo >= mBNoOfMatrices And mbFullPlayer Then 'there are invalid runparametres
+        '    Return 2 'FIXME: There should be a general errorcode
+        'End If
 
 
     End Function
 
     Public Function move() As Integer
+        'Public move As Integer
+        'Do all decitions as fast as possible for a turn
+        ' - Returns a errorcode
+        Static BlastDimension As Byte = Byte.MaxValue
+
         'update intern brick information if some bricks were setted
         updateBrickInformation()
 
@@ -72,12 +96,24 @@ Friend Class clsAI
         ' --- now we have to check all free brick positions ---
 
         'setting a list of used bricks to an boolean array for faster skipping
+        B = mBoard.getDimension - 1
+        If Not B = BlastDimension Then
+            ReDim BlockedHorizontalBricks(B, B)
+            ReDim BlockedVerticalBricks(B - 1, B - 1)
+
+            BlastDimension = B
+        End If
+
         For B = LBound(mBoard.Blocker) To UBound(mBoard.Blocker) - LBound(mBoard.Blocker)
             With mBoard.Blocker(B)
-                If Not .Placed Then
+                If Not .Placed Then 'end reached
                     Exit For
                 Else
-                    BlockedPositionsBricks(.Position.X, .Position.Y) = True
+                    If .Horizontal Then
+                        BlockedHorizontalBricks(.Position.X, .Position.Y) = True
+                    Else
+                        BlockedVerticalBricks(.Position.X, .Position.Y) = True
+                    End If
                 End If
             End With
         Next B
@@ -85,26 +121,51 @@ Friend Class clsAI
         'running thru all fields of board - ignoring the fields with a true in BlockedPositions
         For B = 0 To mBoard.getDimension - 1 'X
             For B1 = 0 To mBoard.getDimension - 1 'Y
-                If Not BlockedPositionsBricks(B, B1) Then
-                    For B2 = 0 To 1 '1 = horizontal
-                        If mBoard.checkPlaceWall(B, B1, CBool(B2)) Then
-                            'FIXME: do stuff
-                        End If
-                    Next B2
-                End If
+                For B2 = 0 To 1 '1 = horizontal
+                    If 1 Then
+                        'FIXME: do stuff
+                    End If
+                Next B2
             Next B1
         Next B
+    End Function
+
+    Private Function checkBlocked(ByVal x As Byte, ByVal y As Byte, ByVal horizontal As Boolean) As Boolean
+        If x < mBoard.getDimension And y < mBoard.getDimension Then
+
+        End If
     End Function
 
     Private Sub addBrickRating(ByRef Field() As Byte)
         'fixme: add a cut out from updatebrickinformation
     End Sub
 
-    Private Function calcHeuristic(ByVal startX As Byte, ByVal startY As Byte, ByVal endX As Byte, ByVal endY As Byte) As Integer
-
+    Private Function calcHeuristic(ByVal startX As Byte, ByVal startY As Byte, ByVal playerNo As Byte) As Integer
+        'Private calcHeuristic As Integer
+        'calculates the shortest possible path to target
+        ' - [IN] ByVal startX As Byte: Startposition
+        ' - [IN] ByVal startY As Byte: Startposition
+        ' - [IN] ByVal playerNo As Byte: Index of player in playerarray
+        ' - shortest possible path
+        Select Case mBoard.Players(mBSelfPlayerNo).getTarget
+            Case 0 'to bottom
+                Return betrag(startX - (mBoard.getDimension + 1))
+            Case 1 'to right
+                Return betrag(startY - (mBoard.getDimension + 1))
+            Case 2 'to top
+                Return betrag(mBoard.getDimension + 1 - startX)
+            Case 3 'to left
+                Return betrag(mBoard.getDimension + 1 - startY)
+            Case Else
+                Return -1
+        End Select
     End Function
 
     Private Sub updateBrickInformation(Optional ByVal bFirstRun As Boolean = False)
+        'Private updateBrickInformation
+        'calc the brick ratings to the matrices to be used as database from astar, only adding the
+        'new bricks to speed up this stuff
+        ' - [IN] Optional ByVal bFirstRun As Boolean = False: Do a complete reset of all matrices _and_ redim if true 
         Static BNextBrickIndex As Byte = 0 'next index which may be used, on last run
 
         If Not isDim(mNodeList) Then
@@ -317,6 +378,13 @@ Friend Class clsAI
     End Sub
 
     Public Sub New(ByRef Board As clsBoard, ByVal bFullPlayer As Boolean)
+        'Public New
+        'This function allocate the memory for the AI
+        ' - [IN] ByRef Board As clsBoard: Reference of the complete gameboard, to be able to access its' this functions
+        ' - [IN] ByVal bFullPlayer As Boolean: Switch, if false this KI is ready to do very fast checks with low memory
+        '                                   footprint if it's still possible for every player to reach its' target, used to
+        '                                   implement the rule 'never sourround a player as such that he isn't be able to
+        '                                   reach(its) ' target
         mBoard = Board
         mbFullPlayer = bFullPlayer
 
@@ -330,7 +398,7 @@ Friend Class clsAI
         For B = 0 To CByte(UBound(mNodeList) - LBound(mNodeList))
             mNodeList(B) = New clsSimpleHeap
             mNodeList(B).init()
-        Next
+        Next B
 
         updateBrickInformation(True)
     End Sub
