@@ -27,7 +27,17 @@ Friend Class clsBoard
     Protected Friend Blocker() As clsBrick
     Protected Friend Dimensions As Byte
     Protected Friend activePlayer As Byte
-	
+
+    ' --- Cache for faster search for free ways and free stone positions used heaviely in AI ---
+    Private BlockedVerticalBricks(,) As Boolean 'true is blocked
+    Private BlockedHorizontalBricks(,) As Boolean 'true if blocked
+    Private BlockedBricksLastUpdate As Byte 'last added stone +1
+
+    Private Sub refreshBrickCache()
+        Static newBrickIndex As Byte
+
+    End Sub
+
     Public Function getPlayerType(ByRef Player As Byte) As Byte
         ' getPlayerType As Byte
         ' get the type of player
@@ -190,12 +200,6 @@ OutOfIndex:
         getActivePlayer = activePlayer
     End Function
 
-    'FIXME: was written for old ki implementation, maybe usefull for network handler
-    'Private Function getPlayerMove() As clsMove
-    'function will ask networkhandler or AI for move direction
-    '    getPlayerMove = Players(activePlayer).getMove
-    'End Function
-
     Public Sub doPlayerMove()
         'Dim PlayerMove As clsMove
         If getPlayerType(activePlayer) = 1 Then 'player is AI controlled
@@ -228,7 +232,7 @@ OutOfIndex:
         Static stone As clsBrick
         Static B As Byte
 
-        For B = CByte(LBound(Blocker)) To CByte(UBound(Blocker))
+        For B = CByte(LBound(Blocker)) To CByte(UBound(Blocker) - LBound(Blocker))
             stone = Blocker(B)
             'if we found the first stone which is not placed or which have a default value as position we exiting
             If stone.Placed = False Then
@@ -281,7 +285,7 @@ returnTrue:
         NoToField = CByte(VB.Switch(0 < i - 3, 0, True, 1))
     End Function
 
-    Function checkPlaceWall(ByRef x As Byte, ByRef y As Byte, ByRef Horizontal As Boolean) As Boolean
+    Public Function checkPlaceWall(ByRef x As Byte, ByRef y As Byte, ByRef Horizontal As Boolean) As Boolean
         'if true a wall can be placed on this position
         Static stone As clsBrick
         Static i As Byte
@@ -318,7 +322,7 @@ returnFalse_checkPlaceWall:
         Exit Function
     End Function
 
-    Function checkPlaceWall_donotuse(ByRef newPos As clsBrick) As Boolean
+    Private Function checkPlaceWall_donotuse(ByRef newPos As clsBrick) As Boolean
         'for-counter
         Dim i As Byte
         Dim i2 As Short
@@ -416,7 +420,7 @@ returnFalse_checkPlaceWall:
         'Next i
     End Function
 
-    Function activateAI(ByRef PlayerIndex As Byte) As Byte
+    Public Function activateAI(ByRef PlayerIndex As Byte) As Byte
         'load a AI instance for given Player
         'FIXME: Warning is not up to date
         'WARNING: load of four AIs will use 30MB RAM at minimum
@@ -427,21 +431,22 @@ returnFalse_checkPlaceWall:
         ' 255  = out of playerindex range
     End Function
 
-    Function getNameOfPlayer(ByRef i As Byte) As String
+    Public Function getNameOfPlayer(ByRef i As Byte) As String
         On Error GoTo OutOfIndex
         getNameOfPlayer = Players(i).getPlayerName
 OutOfIndex:
         getNameOfPlayer = ""
     End Function
-    Function getNoOfPlayer() As Byte
+
+    Public Function getNoOfPlayer() As Byte
         getNoOfPlayer = NoOfPlayer
     End Function
 
-    Function getPlayerTarget(ByRef i As Byte) As Byte
+    Public Function getPlayerTarget(ByRef i As Byte) As Byte
         getPlayerTarget = Players(i).getTarget
     End Function
 
-    Function getRemainingPlayerBricks(ByRef i As Byte) As Byte
+    Public Function getRemainingPlayerBricks(ByRef i As Byte) As Byte
         getRemainingPlayerBricks = Players(i).getBricks 'we want a number not an index
     End Function
 
@@ -460,7 +465,7 @@ OutOfIndex:
         getPlayerPositions = returnvalue
     End Function
 
-    Sub create(ByRef NoOfPl As Byte, ByRef Dimension As Byte)
+    Public Sub create(ByRef NoOfPl As Byte, ByRef Dimension As Byte)
         Dim pStarts(3) As Position
         Dim B As Byte
         Dim B2 As Byte
