@@ -58,6 +58,7 @@
         Me.ddmExit = New System.Windows.Forms.ToolStripMenuItem
         Me.fraBoard = New System.Windows.Forms.Panel
         Me.fraMovement = New System.Windows.Forms.GroupBox
+        Me.lblLoading = New System.Windows.Forms.Label
         Me.cmdCancelBrick = New System.Windows.Forms.Button
         Me._cmdMove_3 = New System.Windows.Forms.Button
         Me._cmdMove_0 = New System.Windows.Forms.Button
@@ -66,7 +67,7 @@
         Me._cmdMove_1 = New System.Windows.Forms.Button
         Me._cmdMove_2 = New System.Windows.Forms.Button
         Me.fraInfo = New System.Windows.Forms.GroupBox
-        Me.lblLoading = New System.Windows.Forms.Label
+        Me.lblPlayerName = New System.Windows.Forms.Label
         Me.lblBricksLeftNumber = New System.Windows.Forms.Label
         Me.lblBricksLeftTxt = New System.Windows.Forms.Label
         Me.lblCurPlayer = New System.Windows.Forms.Label
@@ -93,9 +94,9 @@
         Me.shpCurrentPlayer.BorderColor = System.Drawing.SystemColors.WindowText
         Me.shpCurrentPlayer.FillColor = System.Drawing.Color.Black
         Me.shpCurrentPlayer.FillStyle = Microsoft.VisualBasic.PowerPacks.FillStyle.Solid
-        Me.shpCurrentPlayer.Location = New System.Drawing.Point(152, 19)
+        Me.shpCurrentPlayer.Location = New System.Drawing.Point(108, 19)
         Me.shpCurrentPlayer.Name = "shpCurrentPlayer"
-        Me.shpCurrentPlayer.Size = New System.Drawing.Size(25, 25)
+        Me.shpCurrentPlayer.Size = New System.Drawing.Size(29, 25)
         Me.shpCurrentPlayer.Visible = False
         '
         'mmuMain
@@ -163,6 +164,7 @@
         'fraMovement
         '
         Me.fraMovement.BackColor = System.Drawing.SystemColors.Control
+        Me.fraMovement.Controls.Add(Me.lblLoading)
         Me.fraMovement.Controls.Add(Me.cmdCancelBrick)
         Me.fraMovement.Controls.Add(Me._cmdMove_3)
         Me.fraMovement.Controls.Add(Me._cmdMove_0)
@@ -179,6 +181,20 @@
         Me.fraMovement.TabIndex = 5
         Me.fraMovement.TabStop = False
         Me.fraMovement.Text = "Movement"
+        '
+        'lblLoading
+        '
+        Me.lblLoading.BackColor = System.Drawing.SystemColors.Control
+        Me.lblLoading.Cursor = System.Windows.Forms.Cursors.Default
+        Me.lblLoading.ForeColor = System.Drawing.SystemColors.ControlText
+        Me.lblLoading.Location = New System.Drawing.Point(120, 32)
+        Me.lblLoading.Name = "lblLoading"
+        Me.lblLoading.RightToLeft = System.Windows.Forms.RightToLeft.No
+        Me.lblLoading.Size = New System.Drawing.Size(119, 84)
+        Me.lblLoading.TabIndex = 14
+        Me.lblLoading.Text = "loading..."
+        Me.lblLoading.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
+        Me.lblLoading.Visible = False
         '
         'cmdCancelBrick
         '
@@ -292,7 +308,7 @@
         'fraInfo
         '
         Me.fraInfo.BackColor = System.Drawing.SystemColors.Control
-        Me.fraInfo.Controls.Add(Me.lblLoading)
+        Me.fraInfo.Controls.Add(Me.lblPlayerName)
         Me.fraInfo.Controls.Add(Me.lblBricksLeftNumber)
         Me.fraInfo.Controls.Add(Me.lblBricksLeftTxt)
         Me.fraInfo.Controls.Add(Me.lblCurPlayer)
@@ -307,25 +323,20 @@
         Me.fraInfo.TabStop = False
         Me.fraInfo.Text = "Information"
         '
-        'lblLoading
+        'lblPlayerName
         '
-        Me.lblLoading.BackColor = System.Drawing.SystemColors.Control
-        Me.lblLoading.Cursor = System.Windows.Forms.Cursors.Default
-        Me.lblLoading.ForeColor = System.Drawing.SystemColors.ControlText
-        Me.lblLoading.Location = New System.Drawing.Point(184, 32)
-        Me.lblLoading.Name = "lblLoading"
-        Me.lblLoading.RightToLeft = System.Windows.Forms.RightToLeft.No
-        Me.lblLoading.Size = New System.Drawing.Size(65, 17)
-        Me.lblLoading.TabIndex = 14
-        Me.lblLoading.Text = "loading..."
-        Me.lblLoading.Visible = False
+        Me.lblPlayerName.Location = New System.Drawing.Point(152, 32)
+        Me.lblPlayerName.Name = "lblPlayerName"
+        Me.lblPlayerName.Size = New System.Drawing.Size(94, 25)
+        Me.lblPlayerName.TabIndex = 16
+        Me.lblPlayerName.Text = "Blindtext"
         '
         'lblBricksLeftNumber
         '
         Me.lblBricksLeftNumber.BackColor = System.Drawing.SystemColors.Control
         Me.lblBricksLeftNumber.Cursor = System.Windows.Forms.Cursors.Default
         Me.lblBricksLeftNumber.ForeColor = System.Drawing.SystemColors.ControlText
-        Me.lblBricksLeftNumber.Location = New System.Drawing.Point(152, 64)
+        Me.lblBricksLeftNumber.Location = New System.Drawing.Point(152, 69)
         Me.lblBricksLeftNumber.Name = "lblBricksLeftNumber"
         Me.lblBricksLeftNumber.RightToLeft = System.Windows.Forms.RightToLeft.No
         Me.lblBricksLeftNumber.Size = New System.Drawing.Size(25, 25)
@@ -339,10 +350,10 @@
         Me.lblBricksLeftTxt.BackColor = System.Drawing.SystemColors.Control
         Me.lblBricksLeftTxt.Cursor = System.Windows.Forms.Cursors.Default
         Me.lblBricksLeftTxt.ForeColor = System.Drawing.SystemColors.ControlText
-        Me.lblBricksLeftTxt.Location = New System.Drawing.Point(8, 64)
+        Me.lblBricksLeftTxt.Location = New System.Drawing.Point(8, 69)
         Me.lblBricksLeftTxt.Name = "lblBricksLeftTxt"
         Me.lblBricksLeftTxt.RightToLeft = System.Windows.Forms.RightToLeft.No
-        Me.lblBricksLeftTxt.Size = New System.Drawing.Size(129, 25)
+        Me.lblBricksLeftTxt.Size = New System.Drawing.Size(78, 25)
         Me.lblBricksLeftTxt.TabIndex = 3
         Me.lblBricksLeftTxt.Text = "Bricks Left:"
         '
@@ -354,7 +365,7 @@
         Me.lblCurPlayer.Location = New System.Drawing.Point(8, 32)
         Me.lblCurPlayer.Name = "lblCurPlayer"
         Me.lblCurPlayer.RightToLeft = System.Windows.Forms.RightToLeft.No
-        Me.lblCurPlayer.Size = New System.Drawing.Size(129, 25)
+        Me.lblCurPlayer.Size = New System.Drawing.Size(78, 25)
         Me.lblCurPlayer.TabIndex = 2
         Me.lblCurPlayer.Text = "Current Player:"
         '
@@ -366,7 +377,7 @@
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.BackColor = System.Drawing.SystemColors.Control
-        Me.ClientSize = New System.Drawing.Size(534, 287)
+        Me.ClientSize = New System.Drawing.Size(534, 293)
         Me.Controls.Add(Me.fraMovement)
         Me.Controls.Add(Me.fraBoard)
         Me.Controls.Add(Me.fraInfo)
@@ -386,5 +397,6 @@
         Me.PerformLayout()
 
     End Sub
+    Friend WithEvents lblPlayerName As System.Windows.Forms.Label
 #End Region
 End Class

@@ -1,4 +1,4 @@
-Option Strict On
+Option Strict Off
 Option Explicit On
 Imports VB = Microsoft.VisualBasic
 Friend Class clsBoard
@@ -109,7 +109,49 @@ fEnd:
         checkMove = False
         Exit Function ' NOTICE: Not needed at this place
     End Function
-	
+
+    Public Function setPlayername(ByRef BPlayerNo As Byte, ByRef txtField As TextBox) As Integer
+        'Public setPlayername As Boolean
+        'sets the playername
+        ' - [IN] ByRef BPlayerNo As Byte: definites the player number
+        ' - :
+        '0 = successfull
+        '1 = player index out of range
+        '2 = no player is definied
+
+        'check if Players() was redimed
+        If Not isDim(Players) Then
+            Return 2
+        End If
+
+        'check for valid player index
+        If BPlayerNo > UBound(Players) - LBound(Players) Then
+            Return 1
+        End If
+        Players(BPlayerNo).setPlayerName(txtField.Text)
+    End Function
+
+    Public Function getPlayername(ByRef BPlayerNo As Byte, ByRef lblField As Label) As Integer
+        'Public getPlayername As Boolean
+        'gets the playername
+        ' - [IN] ByRef BPlayerNo As Byte: definites the player number
+        ' - :
+        '0 = successfull
+        '1 = player index out of range
+        '2 = no player is definied
+
+        'check if Players() was redimed
+        If Not isDim(Players) Then
+            Return 2
+        End If
+
+        'check for valid player index
+        If BPlayerNo > UBound(Players) - LBound(Players) Then
+            Return 1
+        End If
+        lblField.Text = Players(BPlayerNo).Name
+    End Function
+
     Public Function movePlayer(ByRef i As Byte, ByRef direction As Byte) As Boolean
         If checkMove(Players(i).getLocation, direction) Then
             movePlayer = Players(i).Move(direction)
@@ -117,7 +159,7 @@ fEnd:
             movePlayer = False
         End If
     End Function
-	
+
     Public Function saveWall(ByRef Br As clsBrick, ByRef Player As Byte) As Short
         'returnvalues
         '0 = ok
@@ -160,7 +202,7 @@ fEnd:
         Players(Player).subtractStone()
         Return 0
     End Function
-	
+
     '    Function getPlayerColor(ByRef i As Byte) As Integer
     Public Function getPlayerColor(ByRef i As Byte) As System.Drawing.Color
         Select Case i

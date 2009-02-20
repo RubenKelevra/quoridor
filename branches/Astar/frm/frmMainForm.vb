@@ -187,11 +187,13 @@ doNext:
         If changed Then
             If Not tTempBrick.Placed Then
                 If Playground.NextTurn Then
+                    lblPlayerName.Text=Playground.getNameOfPlayer(
                     'repaint form after change to next player
-                    'Call frmMainForm_Paint(Me, New System.Windows.Forms.PaintEventArgs(Nothing, Nothing))
                     Call paintForm()
                     'next move
                     Playground.doPlayerMove()
+                Else
+                    'fixme:do error handling
                 End If
             End If
             'repaint after AI/network move OR after change to next player
@@ -775,5 +777,4 @@ doNext:
         PfBricksize.X = PfBricksize.X * (1 + 1 / BBoardDimension)
         PfBricksize.Y = PfBricksize.Y * (1 + 1 / BBoardDimension)
     End Sub
-
 End Class
