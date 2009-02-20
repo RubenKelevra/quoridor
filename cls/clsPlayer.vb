@@ -21,7 +21,7 @@ Friend Class clsPlayer
 	' with this program; if not, see <http://www.gnu.org/licenses/>.
 	
     Private Location As Position
-	Private Name As String
+    Private Name As String
 	Private Playtime As Integer 'per round
 	Private GlobalPlaytime As Integer 'per round playtime added at the end of a round
 	Private RemainingStones As Byte

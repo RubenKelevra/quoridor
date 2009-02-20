@@ -28,7 +28,7 @@ Friend Class clsAI
     Private mBrickMatrix(,,) As Byte
     Private mBNoOfMatrices As Byte
     Private tempBrickRating(3, 3) As Byte 'used in move
-    Private BNodeLocationCache(,) As UShort
+    Private usNodeLocationCache(,) As UShort 'save idexes of nodes in a array which represents the structure of the board
 
     Enum Rating
         'rating for fields around a brick
@@ -59,9 +59,6 @@ Friend Class clsAI
     Private B1 As Byte
     Private B2 As Byte
 
-    Private BlockedVerticalBricks(,) As Boolean 'true is blocked
-    Private BlockedHorizontalBricks(,) As Boolean 'true if blocked
-
     Private Sub resetTempBrickRating()
         'Private resetTempBrickRating
         'resets the brick-blocking-position-cache
@@ -72,12 +69,21 @@ Friend Class clsAI
         Next B
     End Sub
 
-    Private Function astar(ByRef pStartPositionX As Byte, ByRef pStartPositionY As Byte, ByVal bBrickTestRun As Boolean) As Integer
-
+    Private Function astar(ByVal BPlayerNo As Byte, ByVal bBrickTestRun As Boolean) As Integer
+        Static indexOfNodes As Byte
         'If PlayerNo >= mBNoOfMatrices And mbFullPlayer Then 'there are invalid runparametres
         '    Return 2 'FIXME: There should be a general errorcode
         'End If
+        If Not bBrickTestRun Then
+            indexOfNodes = BPlayerNo
+        Else
+            indexOfNodes = 0
+        End If
 
+        With mNodeList(indexOfNodes)
+            .init()
+
+        End With
 
     End Function
 
@@ -90,33 +96,22 @@ Friend Class clsAI
         'update intern brick information if some bricks were setted
         updateBrickInformation()
 
-        ' --- we need to ran astar to get the best way to target ---
-
-
-        ' --- now we have to check all free brick positions ---
-
-        'setting a list of used bricks to an boolean array for faster skipping
-        B = mBoard.getDimension - 1
+        'init space for locationcache, clean it
+        B = mBoard.getDimension
         If Not B = BlastDimension Then
-            ReDim BlockedHorizontalBricks(B, B)
-            ReDim BlockedVerticalBricks(B - 1, B - 1)
-
+            ReDim usNodeLocationCache(B, B)
             BlastDimension = B
+        Else
+            For B = 0 To BlastDimension
+                For B1 = 0 To BlastDimension
+                    usNodeLocationCache(B, B1) = UShort.MaxValue
+                Next B1
+            Next B
         End If
 
-        For B = LBound(mBoard.Blocker) To UBound(mBoard.Blocker) - LBound(mBoard.Blocker)
-            With mBoard.Blocker(B)
-                If Not .Placed Then 'end reached
-                    Exit For
-                Else
-                    If .Horizontal Then
-                        BlockedHorizontalBricks(.Position.X, .Position.Y) = True
-                    Else
-                        BlockedVerticalBricks(.Position.X, .Position.Y) = True
-                    End If
-                End If
-            End With
-        Next B
+        ' --- we need to ran astar to get the best way to target for all players ---
+
+
 
         'running thru all fields of board - ignoring the fields with a true in BlockedPositions
         For B = 0 To mBoard.getDimension - 1 'X
