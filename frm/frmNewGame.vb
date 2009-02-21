@@ -20,22 +20,23 @@ Public Class frmNewGame
     ' You should have received a copy of the GNU General Public License along
     ' with this program; if not, see <http://www.gnu.org/licenses/>.
 
-    Private Sub cmdCancel_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles cmdCancel.Click
+    Private sName() As String = {"Klaus (AI)", "Sebastian (AI)", "Dennis (AI)", "Ruben (AI)"}
 
+    Private Sub cmdCancel_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles cmdCancel.Click
         ' cancel new game
         frmMainForm.setRunGame(False)
 
         Call Me.Close()
-
     End Sub
 
     Private Sub cmdStart_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles cmdStart.Click
 
         ' dec
-        Dim bAIPlayers() As Boolean
-        Dim i As Byte
-        Dim BNumOfPlayers As Byte
+        Static bAIPlayers() As Boolean
+        Static B As Byte
+        Static BNumOfPlayers As Byte
         Dim sPlayerNames() As String
+
 
         ' set number of players
         If Me.optNumOfPlayers(0).Checked Then
@@ -52,15 +53,15 @@ Public Class frmNewGame
         ReDim sPlayerNames(BNumOfPlayers)
 
         ' set AI players
-        For i = CByte(Me.chkAIPlayers.LBound) To BNumOfPlayers
-            bAIPlayers(i) = Me.chkAIPlayers(i).Checked
-        Next i
+        For B = CByte(Me.chkAIPlayers.LBound) To BNumOfPlayers
+            bAIPlayers(B) = Me.chkAIPlayers(B).Checked
+        Next B
         Call frmMainForm.setPlayers(bAIPlayers)
 
         ' set player names
-        For i = CByte(Me.txtPlayerNames.LBound) To BNumOfPlayers
-            sPlayerNames(i) = Me.txtPlayerNames(i).Text
-        Next
+        For B = CByte(Me.txtPlayerNames.LBound) To BNumOfPlayers
+            sPlayerNames(B) = Me.txtPlayerNames(B).Text
+        Next B
         Call frmMainForm.setPlayerNames(sPlayerNames)
 
         ' set board dimension (x=y)
@@ -99,13 +100,6 @@ Public Class frmNewGame
 
         ' dec
         Dim i As Short
-        Dim sName(3) As String
-
-        ' init
-        sName(0) = "Martin (AI)"
-        sName(1) = "Dennis (AI)"
-        sName(2) = "Ruben (AI)"
-        sName(3) = "Sebastian (AI)"
 
         ' disable / enable setting player names (and 
         For i = Me.chkAIPlayers.LBound To Me.chkAIPlayers.UBound

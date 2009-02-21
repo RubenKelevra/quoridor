@@ -149,12 +149,20 @@ fEnd:
         If BPlayerNo > UBound(Players) - LBound(Players) Then
             Return 1
         End If
-        lblField.Text = Players(BPlayerNo).Name
+        lblField.Text = Players(BPlayerNo).getPlayerName
     End Function
 
     Public Function movePlayer(ByRef i As Byte, ByRef direction As Byte) As Boolean
+        Static B As Byte
         If checkMove(Players(i).getLocation, direction) Then
             movePlayer = Players(i).Move(direction)
+            For B = 0 To UBound(Players) - LBound(Players)
+                If Not B = i Then
+                    If comparePos(Players(i).getLocation, Players(B).getLocation) Then
+                        Call Err.Raise(vbObjectError, "clsBoard.movePlayer", "Player-position already used")
+                    End If
+                End If
+            Next B
         Else
             movePlayer = False
         End If
