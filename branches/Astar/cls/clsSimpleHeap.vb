@@ -1,4 +1,4 @@
-Option Strict On
+Option Strict Off
 Option Explicit On
 Imports VB = Microsoft.VisualBasic
 
@@ -25,20 +25,27 @@ Friend Class clsSimpleHeap
 	' with this program; if not, see <http://www.gnu.org/licenses/>.
 	
     Public Structure AstarData
+        'for faster search for min value we use a tree structure
+        Dim usNextMinF_ValueIndex As UShort
+
+        'if node is on close list
         Dim bClosed As Boolean
         'costs which we think that we need to reach target (normally the minimal length)
         Dim usHeuristic As UShort
         'costs to get to thiss position
         Dim uiCosts As UInteger
         'parent-field index from list
-        Dim uiParentFieldI As UInteger
+        Dim usParentFieldI As UShort
         'position
         Dim B_X As Byte
         Dim B_Y As Byte
     End Structure
 
 	' our heap of dataentries
-    Public Heap() As AstarData
+    Private Heap() As AstarData
+    Public ReadOnly Nodes() As AstarData = Heap
+    ' smallest value is saved on this position
+    Private usMinF_ValueIndex As UShort
 
     ' the steps we increase our Heap()
     Private iAllocationStep As Integer
@@ -55,6 +62,7 @@ Friend Class clsSimpleHeap
     Private B2 As Byte
 
     Public Function FindNode(ByVal x As Byte, ByVal y As Byte) As Integer
+        'very slow, use cache instead
         For i = 0 To iFirstEmptyIndex - 1
             If Heap(i).B_X = x Then
                 If Heap(i).B_Y = y Then
@@ -69,7 +77,7 @@ Friend Class clsSimpleHeap
         Return Heap(id).bClosed
     End Function
 
-    Public Function OpenNodeRemaning() As Boolean
+    Public Function OpenNodesRemaning() As Boolean
         If iRemainingOpenElements = 0 Then
             Return False
         Else
@@ -95,9 +103,13 @@ Friend Class clsSimpleHeap
             End If
         End If
 
-        ReDim Heap(iMinListSize)
         iFirstEmptyIndex = 0
         iRemainingOpenElements = 0
+
+
+        If Not UBound(Heap) - LBound(Heap) = iMinListSize Then
+            ReDim Heap(iMinListSize)
+        End If
     End Sub
 
     Public Function getMin() As Integer
@@ -162,7 +174,7 @@ Friend Class clsSimpleHeap
             .bClosed = False
             .usHeuristic = Heuristic
             .uiCosts = Costs
-            .uiParentFieldI = ParentFieldIndex
+            .usParentFieldI = ParentFieldIndex
         End With
 
         iRemainingOpenElements += 1

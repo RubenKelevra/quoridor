@@ -71,6 +71,7 @@ Friend Class clsAI
 
     Private Function astar(ByVal BPlayerNo As Byte, ByVal bBrickTestRun As Boolean) As Integer
         Static indexOfNodes As Byte
+        Static pPlayerLocation As Position
         'If PlayerNo >= mBNoOfMatrices And mbFullPlayer Then 'there are invalid runparametres
         '    Return 2 'FIXME: There should be a general errorcode
         'End If
@@ -82,7 +83,11 @@ Friend Class clsAI
 
         With mNodeList(indexOfNodes)
             .init()
+            'get startpoint
+            pPlayerLocation = mBoard.getPlayerLocation(BPlayerNo)
+            'add startpoint
 
+            .addOpen(pPlayerLocation.X, pPlayerLocation.Y, 0, 0, 0)
         End With
 
     End Function

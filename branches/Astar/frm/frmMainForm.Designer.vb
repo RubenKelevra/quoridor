@@ -329,7 +329,6 @@
         Me.lblPlayerName.Name = "lblPlayerName"
         Me.lblPlayerName.Size = New System.Drawing.Size(94, 25)
         Me.lblPlayerName.TabIndex = 16
-        Me.lblPlayerName.Text = "Blindtext"
         '
         'lblBricksLeftNumber
         '

@@ -46,11 +46,8 @@ Friend Class frmMainForm
     End Sub
 
     Public Sub setRunGame(ByVal b As Boolean)
-
         bRunGame = b
-
     End Sub
-
     Public Function getNumOfPlayers() As Boolean
 
         getNumOfPlayers = BNumOfPlayers
@@ -92,9 +89,7 @@ Friend Class frmMainForm
         ReDim sPlayerNames(B)
 
     End Sub
-
     Private Sub cmdCancelBrick_Click(ByVal eventSender As System.Object, ByVal eventArgs As System.EventArgs) Handles cmdCancelBrick.Click
-
         ' reset bricks
         Call resetBrickMode()
 
@@ -103,7 +98,6 @@ Friend Class frmMainForm
 
         ' repaint form
         Call paintForm()
-
     End Sub
 
     Private Sub cmdCancelBrick_MouseUp(ByVal eventSender As System.Object, ByVal eventArgs As System.Windows.Forms.MouseEventArgs) Handles cmdCancelBrick.MouseUp
@@ -187,7 +181,6 @@ doNext:
         If changed Then
             If Not tTempBrick.Placed Then
                 If Playground.NextTurn Then
-                    lblPlayerName.Text=Playground.getNameOfPlayer(
                     'repaint form after change to next player
                     Call paintForm()
                     'next move
@@ -329,9 +322,7 @@ doNext:
         ' open setting window for new games
         Call frmNewGame.ShowDialog()
         If Not bRunGame Then
-
             Exit Sub
-
         End If
 
         ' init board
@@ -744,6 +735,9 @@ doNext:
 
         If bGameEnabled Then
 
+            'set Playername
+            lblPlayerName.Text = Playground.getNameOfPlayer(Playground.getActivePlayer)
+
             Call setCurFigureColor()
             Call setBricksLeft()
             Call deactMoveButtons()
@@ -752,6 +746,9 @@ doNext:
             Call drawBoard()
             Call drawBricks()
 
+        Else
+            'clear playername
+            lblPlayerName.Text = ""
         End If
 
     End Sub
