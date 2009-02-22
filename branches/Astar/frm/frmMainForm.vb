@@ -35,7 +35,6 @@ Friend Class frmMainForm
     Private BNumOfPlayers As Byte
     Private BDirection As Byte
     Private tTempBrick As clsBrick
-    'Private GBoard As Graphics
     Private PiStartCoords As Point
     Private PfFieldsize As PointF
     Private PfBricksize As PointF
