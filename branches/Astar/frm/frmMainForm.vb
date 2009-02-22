@@ -118,7 +118,6 @@ Friend Class frmMainForm
         ' dec
         Static bGotError As Boolean
         Dim changed As Boolean
-        Dim BDirection As Byte
         changed = False
         bGotError = False
         'If bGotError Then
