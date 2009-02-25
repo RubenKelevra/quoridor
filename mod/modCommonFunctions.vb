@@ -1,4 +1,4 @@
-Option Strict Off 'FIXME: can't be switched on cause of a bug in isDim()
+Option Strict On
 Option Explicit On
 Imports VB = Microsoft.VisualBasic
 Module modCommonFunctions
@@ -28,16 +28,16 @@ Module modCommonFunctions
 
     Function betrag(ByRef input As Short) As Byte
         If input < 0 Then
-            input *= -1
-            Return input
+            Return CByte(input * -1)
         End If
+        Return CByte(input)
     End Function
 
     Function betrag(ByRef input As Integer) As Integer
         If input < 0 Then
-            input *= -1
-            Return input
+            Return input * -1
         End If
+        Return input
     End Function
 
     Function checkPos(ByRef newX As Short, ByRef newY As Short, ByRef maxXY As Byte) As Boolean
@@ -46,17 +46,6 @@ Module modCommonFunctions
         Else
             checkPos = True
         End If
-    End Function
-
-    Public Function isDim(ByRef Arr As Object) As Boolean
-        On Error GoTo isdim_error
-        If LBound(Arr) <> -1 Then
-            Return True
-        End If
-isdim_error:
-        On Error GoTo 0
-        Return False
-
     End Function
 
     Function getNextPlayer(ByVal activePlayer As Byte, ByVal PlayerNo As Byte) As Byte
@@ -69,21 +58,17 @@ isdim_error:
 
     Function xy2position(ByVal x As Byte, ByVal y As Byte) As Position
         'convert two values to position-type, saves usualy one line
-        Dim tmp As Position
-        tmp = New Position
-
-        tmp.X = x
-        tmp.Y = y
-
-        xy2position = tmp
+        xy2position.X = x
+        xy2position.Y = y
     End Function
 
     Function comparePos(ByRef pos1 As Position, ByRef pos2 As Position) As Boolean
-        If (pos1.X = pos2.X And pos1.Y = pos2.Y) Then
-            comparePos = True
-        Else
-            comparePos = False
+        If pos1.X = pos2.X Then
+            If pos1.Y = pos2.Y Then
+                Return True
+            End If
         End If
+        Return False
     End Function
 
     Function shift2dir(ByRef Xshift As Short, ByRef Yshift As Short) As Byte
@@ -115,6 +100,8 @@ isdim_error:
             dirXshift = 255
         End If
     End Function
+
+
 
     Function Player2Target(ByRef i As Byte, ByRef NoOfPlayer As Byte) As Byte
         If NoOfPlayer = 3 Then

@@ -35,11 +35,6 @@ Friend Class clsPlayer
 		getBricks = RemainingStones
 	End Function
 
-    'FIXME: was written for old ki implementation, maybe usefull for network handler
-    'Function getMove() As clsMove
-    '    getMove = AI.genMove
-    'End Function
-
     Function startAI(ByRef Bricks() As clsBrick, ByRef PlayerPos() As Point, ByRef PlayerIndex As Byte, ByRef Dimensions As Byte) As Byte
         '0 = ok
         '1 = is already under AI control

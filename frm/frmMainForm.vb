@@ -112,85 +112,62 @@ Friend Class frmMainForm
     End Sub
 
     Private Sub cmdMove_Click(ByVal eventSender As System.Object, ByVal eventArgs As System.EventArgs) Handles cmdMove.Click
-        Dim Index As Short = cmdMove.GetIndex(eventSender)
+        'FIXE: this function is slow (0,2 secs on 800MHz), and with subroutines this is the main problem (0,8 secs on 800MHz)
+
+        Static Index As Byte
+
+        If Playground Is Nothing Then
+            Exit Sub
+        End If
+
+        Index = CByte(cmdMove.GetIndex(eventSender))
 
         ' dec
         Static bGotError As Boolean
-        Dim changed As Boolean
+        Static changed As Boolean
         changed = False
         bGotError = False
-        'If bGotError Then
-        '    'cmdMove_Click(New System.Object, New System.EventArgs)
-        '    changed = Playground.movePlayer(Playground.getActivePlayer(), CByte(Index))
-        'End If
 
         If Not tTempBrick.Placed Then 'move figure
-
-            On Error GoTo jump
-            changed = Playground.movePlayer(Playground.getActivePlayer, CByte(Index))
-            GoTo doNext
-
-jump:
-            On Error GoTo 0
-            Call frmJump.ShowDialog(Me)
-            changed = Playground.movePlayer(Playground.getActivePlayer, BDirection)
-
-doNext:
-
+            Try
+                changed = Playground.movePlayer(Playground.getActivePlayer, CByte(Index))
+            Catch
+                Call frmJump.ShowDialog(Me)
+                changed = Playground.movePlayer(Playground.getActivePlayer, BDirection)
+            End Try
         Else
-
             Select Case Index
-
-                ' move down
-                Case 0
+                Case 0 'to bottom
                     If tTempBrick.Position.Y < Playground.getDimension - 1 Then
                         tTempBrick.Position.Y = tTempBrick.Position.Y + 1
                         changed = True
                     End If
-
-                    ' move right
-                Case 1
+                Case 1 'to right
                     If tTempBrick.Position.X < Playground.getDimension - 1 Then
                         tTempBrick.Position.X = tTempBrick.Position.X + 1
                         changed = True
                     End If
-
-                    ' move up
-                Case 2
+                Case 2 'to top
                     If tTempBrick.Position.Y > 0 Then
                         tTempBrick.Position.Y = tTempBrick.Position.Y - 1
                         changed = True
                     End If
-
-                    ' move left
-                Case 3
+                Case 3 'to left
                     If tTempBrick.Position.X > 0 Then
                         tTempBrick.Position.X = tTempBrick.Position.X - 1
                         changed = True
                     End If
-
             End Select
-
         End If
-
         ' set focus to picFocus for keyboard control
         Call Me.Focus()
 
         If changed Then
             If Not tTempBrick.Placed Then
-                If Playground.NextTurn Then
-                    'repaint form after change to next player
-                    Call paintForm()
-                    'next move
-                    Playground.doPlayerMove()
-                Else
-                    'fixme:do error handling
-                End If
+                Playground.NextTurn()
             End If
             'repaint after AI/network move OR after change to next player
-            'Call frmMainForm_Paint(Me, New System.Windows.Forms.PaintEventArgs(Nothing, Nothing))
             Call paintForm()
-
         End If
 
     End Sub
@@ -236,8 +213,11 @@ doNext:
     End Sub
 
     Private Sub cmdSetBrick_Click(ByVal eventSender As System.Object, ByVal eventArgs As System.EventArgs) Handles cmdSetBrick.Click
-        Dim bStoneSaved As Boolean
+        Static bStoneSaved As Boolean
         bStoneSaved = False
+        If Playground Is Nothing Then
+            Exit Sub
+        End If
         If Playground.getRemainingPlayerBricks(Playground.getActivePlayer) <= 0 Then
             Exit Sub
         End If
@@ -255,7 +235,7 @@ doNext:
 
                 Case 2
                     ' just exit the sub without popping up a msg window
-                    ' MsgBox "On this position you can't place a stone.", vbOKOnly, "Stone Not Placeable"
+                    MsgBox("On this position you can't place a stone.", vbOKOnly, "Stone Not Placeable")
                     Exit Sub
 
                 Case 3
@@ -282,12 +262,7 @@ doNext:
         Call Me.Focus()
 
         If bStoneSaved Then
-            If Playground.NextTurn Then
-                'repaint form after stone is placed
-                Call paintForm()
-                'next move
-                Playground.doPlayerMove()
-            End If
+            Playground.NextTurn()
         End If
 
         'repaint after AI/network move or draw stone after change to set stone mode
@@ -457,13 +432,9 @@ doNext:
 
     Private Sub deactSetBrick()
         ' deactivate placing button
-
         If tTempBrick.Placed Then
-
             cmdSetBrick.Enabled = Playground.checkPlaceWall(tTempBrick.Position.X, tTempBrick.Position.Y, (tTempBrick.Horizontal))
-
         End If
-
     End Sub
 
     Private Sub setCurFigureColor()
@@ -554,6 +525,7 @@ doNext:
     End Sub
 
     Private Sub drawBoard()
+        'FIXME: this function seems to be very slow
         'Private drawBoard
         'draws board
 
@@ -614,6 +586,8 @@ doNext:
     End Sub
 
     Public Sub drawBricks()
+        'FIXME: this function is horrible slow !!!
+
         ' draws the bricks between the board
 
         Static BDimension As Byte
