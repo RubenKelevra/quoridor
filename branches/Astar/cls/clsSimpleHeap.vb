@@ -23,23 +23,6 @@ Friend Class clsSimpleHeap
 	'
 	' You should have received a copy of the GNU General Public License along
 	' with this program; if not, see <http://www.gnu.org/licenses/>.
-	
-    Public Structure AstarData
-        'for faster search for min value we use a tree structure
-        Dim usNextMinF_ValueIndex As UShort
-
-        'if node is on close list
-        Dim bClosed As Boolean
-        'costs which we think that we need to reach target (normally the minimal length)
-        Dim usHeuristic As UShort
-        'costs to get to thiss position
-        Dim uiCosts As UInteger
-        'parent-field index from list
-        Dim usParentFieldI As UShort
-        'position
-        Dim B_X As Byte
-        Dim B_Y As Byte
-    End Structure
 
 	' our heap of dataentries
     Private mHeap() As AstarData
@@ -86,10 +69,6 @@ Friend Class clsSimpleHeap
         Return -1
     End Function
 
-    Public Function isClosed(ByVal id As Integer) As Boolean
-        Return mHeap(id).bClosed
-    End Function
-
     Public Function OpenNodesRemaning() As Boolean
         If musRemainingOpenElements = 0 Then
             Return False
@@ -119,31 +98,26 @@ Friend Class clsSimpleHeap
         musFirstEmptyIndex = 0
         musRemainingOpenElements = 0
 
-
         If Not UBound(mHeap) - LBound(mHeap) = musMinListSize Then
             ReDim mHeap(musMinListSize)
         End If
     End Sub
 
-    Public Function getMin() As Integer
-        Static minCosts As Integer
-        Static index As Integer
+    Public Function getMin() As UShort
+        Static minF_Score As UInteger
 
-        minCosts = Integer.MaxValue
-        index = Integer.MaxValue
+        minF_Score = UInteger.MaxValue
+        getMin = UShort.MaxValue
 
         For mi = 0 To musFirstEmptyIndex - 1
             With mHeap(mi)
                 If Not .bClosed Then
-                    If .uiCosts < minCosts Then
-                        index = mi
+                    If .usF_Score < minF_Score Then
+                        getMin = mi
                     End If
                 End If
             End With
         Next mi
-        If Not index = UInteger.MaxValue Then
-            Return index
-        End If
     End Function
 
     Public Function setClosed(ByVal id As Integer) As Boolean
@@ -157,7 +131,7 @@ Friend Class clsSimpleHeap
     End Function
 
     Public Function addOpen(ByVal X As Byte, ByVal Y As Byte, ByVal ParentFieldIndex As UInteger, _
-                            ByVal Costs As UInteger, ByVal Heuristic As UShort) As Boolean
+                            ByVal Costs As UInteger, ByVal F_Value As UInteger, ByVal Heuristic As UShort) As UShort
 
         ' --- memory allocation ---
 
@@ -170,7 +144,7 @@ Friend Class clsSimpleHeap
                     ReDim Preserve mHeap(64515)
                 Else 'if this is already set we going to raise an error 
                     Call Err.Raise(vbObjectError, "GC::Alloc", "Heap overflow")
-                    Return False
+                    Return UShort.MaxValue
                 End If
             Else
                 ReDim Preserve mHeap(musFirstEmptyIndex - 1 + musAllocationStep)
@@ -179,20 +153,21 @@ Friend Class clsSimpleHeap
 
         ' --- add value to array ---
 
-        musFirstEmptyIndex = musFirstEmptyIndex + 1
+        musFirstEmptyIndex += 1
 
-        With mHeap(musFirstEmptyIndex - 1)
+        With mHeap(musFirstEmptyIndex - 1) 'added +1 before
             .B_X = X
             .B_Y = Y
             .bClosed = False
             .usHeuristic = Heuristic
             .uiCosts = Costs
             .usParentFieldI = ParentFieldIndex
+            .usF_Score = F_Value
         End With
 
         musRemainingOpenElements += 1
 
-        Return True
+        Return musFirstEmptyIndex - 1
     End Function
 
     Public Sub New()
