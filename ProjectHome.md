@@ -1,0 +1,1 @@
+Quoridor is a round-based 2 or 4 player game, in the later development a AI will be implemented.
